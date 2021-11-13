@@ -6,26 +6,24 @@ using System.Threading.Tasks;
 
 namespace CircuitLib.Primitives;
 
-public class NotGate : Node
+public class Output : Node
 {
-    public NotGate()
+    public Output()
     {
-        Name = "NOT";
-
+        Name = "OUT";
+        
         InputPins = new[] {
             new InputPin(this,-2,+0),
         };
 
-        OutputPins = new[] {
-            new OutputPin(this,+2,+0),
-        };
+        OutputPins = new OutputPin[0];
 
         SetSize(2);
     }
 
     public override void Update()
     {
-        OutputPins[0].Active = !InputPins[0].Active;
+        Active = InputPins[0].Active;
     }
 }
 

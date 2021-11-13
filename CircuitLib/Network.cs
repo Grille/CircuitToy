@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace CircuitLib;
 
-public class Network
+public class Network : World
 {
+    public Circuit Owner;
+
     public List<InputPin> InputPins = new List<InputPin>();
     public List<OutputPin> OutputPins = new List<OutputPin>();
 
@@ -27,6 +30,12 @@ public class Network
     {
         if (!InputPins.Contains(entryPoint))
             InputPins.Add(entryPoint);
+            entryPoint.Network = this;
+    }
+
+    public override float DistanceTo(PointF pos)
+    {
+        return 0;
     }
 
     public void Update()

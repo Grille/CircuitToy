@@ -6,26 +6,24 @@ using System.Threading.Tasks;
 
 namespace CircuitLib.Primitives;
 
-public class NotGate : Node
+public class Input : Node
 {
-    public NotGate()
+    public Input()
     {
-        Name = "NOT";
+        Name = "IN";
 
-        InputPins = new[] {
-            new InputPin(this,-2,+0),
-        };
+        InputPins = new InputPin[0];
 
         OutputPins = new[] {
             new OutputPin(this,+2,+0),
         };
 
-        SetSize(2);
+        Size = new System.Drawing.SizeF(3, 1);
     }
 
     public override void Update()
     {
-        OutputPins[0].Active = !InputPins[0].Active;
+        OutputPins[0].Active = Active;
     }
 }
 

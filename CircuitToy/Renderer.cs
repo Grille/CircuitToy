@@ -13,29 +13,108 @@ internal class Renderer
 {
     Camera camera;
     Control target;
+    Circuit circuit;
     Graphics? g;
-    public Renderer(Control target, Camera camera)
+    Timer timer;
+
+    public Renderer(Control target, Circuit circuit, Camera camera)
     {
         this.target = target;
+        this.circuit = circuit;
         this.camera = camera;
+
+        target.Paint += Target_Paint;
+        timer = new Timer();
+        timer.Tick += Timer_Tick; ; 
+        timer.Interval = 1000 / 70;
     }
 
-    public void Render(Graphics g, Circuit circuit)
+    private void Timer_Tick(object? sender, EventArgs e)
+    {
+        target.Refresh();
+    }
+
+    private void Target_Paint(object? sender, PaintEventArgs e)
+    {
+        Render(e.Graphics);
+    }
+
+    public void Start()
+    {
+        timer.Start();
+    }
+
+    public void Stop()
+    {
+        timer.Stop();
+    }
+
+    public void Render(Graphics g)
     {
         camera.ScreenSize = target.ClientSize;
         this.g = g;
         g.Clear(Color.White);
         drawGrid();
 
-        foreach (var node in circuit.Nodes)
+        foreach (var net in circuit.Connections)
         {
-            var rect = new RectangleF(node.Position.X-1.5f, node.Position.Y-1.5f, 3, 3);
-            DrawRectangle(new Pen(Brushes.Black, 0.1f), rect);
-            drawString(node.Name, new Font("consolas", 0.5f), Brushes.Black, rect);
+            drawNet(net);
         }
 
+        foreach (var node in circuit.Nodes)
+        {
+            drawNode(node);
+        }
 
         g.Flush();
+    }
+
+    void drawNode(Node node)
+    {
+
+        foreach (var pin in node.InputPins)
+        {
+            var pos = pin.Position;
+            drawLine(new Pen(Brushes.Black,0.1f),pos,node.Position);
+            if (pin.Active)
+                fillCircle(Brushes.Blue, pos, 0.25f);
+            else
+                fillCircle(Brushes.Black, pos, 0.25f);
+
+        }
+
+        foreach (var pin in node.OutputPins)
+        {
+            var pos = pin.Position;
+            drawLine(new Pen(Brushes.Black, 0.1f), pos, node.Position);
+            if (pin.Active)
+                fillCircle(Brushes.Blue, pos, 0.25f);
+            else
+                fillCircle(Brushes.Black, pos, 0.25f);
+
+        }
+
+        float width = node.Size.Width;
+        float height = node.Size.Height;
+        var rect = new RectangleF(node.Position.X - width/2, node.Position.Y - height/2, width, height);
+        fillRectangle(Brushes.White, rect);
+        DrawRectangle(new Pen(Brushes.Black, 0.1f), rect);
+        drawString(node.Name, new Font("consolas", 0.6f), Brushes.Black, rect);
+    }
+
+    void drawNet(Network net)
+    {
+        foreach (var outPin in net.OutputPins)
+        {
+            foreach (var inPin in net.InputPins)
+            {
+                
+                if (inPin.Active)
+                    drawLine(new Pen(Brushes.Blue, 0.1f), inPin.Position, outPin.Position);
+                else
+                    drawLine(new Pen(Brushes.Black, 0.1f), inPin.Position, outPin.Position);
+            }
+        }
     }
 
     void drawGrid()
@@ -43,8 +122,15 @@ internal class Renderer
         drawGrid(1, Pens.WhiteSmoke);
         drawGrid(10, Pens.WhiteSmoke);
         drawGrid(100, Pens.WhiteSmoke);
-        drawCircle(PointF.Empty, 1, Pens.Red);
     }
+
+    void drawLine(Pen pen, PointF point1, PointF point2)
+    {
+        var npen = new Pen(pen.Color, pen.Width * camera.Scale);
+
+        g.DrawLine(npen, camera.WorldToScreenSpace(point1), camera.WorldToScreenSpace(point2));
+    }
+
     void drawGrid(float gridSize, Pen pen)
     {
         float scaledGridSize = gridSize * camera.Scale;
@@ -73,12 +159,22 @@ internal class Renderer
             g.DrawLine(pen, new(0, posY), new(clientSize.Width, posY));
         }
     }
-    void drawCircle(PointF pos,float radius, Pen pen)
+
+    void fillCircle(Brush brush, PointF pos, float radius)
     {
         var drawPos = camera.WorldToScreenSpace(pos);
         int scaledRadius = (int)(radius * camera.Scale);
 
-        g.DrawEllipse(pen, new((int)drawPos.X - scaledRadius, (int)drawPos.Y - scaledRadius, scaledRadius * 2, scaledRadius * 2));
+        g.FillEllipse(brush, new((int)drawPos.X - scaledRadius, (int)drawPos.Y - scaledRadius, scaledRadius * 2, scaledRadius * 2));
+    }
+    void drawCircle(Pen pen,PointF pos,float radius)
+    {
+        var npen = new Pen(pen.Color, pen.Width * camera.Scale);
+
+        var drawPos = camera.WorldToScreenSpace(pos);
+        int scaledRadius = (int)(radius * camera.Scale);
+
+        g.DrawEllipse(npen, new((int)drawPos.X - scaledRadius, (int)drawPos.Y - scaledRadius, scaledRadius * 2, scaledRadius * 2));
     }
 
     void DrawRectangle(Pen pen,RectangleF rect)
@@ -88,6 +184,14 @@ internal class Renderer
         float width = rect.Width * camera.Scale;
         float height = rect.Height * camera.Scale;
         g.DrawRectangle(npen, drawPos.X, drawPos.Y, width, height);
+    }
+
+    void fillRectangle(Brush brush, RectangleF rect)
+    {
+        var drawPos = camera.WorldToScreenSpace(rect.Location);
+        float width = rect.Width * camera.Scale;
+        float height = rect.Height * camera.Scale;
+        g.FillRectangle(brush, drawPos.X, drawPos.Y, width, height);
     }
 
     void drawString(string text, Font font, Brush brush, RectangleF rect)

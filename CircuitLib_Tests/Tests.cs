@@ -33,6 +33,9 @@ class Tests
         TestNode<NotGate>("0->1");
         TestNode<NotGate>("1->0");
 
+        TUtils.WriteTitle("TestCircuits...");
+        var circuit = new Circuit();
+
         TUtils.WriteResults();
     }
 
@@ -40,8 +43,9 @@ class Tests
     {
         TUtils.Write($"Cascade [Exit -> Net -> Entry] to ({expectet}): ");
         TUtils.Test(() => {
-            var exit = new OutputPin();
-            var entry = new InputPin();
+            var circuit = new Circuit();
+            var exit = new OutputPin(circuit);
+            var entry = new InputPin(circuit);
             var network = new Network();
 
             network.Connect(exit);
@@ -73,16 +77,10 @@ class Tests
     static void TestNode<T>(string inp) where T : Node, new()
     {
         var split = inp.Split("->");
+        var instr = split[0];
+        var outstr = split[1];
         var input = TUtils.StrToBoolArray(split[0]);
         var output = TUtils.StrToBoolArray(split[1]);
-
-        TestNode<T>(input, output);
-
-    }
-    static void TestNode<T>(bool[] input, bool[] output) where T : Node, new()
-    {
-        string instr = TUtils.BoolArrayToStr(input);
-        string outstr = TUtils.BoolArrayToStr(output);
 
         TUtils.Write($"Test {typeof(T).Name} [{instr}->{outstr}]: ");
         TUtils.Test(() => {
@@ -128,6 +126,11 @@ class Tests
             }
 
         });
+    }
+
+    static void TextCircuit(Circuit circuit,string inp)
+    {
+    
     }
 }
 

@@ -12,14 +12,16 @@ public class AndGate : Node
     {
         Name = "AND";
 
-        InputPins = new [] { 
-            new InputPin(), 
-            new InputPin(),
+        InputPins = new[] {
+            new InputPin(this,-2,-1),
+            new InputPin(this,-2,+1),
         };
 
         OutputPins = new[] {
-            new OutputPin(),
+            new OutputPin(this,+3,+0),
         };
+
+        SetSize(3);
     }
 
     public override void Update()

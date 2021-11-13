@@ -7,16 +7,13 @@ using System.Drawing;
 
 namespace CircuitLib;
 
-public class InputPin
+public class InputPin : Pin
 {
-    public Node Owner;
-
-    public string Name;
-    public string Description;
-    public Point Position;
+    public InputPin(Node owner) : base(owner) { }
+    public InputPin(Node owner, float x, float y) : base(owner, x, y) { }
 
     private bool _active;
-    public bool Active {
+    public override bool Active {
         get {
             return _active;
         }
@@ -24,7 +21,7 @@ public class InputPin
             if (_active != value)
             {
                 _active = value;
-                Owner?.Update();
+                Owner.Update();
             }
         }
     }

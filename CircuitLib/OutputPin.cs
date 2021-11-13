@@ -7,17 +7,17 @@ using System.Drawing;
 
 namespace CircuitLib;
 
-public class OutputPin
+public class OutputPin : Pin
 {
-    public Network Network;
 
-    public string Name;
-    public string Description;
-    public Point Position;
-    
+    public OutputPin(Node owner) : base(owner) { }
+    public OutputPin(Node owner, float x, float y) : base(owner, x, y) { }
+
     private bool _active;
-    public bool Active {
-        get { return _active; }
+    public override bool Active {
+        get {
+            return _active;
+        }
         set {
             if (_active != value)
             {
