@@ -59,6 +59,8 @@ internal class Simulation
     private void Target_MouseMove(object? sender, MouseEventArgs e)
     {
         Camera.MouseMoveEvent(e, e.Button.HasFlag(MouseButtons.Middle));
+        var pos = Camera.ScreenToWorldSpace(e.Location);
+        Circuit.HoverAt(pos);
     }
 
     private void Target_MouseDown(object? sender, MouseEventArgs e)
@@ -66,7 +68,8 @@ internal class Simulation
         if (e.Button == MouseButtons.Left)
         {
             var pos = Camera.ScreenToWorldSpace(e.Location);
-            Circuit.CreateNode<OrGate>(MathF.Round(pos.X), MathF.Round(pos.Y));
+            //Circuit.HoverAt(pos);
+            //Circuit.CreateNode<OrGate>(MathF.Round(pos.X), MathF.Round(pos.Y));
         }
     }
 }

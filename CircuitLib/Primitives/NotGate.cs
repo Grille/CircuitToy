@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Drawing;
 
 namespace CircuitLib.Primitives;
 
@@ -20,7 +21,7 @@ public class NotGate : Node
             new OutputPin(this,+2,+0),
         };
 
-        SetSize(2);
+        Size = new SizeF(2, 2);
     }
 
     public override void Update()

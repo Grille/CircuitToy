@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace CircuitLib;
 
-public class Network : World
+public class Network : WorldObj
 {
     public Circuit Owner;
 
@@ -17,25 +17,30 @@ public class Network : World
     public bool Active = false;
 
     //public static Network Ground = new Network();
-    public void Connect(OutputPin exitPoint)
+    public void Add(OutputPin pin)
     {
-        if (!OutputPins.Contains(exitPoint))
+        if (!OutputPins.Contains(pin))
         {
-            OutputPins.Add(exitPoint);
-            exitPoint.Network = this;
+            OutputPins.Add(pin);
+            pin.Network = this;
         }
     }
 
-    public void Connect(InputPin entryPoint)
+    public void Add(InputPin pin)
     {
-        if (!InputPins.Contains(entryPoint))
-            InputPins.Add(entryPoint);
-            entryPoint.Network = this;
+        if (!InputPins.Contains(pin))
+            InputPins.Add(pin);
+            pin.Network = this;
     }
 
-    public override float DistanceTo(PointF pos)
+    public void Remove(OutputPin pin)
     {
-        return 0;
+        OutputPins.Remove(pin);
+    }
+
+    public void Remove(InputPin pin)
+    {
+        InputPins.Remove(pin);
     }
 
     public void Update()
@@ -54,6 +59,11 @@ public class Network : World
         {
             InputPins[i].Active = Active;
         }
+    }
+
+    public override void CalcBoundings()
+    {
+        throw new NotImplementedException();
     }
 }
 

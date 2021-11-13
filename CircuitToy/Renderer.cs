@@ -17,6 +17,11 @@ internal class Renderer
     Graphics? g;
     Timer timer;
 
+    float viewBeginX = 0;
+    float viewBeginY = 0;
+    float viewEndX = 0;
+    float viewEndY = 0;
+
     public Renderer(Control target, Circuit circuit, Camera camera)
     {
         this.target = target;
@@ -52,6 +57,16 @@ internal class Renderer
     public void Render(Graphics g)
     {
         camera.ScreenSize = target.ClientSize;
+
+        var begin = camera.ScreenToWorldSpace(new PointF(0, 0));
+        var end = camera.ScreenToWorldSpace(new PointF(camera.ScreenSize.Width, camera.ScreenSize.Height));
+
+        viewBeginX = begin.X;
+        viewBeginY = begin.Y;
+        viewEndX = end.X;
+        viewEndY = end.Y;
+
+
         this.g = g;
         g.Clear(Color.White);
         drawGrid();
@@ -71,35 +86,33 @@ internal class Renderer
 
     void drawNode(Node node)
     {
-
-        foreach (var pin in node.InputPins)
-        {
-            var pos = pin.Position;
-            drawLine(new Pen(Brushes.Black,0.1f),pos,node.Position);
-            if (pin.Active)
-                fillCircle(Brushes.Blue, pos, 0.25f);
-            else
-                fillCircle(Brushes.Black, pos, 0.25f);
-
-        }
-
-        foreach (var pin in node.OutputPins)
-        {
-            var pos = pin.Position;
-            drawLine(new Pen(Brushes.Black, 0.1f), pos, node.Position);
-            if (pin.Active)
-                fillCircle(Brushes.Blue, pos, 0.25f);
-            else
-                fillCircle(Brushes.Black, pos, 0.25f);
-
-        }
+        drawPins(node.InputPins);
+        drawPins(node.OutputPins);
 
         float width = node.Size.Width;
         float height = node.Size.Height;
         var rect = new RectangleF(node.Position.X - width/2, node.Position.Y - height/2, width, height);
         fillRectangle(Brushes.White, rect);
+        if (node.Hover)
+            DrawRectangle(new Pen(Brushes.Lime, 0.2f), rect);
         DrawRectangle(new Pen(Brushes.Black, 0.1f), rect);
         drawString(node.Name, new Font("consolas", 0.6f), Brushes.Black, rect);
+    }
+
+    void drawPins(Pin[] pins)
+    {
+        foreach (var pin in pins)
+        {
+            var pos = pin.Position;
+            drawLine(new Pen(Brushes.Black, 0.1f), pos, pin.Owner.Position);
+            if (pin.Hover)
+                fillCircle(Brushes.Lime, pos, 0.35f);
+            if (pin.Active)
+                fillCircle(Brushes.Blue, pos, 0.25f);
+            else
+                fillCircle(Brushes.Black, pos, 0.25f);
+
+        }
     }
 
     void drawNet(Network net)

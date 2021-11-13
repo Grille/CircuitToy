@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
+using CircuitLib.Math;
 
 namespace CircuitLib;
 
-public abstract class Pin : World
+public abstract class Pin : WorldObj
 {
     public Node Owner;
     public Network Network;
@@ -44,12 +45,12 @@ public abstract class Pin : World
     public void UpdatePosition()
     {
         _pos = new PointF(Owner.Position.X + _rPos.X, Owner.Position.Y + _rPos.Y);
-        SetBoundings(_pos, 1);
+        Bounds = new BoundingBoxF(_pos, 0.35f);
     }
 
-    public override float DistanceTo(PointF pos)
+    public override void CalcBoundings()
     {
-        return 0;
+        throw new NotImplementedException();
     }
 }
 

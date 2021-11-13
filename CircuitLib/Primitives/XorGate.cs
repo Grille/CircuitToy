@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Drawing;
 
 namespace CircuitLib.Primitives;
 
@@ -21,7 +22,7 @@ public class XorGate : Node
             new OutputPin(this,+3,+0),
         };
 
-        SetSize(3);
+        Size = new SizeF(3, 3);
     }
 
     public override void Update()

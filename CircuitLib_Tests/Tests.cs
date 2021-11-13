@@ -48,8 +48,8 @@ class Tests
             var entry = new InputPin(circuit);
             var network = new Network();
 
-            network.Connect(exit);
-            network.Connect(entry);
+            network.Add(exit);
+            network.Add(entry);
 
             exit.Active = network.Active = entry.Active = !expectet;
 

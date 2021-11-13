@@ -4,10 +4,11 @@ using System.Linq;
 using System.Drawing;
 using System.Text;
 using System.Threading.Tasks;
+using CircuitLib.Math;
 
 namespace CircuitLib;
 
-public abstract class Node : World
+public abstract class Node : WorldObj
 {
     public Circuit Owner;
 
@@ -18,7 +19,17 @@ public abstract class Node : World
     public string Name = "";
     public string Description = "";
     public bool Active = false;
-    public SizeF Size = new SizeF(1, 1);
+
+    internal BoundingBoxF ChipBounds;
+
+    private SizeF _size;
+    public SizeF Size {
+        get { return _size; }
+        set { 
+            _size = value;
+            CalcBoundings();
+        }
+    }
 
     private PointF _pos;
     public PointF Position {
@@ -33,18 +44,8 @@ public abstract class Node : World
             {
                 pin.UpdatePosition();
             }
+            CalcBoundings();
         }
-    }
-
-    public void SetSize(float size)
-    {
-        Size = new SizeF(size, size);
-    }
-
-
-    public override float DistanceTo(PointF pos)
-    {
-        return 0;
     }
 
     public abstract void Update();
@@ -55,14 +56,63 @@ public abstract class Node : World
         if (target.InputPins[inId].Network == null)
         {
             net = Owner.CreateNet();
-            net.Connect(target.InputPins[inId]);
+            net.Add(target.InputPins[inId]);
         }
         else
         {
             net = target.InputPins[inId].Network;
         }
 
-        net.Connect(OutputPins[outId]);
+        net.Add(OutputPins[outId]);
+    }
+
+    public override void CalcBoundings()
+    {
+        var bounds = new BoundingBoxF(
+            _pos.X - _size.Width / 2 -0.1f,
+            _pos.X + _size.Width / 2 +0.1f,
+            _pos.Y - _size.Height / 2 -0.1f,
+            _pos.Y + _size.Height / 2 + 0.1f
+        );
+
+        ChipBounds = bounds;
+
+        foreach (var pin in InputPins)
+        {
+            bounds.ExtendWith(pin.Bounds);
+        }
+        foreach (var pin in OutputPins)
+        {
+            bounds.ExtendWith(pin.Bounds);
+        }
+
+        Bounds = bounds;
+    }
+
+    public override WorldObj GetAt(PointF pos)
+    {
+        if (Bounds.IsInside(pos))
+        {
+            foreach (var pin in OutputPins)
+            {
+                var pinref = pin.GetAt(pos);
+                if (pinref != null)
+                {
+                    return pinref;
+                }
+            }
+            foreach (var pin in InputPins)
+            {
+                var pinref = pin.GetAt(pos);
+                if (pinref != null)
+                {
+                    return pinref;
+                }
+            }
+            if (ChipBounds.IsInside(pos))
+                return this;
+        }
+        return null;
     }
 }
 

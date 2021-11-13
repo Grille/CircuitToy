@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Drawing;
 
 namespace CircuitLib.Primitives;
 
@@ -18,7 +19,7 @@ public class Input : Node
             new OutputPin(this,+2,+0),
         };
 
-        Size = new System.Drawing.SizeF(3, 1);
+        Size = new SizeF(2, 2);
     }
 
     public override void Update()

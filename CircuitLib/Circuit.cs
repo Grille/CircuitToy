@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+
 using CircuitLib.Primitives;
 
 namespace CircuitLib;
@@ -8,10 +10,17 @@ public class Circuit : Node
 {
     public List<Node> Nodes;
     public List<Network> Connections;
+
+    private List<WorldObj> Hoverd;
+    private List<WorldObj> Selected;
+
     public Circuit()
     {
         Nodes = new List<Node>();
         Connections = new List<Network>();
+
+        Hoverd = new List<WorldObj>();
+        Selected = new List<WorldObj>();
     }
 
     public void AddNode(Node node)
@@ -77,5 +86,41 @@ public class Circuit : Node
     public override void Update()
     {
         
+    }
+
+
+    public WorldObj HoverAt(PointF pos)
+    {
+        foreach (var hov in Hoverd)
+        {
+            hov.Hover = false;
+        }
+        Hoverd.Clear();
+
+        foreach (var node in Nodes)
+        {
+            var obj = node.GetAt(pos);
+            if (obj != null)
+            {
+                obj.Hover = true;
+                Hoverd.Add(obj);
+                return obj;
+            }
+        }
+        foreach (var net in Connections)
+        {
+            var obj = net.GetAt(pos);
+            if (obj != null)
+            {
+                obj.Hover = true;
+                Hoverd.Add(obj);
+                return obj;
+            }
+        }
+        return this;
+    }
+    public WorldObj SelectAt(PointF pos)
+    {
+        return this;
     }
 }
