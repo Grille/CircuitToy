@@ -17,12 +17,14 @@ internal class Renderer
     Control target;
     Circuit circuit;
     Selection selection;
-    Graphics? g;
+    Graphics g;
     Timer timer;
 
     BoundingBoxF view;
 
     public bool DebugMode = false;
+    public bool HighQuality = true;
+    public bool ViewGrid = true;
 
     public Renderer(Control target, Circuit circuit, Camera camera, Selection selection)
     {
@@ -37,12 +39,12 @@ internal class Renderer
         timer.Interval = 1000 / 70;
     }
 
-    private void Timer_Tick(object? sender, EventArgs e)
+    private void Timer_Tick(object sender, EventArgs e)
     {
         target.Refresh();
     }
 
-    private void Target_Paint(object? sender, PaintEventArgs e)
+    private void Target_Paint(object sender, PaintEventArgs e)
     {
         Render(e.Graphics);
     }
@@ -59,6 +61,8 @@ internal class Renderer
 
     public void Render(Graphics g)
     {
+        g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighSpeed;
+
         camera.ScreenSize = target.ClientSize;
 
         var begin = camera.ScreenToWorldSpace(new PointF(0, 0));
@@ -72,7 +76,21 @@ internal class Renderer
         this.g = g;
         g.Clear(Color.White);
 
-        drawGrid();
+        if (ViewGrid)
+        {
+            drawGrid();
+        }
+
+        if (HighQuality)
+        {
+            g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+        }
+        else
+        {
+            g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighSpeed;
+        }
 
         foreach (var net in circuit.Connections)
         {
@@ -187,9 +205,9 @@ internal class Renderer
             }
 
             if (pin.Active)
-                fillCircle(Brushes.Blue, pos, 0.25f);
+                fillCircle(Brushes.Blue, pos, 0.15f);
             else
-                fillCircle(Brushes.Black, pos, 0.25f);
+                fillCircle(Brushes.Black, pos, 0.15f);
 
         }
     }
@@ -219,15 +237,18 @@ internal class Renderer
 
     void drawWire(Wire wire)
     {
+        var point1 = camera.WorldToScreenSpace(wire.StartPin.Position);
+        var point2 = camera.WorldToScreenSpace(wire.EndPin.Position);
+
         if (wire.IsHovered)
-            drawLine(new Pen(Brushes.Lime, 0.2f), wire.StartPin.Position, wire.EndPin.Position);
+            g.DrawLine(new Pen(Brushes.Lime, 0.2f * camera.Scale), point1, point2);
         if (wire.IsSelected)
-            drawLine(new Pen(Brushes.LightSeaGreen, 0.2f), wire.StartPin.Position, wire.EndPin.Position);
+            g.DrawLine(new Pen(Brushes.LightSeaGreen, 0.2f * camera.Scale), point1, point2);
 
         if (wire.Active)
-            drawLine(new Pen(Brushes.Blue, 0.1f), wire.StartPin.Position, wire.EndPin.Position);
+            g.DrawLine(new Pen(Brushes.Blue, 0.1f * camera.Scale), point1, point2);
         else
-            drawLine(new Pen(Brushes.Black, 0.1f), wire.StartPin.Position, wire.EndPin.Position);
+            g.DrawLine(new Pen(Brushes.Black, 0.1f * camera.Scale), point1, point2);
 
         if (DebugMode)
             DrawRectangle(new Pen(Brushes.Magenta, 0.01f), (RectangleF)wire.Bounds);

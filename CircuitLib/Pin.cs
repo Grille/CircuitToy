@@ -44,7 +44,10 @@ public abstract class Pin : Entity
 
     public override void Destroy()
     {
-
+        for (int i = 0; i < ConnectedWires.Count; i++)
+        {
+            ConnectedWires[i].Destroy();
+        }
     }
 
     public void UpdatePosition()

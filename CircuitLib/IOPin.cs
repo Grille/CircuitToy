@@ -22,17 +22,23 @@ public abstract class IOPin : Pin
         }
     }
 
+    public Network ConnectedNetwork;
+
     public override void ConnectTo(Pin pin1)
     {
         throw new NotImplementedException();
     }
 
-    public Network ConnectedNetwork;
-
     public override void CalcBoundings()
     {
         base.CalcBoundings();
         ConnectedNetwork?.CalcBoundings();
+    }
+
+    public override void Destroy()
+    {
+        ConnectedNetwork?.Remove(this);
+        base.Destroy();
     }
 }
 

@@ -31,5 +31,11 @@ public class NetPin : Pin
     {
         throw new NotImplementedException();
     }
+
+    public override void Destroy()
+    {
+        Owner.Remove(this);
+        base.Destroy();
+    }
 }
 

@@ -21,7 +21,7 @@ internal class Simulation
     public Selection Selection;
     public EditorInterface Interaction;
 
-    public ContextMenuStrip? ContextMenu;
+    public ContextMenuStrip ContextMenu;
     public PointF MouseUpPos = Point.Empty;
 
     public Simulation(Control target)
@@ -52,6 +52,7 @@ internal class Simulation
         Interaction = new EditorInterface(Circuit, Camera, Selection);
 
         Renderer = new Renderer(Target, Circuit, Camera, Selection);
+        Renderer.DebugMode = false;
         Renderer.Start();
 
         Target.MouseMove += Target_MouseMove;
@@ -65,28 +66,28 @@ internal class Simulation
 
     }
 
-    private void Target_KeyDown(object? sender, KeyEventArgs e)
+    private void Target_KeyDown(object sender, KeyEventArgs e)
     {
         throw new NotImplementedException();
     }
 
-    private void Target_MouseWheel(object? sender, MouseEventArgs e)
+    private void Target_MouseWheel(object sender, MouseEventArgs e)
     {
         Camera.MouseScrollEvent(e.Location,e.Delta, 1.5f);
     }
 
-    private void Target_MouseMove(object? sender, MouseEventArgs e)
+    private void Target_MouseMove(object sender, MouseEventArgs e)
     {
         Camera.MouseMoveEvent(e.Location, e.Button.HasFlag(MouseButtons.Middle));
         Interaction.MouseMove(e.Location, e.Button.HasFlag(MouseButtons.Left));
     }
 
-    private void Target_MouseDown(object? sender, MouseEventArgs e)
+    private void Target_MouseDown(object sender, MouseEventArgs e)
     {
         Interaction.MouseDown(e.Location, e.Button.HasFlag(MouseButtons.Left));
     }
 
-    private void Target_MouseUp(object? sender, MouseEventArgs e)
+    private void Target_MouseUp(object sender, MouseEventArgs e)
     {
         Interaction.MouseUp(e.Location, e.Button.HasFlag(MouseButtons.Left));
     }

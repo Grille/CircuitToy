@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
 using CircuitLib.Math;
+using System.IO;
 
 namespace CircuitLib;
 

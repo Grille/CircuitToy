@@ -48,7 +48,7 @@ namespace CircuitLib
         public override void CalcBoundings()
         {
             const float margin = 0.2f;
-            Bounds = new Math.BoundingBoxF(
+            Bounds = new BoundingBoxF(
                 MathF.Min(StartPin.Position.X, EndPin.Position.X) - margin,
                 MathF.Max(StartPin.Position.X, EndPin.Position.X) + margin,
                 MathF.Min(StartPin.Position.Y, EndPin.Position.Y) - margin,
@@ -62,6 +62,7 @@ namespace CircuitLib
             EndPin.ConnectedWires.Remove(this);
             if (EndPin.Owner == this)
                 EndPin.Destroy();
+            Owner.Wires.Remove(this);
         }
 
         public override Entity GetAt(PointF pos0)

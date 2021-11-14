@@ -24,6 +24,16 @@ public partial class MainWindow : Form
 
         if (e.KeyCode.HasFlag(Keys.Alt))
             sim.Interaction.IsAltKeyDown = true;
+
+        if (e.KeyCode.HasFlag(Keys.Delete))
+        {
+            foreach (var obj in sim.Selection.SelectedEntities)
+            {
+                Console.WriteLine(obj.ToString());
+                obj.Destroy();
+            }
+        }
+
     }
 
     private void MainWindow_KeyUp(object sender, KeyEventArgs e)
