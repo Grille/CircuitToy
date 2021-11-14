@@ -8,7 +8,7 @@ using CircuitLib.Math;
 
 namespace CircuitLib;
 
-public abstract class Pin : WorldObj
+public abstract class Pin : Entity
 {
     public Node Owner;
     public Network Network;
@@ -18,16 +18,32 @@ public abstract class Pin : WorldObj
 
     private PointF _pos;
     private PointF _rPos;
-    public PointF Position {
-        get { return _pos; }
+    public override PointF Position {
+        set {
+            _pos = value;
+            _rPos = new PointF(_pos.X - Owner.Position.X, _pos.Y - Owner.Position.Y);
+            CalcBoundings();
+        }
+        get { 
+            return _pos; 
+        }
     }
 
     public PointF RelativePosition {
         set { 
             _rPos = value;
-            UpdatePosition();
+            _pos = new PointF(Owner.Position.X + _rPos.X, Owner.Position.Y + _rPos.Y);
+            CalcBoundings();
         }
-        get { return _rPos; }
+        get { 
+            return _rPos; 
+        }
+    }
+
+    public void UpdatePosition()
+    {
+        _pos = new PointF(Owner.Position.X + _rPos.X, Owner.Position.Y + _rPos.Y);
+        CalcBoundings();
     }
 
     public Pin(Node owner) : this(owner, 0, 0) { }
@@ -42,15 +58,10 @@ public abstract class Pin : WorldObj
         get; set;
     }
 
-    public void UpdatePosition()
-    {
-        _pos = new PointF(Owner.Position.X + _rPos.X, Owner.Position.Y + _rPos.Y);
-        Bounds = new BoundingBoxF(_pos, 0.35f);
-    }
-
     public override void CalcBoundings()
     {
-        throw new NotImplementedException();
+        Bounds = new BoundingBoxF(_pos, 0.35f);
+        Owner.CalcBoundings();
     }
 }
 

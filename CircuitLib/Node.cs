@@ -8,7 +8,7 @@ using CircuitLib.Math;
 
 namespace CircuitLib;
 
-public abstract class Node : WorldObj
+public abstract class Node : Entity
 {
     public Circuit Owner;
 
@@ -20,7 +20,7 @@ public abstract class Node : WorldObj
     public string Description = "";
     public bool Active = false;
 
-    internal BoundingBoxF ChipBounds;
+    public BoundingBoxF ChipBounds;
 
     private SizeF _size;
     public SizeF Size {
@@ -32,17 +32,23 @@ public abstract class Node : WorldObj
     }
 
     private PointF _pos;
-    public PointF Position {
+    public override PointF Position {
         get { return _pos; }
         set { 
             _pos = value;
-            foreach (var pin in InputPins)
+            if (InputPins != null)
             {
-                pin.UpdatePosition();
+                foreach (var pin in InputPins)
+                {
+                    pin.UpdatePosition();
+                }
             }
-            foreach (var pin in OutputPins)
+            if (OutputPins != null)
             {
-                pin.UpdatePosition();
+                foreach (var pin in OutputPins)
+                {
+                    pin.UpdatePosition();
+                }
             }
             CalcBoundings();
         }
@@ -77,19 +83,25 @@ public abstract class Node : WorldObj
 
         ChipBounds = bounds;
 
-        foreach (var pin in InputPins)
+        if (InputPins != null)
         {
-            bounds.ExtendWith(pin.Bounds);
+            foreach (var pin in InputPins)
+            {
+                bounds.ExtendWith(pin.Bounds);
+            }
         }
-        foreach (var pin in OutputPins)
+        if (OutputPins != null)
         {
-            bounds.ExtendWith(pin.Bounds);
+            foreach (var pin in OutputPins)
+            {
+                bounds.ExtendWith(pin.Bounds);
+            }
         }
 
         Bounds = bounds;
     }
 
-    public override WorldObj GetAt(PointF pos)
+    public override Entity GetAt(PointF pos)
     {
         if (Bounds.IsInside(pos))
         {
@@ -113,6 +125,23 @@ public abstract class Node : WorldObj
                 return this;
         }
         return null;
+    }
+
+    public override void GetFromArea(List<Entity> entities, BoundingBoxF region)
+    {
+        if (Bounds.IsColliding(region))
+        {
+            foreach (var pin in OutputPins)
+            {
+                pin.GetFromArea(entities, region);
+            }
+            foreach (var pin in InputPins)
+            {
+                pin.GetFromArea(entities, region);
+            }
+            if (ChipBounds.IsColliding(region))
+                entities.Add(this);
+        }
     }
 }
 

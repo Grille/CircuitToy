@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace CircuitLib;
 
-public class Network : WorldObj
+public class Network : Entity
 {
     public Circuit Owner;
 
@@ -16,6 +16,10 @@ public class Network : WorldObj
 
     public bool Active = false;
 
+    public override PointF Position {
+        get { return Owner.Position; }
+        set { Owner.Position = value; }
+    }
     //public static Network Ground = new Network();
     public void Add(OutputPin pin)
     {

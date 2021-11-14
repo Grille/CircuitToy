@@ -26,5 +26,11 @@ public class Input : Node
     {
         OutputPins[0].Active = Active;
     }
+
+    public override void ClickAction()
+    {
+        Active = !Active;
+        Update();
+    }
 }
 

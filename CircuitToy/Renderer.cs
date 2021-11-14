@@ -6,6 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using CircuitLib;
+using CircuitLib.Math;
+using CircuitLib.Interface;
 
 namespace CircuitToy;
 
@@ -14,19 +16,18 @@ internal class Renderer
     Camera camera;
     Control target;
     Circuit circuit;
+    Selection selection;
     Graphics? g;
     Timer timer;
 
-    float viewBeginX = 0;
-    float viewBeginY = 0;
-    float viewEndX = 0;
-    float viewEndY = 0;
+    BoundingBoxF view;
 
-    public Renderer(Control target, Circuit circuit, Camera camera)
+    public Renderer(Control target, Circuit circuit, Camera camera, Selection selection)
     {
         this.target = target;
         this.circuit = circuit;
         this.camera = camera;
+        this.selection = selection;
 
         target.Paint += Target_Paint;
         timer = new Timer();
@@ -61,14 +62,18 @@ internal class Renderer
         var begin = camera.ScreenToWorldSpace(new PointF(0, 0));
         var end = camera.ScreenToWorldSpace(new PointF(camera.ScreenSize.Width, camera.ScreenSize.Height));
 
-        viewBeginX = begin.X;
-        viewBeginY = begin.Y;
-        viewEndX = end.X;
-        viewEndY = end.Y;
+        view.BeginX = begin.X;
+        view.BeginY = begin.Y;
+        view.EndX = end.X;
+        view.EndY = end.Y;
 
+        Console.WriteLine("ghj");
+        Console.WriteLine(view.BeginX);
+        Console.WriteLine(view.EndX);
 
         this.g = g;
         g.Clear(Color.White);
+
         drawGrid();
 
         foreach (var net in circuit.Connections)
@@ -81,20 +86,44 @@ internal class Renderer
             drawNode(node);
         }
 
-        g.Flush();
+        if (selection.IsSelectingArea)
+        {
+            var rect = (RectangleF)selection.SelectetArea;
+            fillRectangle(new SolidBrush(Color.FromArgb(50,Color.DarkSeaGreen)), rect);
+            DrawRectangle(new Pen(Brushes.DarkSeaGreen,0.01f), rect);
+        }
+
+            g.Flush();
     }
 
     void drawNode(Node node)
     {
+        //if (!node.Bounds.IsColliding(view))
+        //    return;
+
         drawPins(node.InputPins);
         drawPins(node.OutputPins);
+
+        DrawRectangle(new Pen(Brushes.Magenta, 0.01f), (RectangleF)node.Bounds);
 
         float width = node.Size.Width;
         float height = node.Size.Height;
         var rect = new RectangleF(node.Position.X - width/2, node.Position.Y - height/2, width, height);
         fillRectangle(Brushes.White, rect);
-        if (node.Hover)
-            DrawRectangle(new Pen(Brushes.Lime, 0.2f), rect);
+        if (node.IsHovered)
+        {
+            var hrect = rect;
+            hrect.X += selection.Offset.X;
+            hrect.Y += selection.Offset.Y;
+            DrawRectangle(new Pen(Brushes.Lime, 0.2f), hrect);
+        }
+        if (node.IsSelected)
+        {
+            var srect = rect;
+            srect.X += MathF.Round(selection.Offset.X);
+            srect.Y += MathF.Round(selection.Offset.Y);
+            DrawRectangle(new Pen(Brushes.LightSeaGreen, 0.2f), srect);
+        }
         DrawRectangle(new Pen(Brushes.Black, 0.1f), rect);
         drawString(node.Name, new Font("consolas", 0.6f), Brushes.Black, rect);
     }
@@ -104,10 +133,25 @@ internal class Renderer
         foreach (var pin in pins)
         {
             var pos = pin.Position;
+            DrawRectangle(new Pen(Brushes.Magenta, 0.01f), (RectangleF)pin.Bounds);
+
             drawLine(new Pen(Brushes.Black, 0.1f), pos, pin.Owner.Position);
-            if (pin.Hover)
-                fillCircle(Brushes.Lime, pos, 0.35f);
-            if (pin.Active)
+            if (pin.IsHovered)
+            {
+                var hpos = pos;
+                hpos.X += selection.Offset.X;
+                hpos.Y += selection.Offset.Y;
+                fillCircle(Brushes.Lime, hpos, 0.35f);
+            }
+            if (pin.IsSelected)
+            {
+                var spos = pos;
+                spos.X += MathF.Round(selection.Offset.X);
+                spos.Y += MathF.Round(selection.Offset.Y);
+                fillCircle(Brushes.LightSeaGreen, spos, 0.35f);
+            }
+
+            if (pin.Active) 
                 fillCircle(Brushes.Blue, pos, 0.25f);
             else
                 fillCircle(Brushes.Black, pos, 0.25f);
