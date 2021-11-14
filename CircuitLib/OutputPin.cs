@@ -7,7 +7,7 @@ using System.Drawing;
 
 namespace CircuitLib;
 
-public class OutputPin : Pin
+public class OutputPin : IOPin
 {
 
     public OutputPin(Node owner) : base(owner) { }
@@ -22,7 +22,7 @@ public class OutputPin : Pin
             if (_active != value)
             {
                 _active = value;
-                Network?.Update();
+                ConnectedNetwork?.Update();
             }
         }
     }

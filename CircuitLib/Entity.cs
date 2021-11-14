@@ -10,6 +10,15 @@ namespace CircuitLib;
 
 public abstract class Entity
 {
+    private Entity _owner;
+    public Entity Owner {
+        get {
+            return _owner;
+        }
+        set {
+            _owner = value;
+        }
+    }
     public BoundingBoxF Bounds;
 
     public bool IsHovered = false;
@@ -19,6 +28,8 @@ public abstract class Entity
         get; set; 
     }
     public abstract void CalcBoundings();
+
+    public abstract void Destroy();
 
     public virtual Entity GetAt(PointF pos)
     {
@@ -49,6 +60,10 @@ public abstract class Entity
     public void RoundPosition()
     {
         Position =  new PointF(MathF.Round(Position.X), MathF.Round(Position.Y));
+    }
+
+    public abstract bool Active {
+        get; set;
     }
 }
 

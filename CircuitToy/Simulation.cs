@@ -19,17 +19,10 @@ internal class Simulation
     public Renderer Renderer;
     public Control Target;
     public Selection Selection;
+    public EditorInterface Interaction;
 
-    Point lastLocation = Point.Empty;
-    PointF mouseDownPos = Point.Empty;
-
-    public ContextMenuStrip ContextMenu;
+    public ContextMenuStrip? ContextMenu;
     public PointF MouseUpPos = Point.Empty;
-
-    public Dictionary<Keys,bool> KeysDict = new Dictionary<Keys,bool>();
-
-    
-    bool isClick = false;
 
     public Simulation(Control target)
     {
@@ -46,6 +39,7 @@ internal class Simulation
             input1.ConnectTo(orgate, 0, 1);
             orgate.ConnectTo(output, 0, 0);
 
+            input0.OutputPins[0].ConnectedNetwork.ConnectFromTo(input0.OutputPins[0], new PointF(0, 0));
             input0.Active = true;
             input0.Update();
 
@@ -53,11 +47,10 @@ internal class Simulation
             input1.Update();
         }
 
-
-
-        Selection = new Selection(Circuit);
-
         Camera = new Camera();
+        Selection = new Selection(Circuit);
+        Interaction = new EditorInterface(Circuit, Camera, Selection);
+
         Renderer = new Renderer(Target, Circuit, Camera, Selection);
         Renderer.Start();
 
@@ -77,133 +70,24 @@ internal class Simulation
         throw new NotImplementedException();
     }
 
-    void add()
-    {
-        Circuit.CreateNode<OrGate>(5, 2);
-    }
-
-
     private void Target_MouseWheel(object? sender, MouseEventArgs e)
     {
-        Camera.MouseScrollEvent(e, 1.5f);
+        Camera.MouseScrollEvent(e.Location,e.Delta, 1.5f);
     }
 
     private void Target_MouseMove(object? sender, MouseEventArgs e)
     {
-        Camera.MouseMoveEvent(e, e.Button.HasFlag(MouseButtons.Middle));
-        var pos = Camera.ScreenToWorldSpace(e.Location);
-        
-        float deltaX = (e.Location.X - lastLocation.X)/Camera.Scale;
-        float deltaY = (e.Location.Y - lastLocation.Y) / Camera.Scale;
-
-        if (e.Button == MouseButtons.Left)
-        {
-            isClick = false;
-            if (Selection.IsSelectingArea)
-            {
-                Selection.SelectAreaMove(pos);
-            }
-            else
-            {
-                Selection.Offset = new PointF(pos.X - mouseDownPos.X, pos.Y - mouseDownPos.Y);
-            }
-        }
-        else
-        {
-            Selection.HoverAt(pos);
-        }
-
-        lastLocation = e.Location;
+        Camera.MouseMoveEvent(e.Location, e.Button.HasFlag(MouseButtons.Middle));
+        Interaction.MouseMove(e.Location, e.Button.HasFlag(MouseButtons.Left));
     }
 
     private void Target_MouseDown(object? sender, MouseEventArgs e)
     {
-        isClick = true;
-        var pos = Camera.ScreenToWorldSpace(e.Location);
-        mouseDownPos = pos;
-
-        var obj = Circuit.GetAt(pos);
-
-        if (e.Button == MouseButtons.Left)
-        {
-            if (obj == null)
-            {
-                if (!isKeyDown(Keys.ShiftKey))
-                    Selection.ClearSelection();
-                Selection.SelectAreaBegin(pos);
-                isClick = false;
-            }
-            else if (obj.IsSelected)
-            {
-
-            }
-            else
-            {
-                if (!isKeyDown(Keys.ShiftKey))
-                    Selection.ClearSelection();
-
-                Selection.ToogleAt(pos);
-                isClick = false;
-            }
-
-
-            //Circuit.CreateNode<OrGate>(MathF.Round(pos.X), MathF.Round(pos.Y));
-        }
+        Interaction.MouseDown(e.Location, e.Button.HasFlag(MouseButtons.Left));
     }
 
     private void Target_MouseUp(object? sender, MouseEventArgs e)
     {
-        var pos = Camera.ScreenToWorldSpace(e.Location);
-        MouseUpPos = pos;
-
-        var obj = Circuit.GetAt(pos);
-
-        if (isClick)
-        {
-            if (e.Button == MouseButtons.Left)
-            {
-                if (obj == null)
-                {
-
-                }
-                else if (obj.IsSelected)
-                {
-                    if (!isKeyDown(Keys.ShiftKey))
-                        Selection.ClearSelection();
-
-                    Selection.ToogleAt(pos);
-                }
-                /*
-                if (!isKeyDown(Keys.ShiftKey))
-                {
-                    Selection.ClearSelection();
-                    Selection.ClickAt(pos);
-                }
-                */
-            }
-            else if (e.Button == MouseButtons.Right)
-            {
-                ContextMenu.Show(Target, e.Location);
-            }
-        }
-        else
-        {
-            if (Selection.IsSelectingArea)
-            {
-                var list = Selection.SelectAreaEnd();
-                Selection.Select(list);
-            }
-            else
-            {
-                Selection.ApplyOffset();
-            }
-        }
-    }
-
-    bool isKeyDown(Keys keys)
-    {
-        if (KeysDict.ContainsKey(keys))
-            return KeysDict[keys];
-        return false;
+        Interaction.MouseUp(e.Location, e.Button.HasFlag(MouseButtons.Left));
     }
 }

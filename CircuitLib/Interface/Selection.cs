@@ -10,8 +10,8 @@ namespace CircuitLib.Interface;
 
 public class Selection
 {
-    public Entity Hovered;
-    public List<Entity> Selected;
+    public Entity HoveredEntity;
+    public List<Entity> SelectedEntities;
 
     public Entity World;
 
@@ -27,8 +27,8 @@ public class Selection
     {
         World = world;
 
-        Hovered = null;
-        Selected = new List<Entity>();
+        HoveredEntity = null;
+        SelectedEntities = new List<Entity>();
 
         Offset = PointF.Empty;
     }
@@ -38,22 +38,22 @@ public class Selection
         var obj = World.GetAt(pos);
         if (obj == null)
         {
-            if (Hovered != null)
+            if (HoveredEntity != null)
             {
-                Hovered.IsHovered = false;
-                Hovered = null;
+                HoveredEntity.IsHovered = false;
+                HoveredEntity = null;
             }
         }
         else
         {
-            if (Hovered != null && Hovered != obj)
+            if (HoveredEntity != null && HoveredEntity != obj)
             {
-                Hovered.IsHovered = false;
+                HoveredEntity.IsHovered = false;
             }
-            Hovered = obj;
-            Hovered.IsHovered = true;
+            HoveredEntity = obj;
+            HoveredEntity.IsHovered = true;
         }
-        return Hovered;
+        return HoveredEntity;
     }
 
     public void SelectAt(PointF pos)
@@ -73,7 +73,7 @@ public class Selection
         if (obj != null && !obj.IsSelected)
         {
             obj.IsSelected = true;
-            Selected.Add(obj);
+            SelectedEntities.Add(obj);
         }
     }
 
@@ -91,7 +91,7 @@ public class Selection
         if (obj != null && obj.IsSelected)
         {
             obj.IsSelected = false;
-            Selected.Remove(obj);
+            SelectedEntities.Remove(obj);
         }
     }
 
@@ -103,12 +103,12 @@ public class Selection
             if (!obj.IsSelected)
             {
                 obj.IsSelected = true;
-                Selected.Add(obj);
+                SelectedEntities.Add(obj);
             }
             else if (obj.IsSelected)
             {
                 obj.IsSelected = false;
-                Selected.Remove(obj);
+                SelectedEntities.Remove(obj);
             }
         }
     }
@@ -142,33 +142,24 @@ public class Selection
 
     public void ClearSelection()
     {
-        foreach (var obj in Selected)
+        foreach (var obj in SelectedEntities)
         {
             obj.IsSelected = false;
         }
-        Selected.Clear();
+        SelectedEntities.Clear();
     }
 
     public void ApplyOffset()
     {
-        foreach (var obj in Selected)
+        foreach (var obj in SelectedEntities)
         {
             bool apply = true;
-            if (obj is Pin)
+
+            if (SelectedEntities.Contains(obj.Owner))
             {
-                var pin = (Pin)obj;
-                if (Selected.Contains(pin.Owner))
-                {
-                    apply = false;
-                }
+                apply = false;
             }
-            else if (obj is Node){
-                var node = (Node)obj;
-                if (Selected.Contains(node.Owner))
-                {
-                    apply = false;
-                }
-            }
+
 
 
 

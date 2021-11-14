@@ -19,12 +19,20 @@ public partial class MainWindow : Form
 
     private void MainWindow_KeyDown(object sender, KeyEventArgs e)
     {
-        sim.KeysDict[e.KeyCode] = true;
+        if (e.KeyCode.HasFlag(Keys.ShiftKey))
+            sim.Interaction.IsShiftKeyDown = true;
+
+        if (e.KeyCode.HasFlag(Keys.Alt))
+            sim.Interaction.IsAltKeyDown = true;
     }
 
     private void MainWindow_KeyUp(object sender, KeyEventArgs e)
     {
-        sim.KeysDict[e.KeyCode] = false;
+        if (e.KeyCode.HasFlag(Keys.ShiftKey))
+            sim.Interaction.IsShiftKeyDown = false;
+
+        if (e.KeyCode.HasFlag(Keys.Alt))
+            sim.Interaction.IsAltKeyDown = false;
     }
 
     private void iNToolStripMenuItem_Click(object sender, EventArgs e)

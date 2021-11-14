@@ -22,6 +22,8 @@ internal class Renderer
 
     BoundingBoxF view;
 
+    public bool DebugMode = false;
+
     public Renderer(Control target, Circuit circuit, Camera camera, Selection selection)
     {
         this.target = target;
@@ -67,10 +69,6 @@ internal class Renderer
         view.EndX = end.X;
         view.EndY = end.Y;
 
-        Console.WriteLine("ghj");
-        Console.WriteLine(view.BeginX);
-        Console.WriteLine(view.EndX);
-
         this.g = g;
         g.Clear(Color.White);
 
@@ -104,7 +102,8 @@ internal class Renderer
         drawPins(node.InputPins);
         drawPins(node.OutputPins);
 
-        //DrawRectangle(new Pen(Brushes.Magenta, 0.01f), (RectangleF)node.Bounds);
+        if (DebugMode)
+            DrawRectangle(new Pen(Brushes.Magenta, 0.01f), (RectangleF)node.Bounds);
 
         float width = node.Size.Width;
         float height = node.Size.Height;
@@ -128,14 +127,19 @@ internal class Renderer
         drawString(node.Name, new Font("consolas", 0.6f), Brushes.Black, rect);
     }
 
-    void drawPins(Pin[] pins)
+    void drawPins(IOPin[] pins)
     {
         foreach (var pin in pins)
         {
             var pos = pin.Position;
-            //DrawRectangle(new Pen(Brushes.Magenta, 0.01f), (RectangleF)pin.Bounds);
+            if (DebugMode)
+                DrawRectangle(new Pen(Brushes.Magenta, 0.01f), (RectangleF)pin.Bounds);
 
-            drawLine(new Pen(Brushes.Black, 0.1f), pos, pin.Owner.Position);
+            if (pin.Active)
+                drawLine(new Pen(Brushes.Blue, 0.1f), pos, pin.Owner.Position);
+            else
+                drawLine(new Pen(Brushes.Black, 0.1f), pos, pin.Owner.Position);
+
             if (pin.IsHovered)
             {
                 var hpos = pos;
@@ -159,19 +163,74 @@ internal class Renderer
         }
     }
 
+    void drawPins(List<NetPin> pins)
+    {
+        foreach (var pin in pins)
+        {
+            var pos = pin.Position;
+            if (DebugMode)
+                DrawRectangle(new Pen(Brushes.Magenta, 0.01f), (RectangleF)pin.Bounds);
+
+            if (pin.IsHovered)
+            {
+                var hpos = pos;
+                hpos.X += selection.Offset.X;
+                hpos.Y += selection.Offset.Y;
+                fillCircle(Brushes.Lime, hpos, 0.35f);
+            }
+            if (pin.IsSelected)
+            {
+                var spos = pos;
+                spos.X += MathF.Round(selection.Offset.X);
+                spos.Y += MathF.Round(selection.Offset.Y);
+                fillCircle(Brushes.LightSeaGreen, spos, 0.35f);
+            }
+
+            if (pin.Active)
+                fillCircle(Brushes.Blue, pos, 0.25f);
+            else
+                fillCircle(Brushes.Black, pos, 0.25f);
+
+        }
+    }
+
     void drawNet(Network net)
     {
-        foreach (var outPin in net.OutputPins)
+        foreach (var wire in net.Wires)
         {
-            foreach (var inPin in net.InputPins)
-            {
-                
-                if (inPin.Active)
-                    drawLine(new Pen(Brushes.Blue, 0.1f), inPin.Position, outPin.Position);
-                else
-                    drawLine(new Pen(Brushes.Black, 0.1f), inPin.Position, outPin.Position);
-            }
+            drawWire(wire);
         }
+        drawPins(net.GuardPins);
+
+        if (DebugMode)
+        {
+            foreach (var outPin in net.OutputPins)
+            {
+                foreach (var inPin in net.InputPins)
+                {
+                    drawLine(new Pen(Brushes.Magenta, 0.01f), inPin.Position, outPin.Position);
+                }
+            }
+
+            DrawRectangle(new Pen(Brushes.Magenta, 0.01f), (RectangleF)net.Bounds);
+        }
+
+    }
+
+    void drawWire(Wire wire)
+    {
+        if (wire.IsHovered)
+            drawLine(new Pen(Brushes.Lime, 0.2f), wire.StartPin.Position, wire.EndPin.Position);
+        if (wire.IsSelected)
+            drawLine(new Pen(Brushes.LightSeaGreen, 0.2f), wire.StartPin.Position, wire.EndPin.Position);
+
+        if (wire.Active)
+            drawLine(new Pen(Brushes.Blue, 0.1f), wire.StartPin.Position, wire.EndPin.Position);
+        else
+            drawLine(new Pen(Brushes.Black, 0.1f), wire.StartPin.Position, wire.EndPin.Position);
+
+        if (DebugMode)
+            DrawRectangle(new Pen(Brushes.Magenta, 0.01f), (RectangleF)wire.Bounds);
     }
 
     void drawGrid()

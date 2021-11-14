@@ -10,8 +10,7 @@ namespace CircuitLib;
 
 public abstract class Pin : Entity
 {
-    public Node Owner;
-    public Network Network;
+    public List<Wire> ConnectedWires = new List<Wire>();
 
     public string Name = "";
     public string Description = "";
@@ -40,28 +39,36 @@ public abstract class Pin : Entity
         }
     }
 
+    public abstract void ConnectTo(Pin pin1);
+
+
+    public override void Destroy()
+    {
+
+    }
+
     public void UpdatePosition()
     {
         _pos = new PointF(Owner.Position.X + _rPos.X, Owner.Position.Y + _rPos.Y);
         CalcBoundings();
     }
 
-    public Pin(Node owner) : this(owner, 0, 0) { }
+    public Pin(Entity owner) : this(owner, 0, 0) { }
 
-    public Pin(Node owner, float x, float y)
+    public Pin(Entity owner, float x, float y)
     {
         Owner = owner;
         RelativePosition = new PointF(x,y);
-    }
-
-    public abstract bool Active {
-        get; set;
     }
 
     public override void CalcBoundings()
     {
         Bounds = new BoundingBoxF(_pos, 0.35f);
         Owner.CalcBoundings();
+        foreach (var wire in ConnectedWires)
+        {
+            wire.CalcBoundings();
+        }
     }
 }
 

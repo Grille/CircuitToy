@@ -4,11 +4,10 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 
-namespace CircuitToy;
+namespace CircuitLib.Interface;
 
-class Camera
+public class Camera
 {
     public float PosX = 0, PosY = 0;
     public float Scale = 10;
@@ -40,29 +39,29 @@ class Camera
         }
     }
 
-    public void MouseScrollEvent(MouseEventArgs e, float scrollFactor)
+    public void MouseScrollEvent(PointF location, float delta, float scrollFactor)
     {
-        var oldWorldPos = ScreenToWorldSpace(e.Location);
-        if (e.Delta > 0)
+        var oldWorldPos = ScreenToWorldSpace(location);
+        if (delta > 0)
             Scale *= scrollFactor;
         else
             Scale /= scrollFactor;
 
-        var newWorldPos = ScreenToWorldSpace(e.Location);
+        var newWorldPos = ScreenToWorldSpace(location);
         PosX += oldWorldPos.X - newWorldPos.X;
         PosY += oldWorldPos.Y - newWorldPos.Y;
     }
 
-    public void MouseMoveEvent(MouseEventArgs e, bool move)
+    public void MouseMoveEvent(PointF location, bool move)
     {
         if (move)
         {
             var oldWorldPos = ScreenToWorldSpace(lastLocation);
-            var newWorldPos = ScreenToWorldSpace(e.Location);
+            var newWorldPos = ScreenToWorldSpace(location);
             PosX += oldWorldPos.X - newWorldPos.X;
             PosY += oldWorldPos.Y - newWorldPos.Y;
         }
-        lastLocation = e.Location;
+        lastLocation = location;
     }
 
     public PointF ScreenToWorldSpace(PointF screenPos)

@@ -10,7 +10,14 @@ namespace CircuitLib;
 
 public abstract class Node : Entity
 {
-    public Circuit Owner;
+    public new Circuit Owner {
+        get {
+            return (Circuit)base.Owner;
+        }
+        set {
+            base.Owner = value;
+        }
+    }
 
     public InputPin[] InputPins;
     public OutputPin[] OutputPins;
@@ -18,7 +25,6 @@ public abstract class Node : Entity
     public int ID = -1;
     public string Name = "";
     public string Description = "";
-    public bool Active = false;
 
     public BoundingBoxF ChipBounds;
 
@@ -29,6 +35,12 @@ public abstract class Node : Entity
             _size = value;
             CalcBoundings();
         }
+    }
+
+    private bool _active = false;
+    public override bool Active {
+        get => _active;
+        set => _active = value;
     }
 
     private PointF _pos;
@@ -56,20 +68,25 @@ public abstract class Node : Entity
 
     public abstract void Update();
 
+    public override void Destroy()
+    {
+
+    }
+
     public void ConnectTo(Node target, int outId, int inId)
     {
         Network net;
-        if (target.InputPins[inId].Network == null)
+        if (target.InputPins[inId].ConnectedNetwork == null)
         {
             net = Owner.CreateNet();
-            net.Add(target.InputPins[inId]);
+            net.Add(OutputPins[outId]);
         }
         else
         {
-            net = target.InputPins[inId].Network;
+            net = target.InputPins[inId].ConnectedNetwork;
         }
 
-        net.Add(OutputPins[outId]);
+        net.ConnectFromTo(OutputPins[outId], target.InputPins[inId]);
     }
 
     public override void CalcBoundings()
