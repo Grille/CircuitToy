@@ -153,7 +153,31 @@ public class Selection
     {
         foreach (var obj in Selected)
         {
-            obj.Position = new PointF(MathF.Round(obj.Position.X+Offset.X), MathF.Round(obj.Position.Y + Offset.Y));
+            bool apply = true;
+            if (obj is Pin)
+            {
+                var pin = (Pin)obj;
+                if (Selected.Contains(pin.Owner))
+                {
+                    apply = false;
+                }
+            }
+            else if (obj is Node){
+                var node = (Node)obj;
+                if (Selected.Contains(node.Owner))
+                {
+                    apply = false;
+                }
+            }
+
+
+
+            if (apply)
+            {
+                obj.Position = new PointF(obj.Position.X + Offset.X, obj.Position.Y + Offset.Y);
+                obj.RoundPosition();
+            }
+
         }
         Offset = PointF.Empty;
     }

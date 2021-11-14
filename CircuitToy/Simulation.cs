@@ -53,6 +53,8 @@ internal class Simulation
             input1.Update();
         }
 
+
+
         Selection = new Selection(Circuit);
 
         Camera = new Camera();
@@ -196,11 +198,6 @@ internal class Simulation
                 Selection.ApplyOffset();
             }
         }
-    }
-
-    private PointF roundPoint(PointF pos)
-    {
-        return new PointF(MathF.Round(pos.X), MathF.Round(pos.Y));
     }
 
     bool isKeyDown(Keys keys)

@@ -39,7 +39,8 @@ public class Circuit : Node
     public T CreateNode<T>(float x, float y) where T : Node, new()
     {
         var node = CreateNode<T>();
-        node.Position = new System.Drawing.PointF(x, y);
+        node.Position = new PointF(x, y);
+        node.RoundPosition();
         return node;
     }
     public Network CreateNet()

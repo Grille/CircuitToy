@@ -45,5 +45,10 @@ public abstract class Entity
     {
 
     }
+
+    public void RoundPosition()
+    {
+        Position =  new PointF(MathF.Round(Position.X), MathF.Round(Position.Y));
+    }
 }
 

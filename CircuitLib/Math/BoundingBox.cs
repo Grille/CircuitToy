@@ -46,24 +46,32 @@ public struct BoundingBoxF
         EndY = MathF.Max(EndY, bounds.EndY);
     }
 
+    public float getWidth()
+    {
+        return MathF.Abs(BeginX - EndX);
+    }
+
+    public float getHeight()
+    {
+        return MathF.Abs(BeginY - EndY);
+    }
+
     public bool IsInside(PointF pos)
     {
-        return pos.X >= BeginX && pos.X <= EndX && pos.Y >= BeginY && pos.Y <= EndY;
+        return pos.X >= BeginX && pos.X <= EndX && 
+               pos.Y >= BeginY && pos.Y <= EndY;
     }
 
     public bool IsColliding(BoundingBoxF bounds)
     {
-        float distX = MathF.Abs(BeginX - bounds.BeginX);
-        float distY = MathF.Abs(BeginX - bounds.BeginY);
-        float sizeX = MathF.Abs(BeginX - EndX) + MathF.Abs(bounds.BeginX - bounds.EndX);
-        float sizeY = MathF.Abs(BeginY - EndY) + MathF.Abs(bounds.BeginY - bounds.EndY);
-
-        return (distX < sizeX) && (distY < sizeY);
+        return (BeginX <= bounds.EndX && EndX >= bounds.BeginX) && (BeginY <= bounds.EndY && EndY >= bounds.BeginY);
     }
 
     public static explicit operator RectangleF(BoundingBoxF b)
     {
-        return new RectangleF(b.BeginX, b.BeginY, MathF.Abs(b.BeginX - b.EndX), MathF.Abs(b.BeginY - b.EndY));
+        return new RectangleF(b.BeginX, b.BeginY, b.getWidth(), b.getHeight());
     }
+
+   
 }
 

@@ -104,7 +104,7 @@ internal class Renderer
         drawPins(node.InputPins);
         drawPins(node.OutputPins);
 
-        DrawRectangle(new Pen(Brushes.Magenta, 0.01f), (RectangleF)node.Bounds);
+        //DrawRectangle(new Pen(Brushes.Magenta, 0.01f), (RectangleF)node.Bounds);
 
         float width = node.Size.Width;
         float height = node.Size.Height;
@@ -133,7 +133,7 @@ internal class Renderer
         foreach (var pin in pins)
         {
             var pos = pin.Position;
-            DrawRectangle(new Pen(Brushes.Magenta, 0.01f), (RectangleF)pin.Bounds);
+            //DrawRectangle(new Pen(Brushes.Magenta, 0.01f), (RectangleF)pin.Bounds);
 
             drawLine(new Pen(Brushes.Black, 0.1f), pos, pin.Owner.Position);
             if (pin.IsHovered)

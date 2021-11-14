@@ -13,6 +13,7 @@ public class Network : Entity
 
     public List<InputPin> InputPins = new List<InputPin>();
     public List<OutputPin> OutputPins = new List<OutputPin>();
+    public List<Pin> GuardPins = new List<Pin>();
 
     public bool Active = false;
 
