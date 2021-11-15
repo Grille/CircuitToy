@@ -34,7 +34,7 @@ public class NetPin : Pin
 
     public override void Destroy()
     {
-        Owner.Remove(this);
+        Owner?.Remove(this);
         base.Destroy();
     }
 }

@@ -25,6 +25,7 @@ public class Network : Entity
     public List<Pin> AllPins = new List<Pin>();
     public List<Wire> Wires = new List<Wire>();
 
+    private bool enableSpilt = true;
     public override PointF Position {
         get { return Owner.Position; }
         set { Owner.Position = value; }
@@ -36,19 +37,78 @@ public class Network : Entity
         set => _active = value;
     }
 
+    public Network()
+    {
+    }
+
+    public Network(List<Pin> pins)
+    {
+
+    }
+
     public void ConnectFromTo(Pin pin0, Pin pin1)
     {
-        Add(pin1);
+        if (pin0 == pin1)
+            return;
+
+        if (pin1 is IOPin)
+        {
+            var pin = (IOPin)pin1;
+            if (pin.ConnectedNetwork == null)
+                Add(pin);
+            else if (pin.ConnectedNetwork != this)
+                Join(pin.ConnectedNetwork);
+        }
+        else if (pin1 is NetPin)
+        {
+            var pin = (NetPin)pin1;
+            if (pin.Owner == null)
+                Add(pin);
+            else if (pin.Owner != this)
+                Join(pin.Owner);
+        }
         Wires.Add(new Wire(this, pin0, pin1));
     }
     public void ConnectFromTo(Pin pin0, PointF pos1)
     {
-        var rpos1 = new PointF(MathF.Round(pos1.X), MathF.Round(pos1.Y));
-        var pin1 = CreatePin();
-        pin1.Position = rpos1;
-        Wires.Add(new Wire(this, pin0, pin1));
+        var entity = Owner.GetAt(pos1);
+        if (entity == null)
+        {
+            var rpos1 = new PointF(MathF.Round(pos1.X), MathF.Round(pos1.Y));
+            var pin1 = CreatePin();
+            pin1.Position = rpos1;
+            Wires.Add(new Wire(this, pin0, pin1));
+        }
+        else if (entity is Pin)
+        {
+            ConnectFromTo(pin0, (Pin)entity);
+        }
+    }
+    public void Disconnect(Pin pin0, Pin pin1)
+    {
+        bool found = false;
+        for (int i = 0;i<pin0.ConnectedWires.Count;i++)
+        {
+            var wire = pin0.ConnectedWires[i];
+            if (wire.StartPin == pin1 || wire.EndPin == pin1)
+            {
+                wire.Destroy();
+                found = true;
+            }
+        }
+        if (!found)
+            throw new InvalidOperationException("Pin not connectet");
+
+        //Split();
     }
 
+    public NetPin CreatePin(float x, float y)
+    {
+        var pin = new NetPin(this, x, y);
+        GuardPins.Add(pin);
+        AllPins.Add(pin);
+        return pin;
+    }
     public NetPin CreatePin()
     {
         var pin = new NetPin(this);
@@ -98,39 +158,134 @@ public class Network : Entity
 
     public void Join(Network network)
     {
-        foreach (InputPin pin in network.InputPins)
+        network.enableSpilt = false;
+
+        if (network == this)
+            throw new InvalidOperationException("Is same Network");
+
+        var refPins = new List<Pin>();
+        foreach (var pin in network.AllPins)
         {
-            pin.ConnectedNetwork = null;
+            refPins.Add(pin);
         }
-        foreach (OutputPin pin in network.OutputPins)
+
+        foreach (var pin in refPins)
         {
-            pin.ConnectedNetwork = null;
+            network.removeFromList(pin);
+            Add(pin);
         }
-        foreach (Pin pin in network.GuardPins)
+
+        var refWires = new List<Wire>();
+        foreach (var wire in network.Wires)
         {
-            pin.Destroy();
+            refWires.Add(wire);
         }
+
+        foreach (var wire in refWires)
+        {
+            network.Wires.Remove(wire);
+            Wires.Add(wire);
+            wire.Owner = this;
+        }
+
+
+
+        network.Destroy();
         CalcBoundings();
+    }
+
+    private void split()
+    {
+        enableSpilt = false;
+
+        if (AllPins.Count == 0)
+        {
+            Destroy();
+            return;
+        }
+
+        var connectetPins = AllPins[0].GetConnectedPins();
+        var disconnectetPins = new List<Pin>();
+
+        var refPins = new List<Pin>();
+        foreach (var pin in AllPins)
+        {
+            refPins.Add(pin);
+        }
+
+        foreach (var pin in refPins)
+        {
+            if (!connectetPins.Contains(pin))
+            {
+                disconnectetPins.Add(pin);
+                removeFromList(pin);
+            }
+        }
+
+        if (disconnectetPins.Count > 0)
+        {
+            var net = Owner.CreateNet();
+            foreach (var pin in disconnectetPins)
+            {
+                net.Add(pin);
+            }
+            net.overtakeWires();
+            net.split();
+        }
+
+        enableSpilt = true;
     }
 
     public override void Destroy()
     {
-        foreach (InputPin pin in InputPins)
+        enableSpilt = false;
+
+        var refPins = new List<Pin>();
+        foreach (var pin in AllPins)
         {
-            Remove(pin);
+            refPins.Add(pin);
         }
-        foreach (OutputPin pin in OutputPins)
+
+        foreach (var pin in refPins)
         {
-            Remove(pin);
+            removeFromList(pin);
         }
-        foreach (Pin pin in GuardPins)
+
+        var refWires = new List<Wire>();
+        foreach (var wire in Wires)
         {
-            pin.Destroy();
+            refWires.Add(wire);
         }
+
+        foreach (var wire in refWires)
+        {
+            Wires.Remove(wire);
+            wire.Owner = this;
+        }
+
+        Owner.Networks.Remove(this);
+        base.Destroy();
     }
 
 
     public void Remove(Pin pin)
+    {
+        removeFromList(pin);
+        pin.DestroyConnections();
+        if (enableSpilt)
+            split();
+        CalcBoundings();
+    }
+
+    public void Remove(Wire wire)
+    {
+        removeFromList(wire);
+        if (enableSpilt)
+            split();
+        CalcBoundings();
+    }
+
+    private void removeFromList(Pin pin)
     {
         if (pin is InputPin)
         {
@@ -164,6 +319,27 @@ public class Network : Entity
         CalcBoundings();
     }
 
+    private void removeFromList(Wire wire)
+    {
+        Wires.Remove(wire);
+        wire.Owner = null;
+    }
+
+    private void overtakeWires()
+    {
+        foreach (Pin pin in AllPins)
+        {
+            foreach (Wire wire in pin.ConnectedWires)
+            {
+                if (wire.Owner != this)
+                {
+                    wire.Owner.removeFromList(wire);
+                    Wires.Add(wire);
+                    wire.Owner = this;
+                }
+            }
+        }
+    }
 
 
     public void Update()

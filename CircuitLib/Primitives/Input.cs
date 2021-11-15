@@ -11,7 +11,7 @@ public class Input : Node
 {
     public Input()
     {
-        Name = "IN";
+        DisplayName = "IN";
 
         InputPins = new InputPin[0];
 

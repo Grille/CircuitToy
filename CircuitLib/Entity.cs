@@ -22,15 +22,23 @@ public abstract class Entity
     }
     public BoundingBoxF Bounds;
 
+    public bool IsAlive = true;
     public bool IsHovered = false;
     public bool IsSelected = false;
+
+    public int ID = -1;
+    public string Name = "";
+    public string Description = "";
 
     public abstract PointF Position {
         get; set; 
     }
     public abstract void CalcBoundings();
 
-    public abstract void Destroy();
+    public virtual void Destroy()
+    {
+        IsAlive = false;
+    }
 
     public virtual Entity GetAt(PointF pos)
     {

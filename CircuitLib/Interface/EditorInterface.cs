@@ -18,9 +18,10 @@ public class EditorInterface
     public bool IsShiftKeyDown = false;
     public bool IsAltKeyDown = false;
 
-    public PointF MousePos = Point.Empty;
-    public PointF MouseDownPos = Point.Empty;
-    public PointF MouseUpPos = Point.Empty;
+    public PointF ScreenMousePos = Point.Empty;
+    public PointF WorldMousePos = Point.Empty;
+    public PointF WorldMouseDownPos = Point.Empty;
+    public PointF WorldMouseUpPos = Point.Empty;
 
     public EditorInterface(Circuit circuit, Camera camera, Selection selection)
     {
@@ -31,10 +32,10 @@ public class EditorInterface
 
     public void MouseDown(PointF location, bool left)
     {
-        MouseDownPos = MousePos;
+        WorldMouseDownPos = WorldMousePos;
 
         isClick = true;
-        var obj = Circuit.GetAt(MousePos);
+        var obj = Circuit.GetAt(WorldMousePos);
 
         if (left)
         {
@@ -42,7 +43,7 @@ public class EditorInterface
             {
                 if (!IsShiftKeyDown)
                     Selection.ClearSelection();
-                Selection.SelectAreaBegin(MousePos);
+                Selection.SelectAreaBegin(WorldMousePos);
                 isClick = false;
             }
             else if (obj.IsSelected)
@@ -54,7 +55,7 @@ public class EditorInterface
                 if (!IsShiftKeyDown)
                     Selection.ClearSelection();
 
-                Selection.ToogleAt(MousePos);
+                Selection.ToogleAt(WorldMousePos);
                 isClick = false;
             }
 
@@ -65,31 +66,32 @@ public class EditorInterface
 
     public void MouseMove(PointF location, bool left)
     {
-        MousePos = Camera.ScreenToWorldSpace(location);
+        ScreenMousePos = location;
+        WorldMousePos = Camera.ScreenToWorldSpace(location);
 
         if (left)
         {
             isClick = false;
             if (Selection.IsSelectingArea)
             {
-                Selection.SelectAreaMove(MousePos);
+                Selection.SelectAreaMove(WorldMousePos);
             }
             else
             {
-                Selection.Offset = new PointF(MousePos.X - MouseDownPos.X, MousePos.Y - MouseDownPos.Y);
+                Selection.Offset = new PointF(WorldMousePos.X - WorldMouseDownPos.X, WorldMousePos.Y - WorldMouseDownPos.Y);
             }
         }
         else
         {
-            Selection.HoverAt(MousePos);
+            Selection.HoverAt(WorldMousePos);
         }
     }
 
     public void MouseUp(PointF location, bool left)
     {
-        MouseUpPos = MousePos;
+        WorldMouseUpPos = WorldMousePos;
 
-        var obj = Circuit.GetAt(MousePos);
+        var obj = Circuit.GetAt(WorldMousePos);
 
         if (isClick)
         {
@@ -104,7 +106,7 @@ public class EditorInterface
                     if (!IsShiftKeyDown)
                         Selection.ClearSelection();
 
-                    Selection.ToogleAt(MousePos);
+                    Selection.ToogleAt(WorldMousePos);
                 }
                 /*
                 if (!isKeyDown(Keys.ShiftKey))

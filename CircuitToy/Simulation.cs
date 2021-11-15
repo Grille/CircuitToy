@@ -39,7 +39,7 @@ internal class Simulation
             input1.ConnectTo(orgate, 0, 1);
             orgate.ConnectTo(output, 0, 0);
 
-            input0.OutputPins[0].ConnectedNetwork.ConnectFromTo(input0.OutputPins[0], new PointF(0, 0));
+            input0.OutputPins[0].ConnectedNetwork.ConnectFromTo(input0.OutputPins[0], new PointF(-10, -10));
             input0.Active = true;
             input0.Update();
 
@@ -51,7 +51,7 @@ internal class Simulation
         Selection = new Selection(Circuit);
         Interaction = new EditorInterface(Circuit, Camera, Selection);
 
-        Renderer = new Renderer(Target, Circuit, Camera, Selection);
+        Renderer = new Renderer(Target, Circuit, Camera, Interaction);
         Renderer.DebugMode = false;
         Renderer.Start();
 

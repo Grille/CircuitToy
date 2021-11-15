@@ -19,12 +19,10 @@ public abstract class Node : Entity
         }
     }
 
+    public string DisplayName;
+
     public InputPin[] InputPins;
     public OutputPin[] OutputPins;
-
-    public int ID = -1;
-    public string Name = "";
-    public string Description = "";
 
     public BoundingBoxF ChipBounds;
 
@@ -79,6 +77,7 @@ public abstract class Node : Entity
             pin.Destroy();
         }
         Owner.Nodes.Remove(this);
+        base.Destroy();
     }
 
     public void ConnectTo(Node target, int outId, int inId)

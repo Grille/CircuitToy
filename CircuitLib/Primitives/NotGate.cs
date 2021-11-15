@@ -11,7 +11,7 @@ public class NotGate : Node
 {
     public NotGate()
     {
-        Name = "NOT";
+        DisplayName = "NOT";
 
         InputPins = new[] {
             new InputPin(this,-2,+0),

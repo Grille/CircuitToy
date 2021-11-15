@@ -62,7 +62,7 @@ namespace CircuitLib
             EndPin.ConnectedWires.Remove(this);
             if (EndPin.Owner == this)
                 EndPin.Destroy();
-            Owner.Wires.Remove(this);
+            Owner.Remove(this);
         }
 
         public override Entity GetAt(PointF pos0)

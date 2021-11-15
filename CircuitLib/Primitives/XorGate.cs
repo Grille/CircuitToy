@@ -11,7 +11,7 @@ public class XorGate : Node
 {
     public XorGate()
     {
-        Name = "XOR";
+        DisplayName = "XOR";
 
         InputPins = new[] {
             new InputPin(this,-2,-1),

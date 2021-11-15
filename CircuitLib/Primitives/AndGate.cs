@@ -11,7 +11,7 @@ public class AndGate : Node
 {
     public AndGate()
     {
-        Name = "AND";
+        DisplayName = "AND";
 
         InputPins = new[] {
             new InputPin(this,-2,-1),

@@ -11,12 +11,14 @@ namespace CircuitLib;
 public class Circuit : Node
 {
     public List<Node> Nodes;
-    public List<Network> Connections;
+    public List<Network> Networks;
+
+    private int autoIdCount = 0;
 
     public Circuit()
     {
         Nodes = new List<Node>();
-        Connections = new List<Network>();
+        Networks = new List<Network>();
     }
 
     public void AddNode(Node node)
@@ -28,13 +30,14 @@ public class Circuit : Node
     public void AddNet(Network net)
     {
         net.Owner = this;
-        Connections.Add(net);
+        Networks.Add(net);
     }
 
     public T CreateNode<T>() where T : Node, new()
     {
         var node = new T();
         AddNode(node);
+        node.Name += $"_{autoIdCount++}";
         return node;
     }
 
@@ -49,6 +52,7 @@ public class Circuit : Node
     {
         var net = new Network();
         AddNet(net);
+        net.Name += $"_{autoIdCount++}";
         return net;
     }
 
@@ -95,7 +99,7 @@ public class Circuit : Node
                 return obj;
             }
         }
-        foreach (var net in Connections)
+        foreach (var net in Networks)
         {
             var obj = net.GetAt(pos);
             if (obj != null)
@@ -112,7 +116,7 @@ public class Circuit : Node
         {
             node.GetFromArea(entities, region);
         }
-        foreach (var net in Connections)
+        foreach (var net in Networks)
         {
             net.GetFromArea(entities, region);
         }

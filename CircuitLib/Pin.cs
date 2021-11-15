@@ -12,9 +12,6 @@ public abstract class Pin : Entity
 {
     public List<Wire> ConnectedWires = new List<Wire>();
 
-    public string Name = "";
-    public string Description = "";
-
     private PointF _pos;
     private PointF _rPos;
     public override PointF Position {
@@ -44,9 +41,21 @@ public abstract class Pin : Entity
 
     public override void Destroy()
     {
-        for (int i = 0; i < ConnectedWires.Count; i++)
+        DestroyConnections();
+        base.Destroy();
+    }
+
+    public void DestroyConnections()
+    {
+        var refWires = new List<Wire>();
+        foreach (var wire in ConnectedWires)
         {
-            ConnectedWires[i].Destroy();
+            refWires.Add(wire);
+        }
+
+        foreach (var wire in refWires)
+        {
+            wire.Destroy();
         }
     }
 
@@ -62,6 +71,31 @@ public abstract class Pin : Entity
     {
         Owner = owner;
         RelativePosition = new PointF(x,y);
+    }
+
+    public List<Pin> GetConnectedPins()
+    {
+        var list = new List<Pin>();
+        list.Add(this);
+        getConnectedPins(list);
+        return list;
+    }
+
+    private void getConnectedPins(List<Pin> pins)
+    {
+        foreach (var wire in ConnectedWires)
+        {
+            if (wire.StartPin != this && !pins.Contains(wire.StartPin))
+            {
+                pins.Add(wire.StartPin);
+                wire.StartPin.getConnectedPins(pins);
+            }
+            if (wire.EndPin != this && !pins.Contains(wire.EndPin))
+            {
+                pins.Add(wire.EndPin);
+                wire.EndPin.getConnectedPins(pins);
+            }
+        }
     }
 
     public override void CalcBoundings()

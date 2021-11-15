@@ -16,6 +16,7 @@ internal class Renderer
     Camera camera;
     Control target;
     Circuit circuit;
+    EditorInterface editor;
     Selection selection;
     Graphics g;
     Timer timer;
@@ -26,12 +27,13 @@ internal class Renderer
     public bool HighQuality = true;
     public bool ViewGrid = true;
 
-    public Renderer(Control target, Circuit circuit, Camera camera, Selection selection)
+    public Renderer(Control target, Circuit circuit, Camera camera, EditorInterface editor)
     {
         this.target = target;
         this.circuit = circuit;
         this.camera = camera;
-        this.selection = selection;
+        this.editor = editor;
+        this.selection = editor.Selection;
 
         target.Paint += Target_Paint;
         timer = new Timer();
@@ -92,7 +94,7 @@ internal class Renderer
             g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighSpeed;
         }
 
-        foreach (var net in circuit.Connections)
+        foreach (var net in circuit.Networks)
         {
             drawNet(net);
         }
@@ -109,7 +111,29 @@ internal class Renderer
             DrawRectangle(new Pen(Brushes.DarkSeaGreen,0.01f), rect);
         }
 
-            g.Flush();
+        if (true || DebugMode)
+        {
+            var entity = selection.HoveredEntity;
+            if (entity != null)
+            {
+                var str = new StringBuilder();
+                str.AppendLine("name:  "+entity.Name);
+                str.AppendLine("owner: "+entity.Owner?.Name);
+
+                if (entity is IOPin)
+                {
+                    var iopin = (IOPin)entity;
+                    str.AppendLine("net:   "+iopin.ConnectedNetwork?.Name);
+                }
+                else
+                {
+
+                }
+                g.DrawString("#\n*\n" + str.ToString(), new Font("consolas", 12.0f), Brushes.Magenta, editor.ScreenMousePos);
+            }
+        }
+
+        g.Flush();
     }
 
     void drawNode(Node node)
@@ -142,7 +166,7 @@ internal class Renderer
             DrawRectangle(new Pen(Brushes.LightSeaGreen, 0.2f), srect);
         }
         DrawRectangle(new Pen(Brushes.Black, 0.1f), rect);
-        drawString(node.Name, new Font("consolas", 0.6f), Brushes.Black, rect);
+        drawString(node.DisplayName, new Font("consolas", 0.6f), Brushes.Black, rect);
     }
 
     void drawPins(IOPin[] pins)

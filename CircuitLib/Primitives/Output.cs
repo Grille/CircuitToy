@@ -11,7 +11,7 @@ public class Output : Node
 {
     public Output()
     {
-        Name = "OUT";
+        DisplayName = "OUT";
         
         InputPins = new[] {
             new InputPin(this,-2,+0),

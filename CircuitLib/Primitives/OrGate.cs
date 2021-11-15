@@ -11,7 +11,7 @@ public class OrGate : Node
 {
     public OrGate()
     {
-        Name = "OR";
+        DisplayName = "OR";
 
         InputPins = new[] {
             new InputPin(this,-2,-1),

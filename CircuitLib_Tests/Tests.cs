@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using CircuitLib;
 using CircuitLib.Primitives;
 
@@ -35,6 +36,334 @@ class Tests
 
         TUtils.WriteTitle("TestCircuits...");
         var circuit = new Circuit();
+
+        #region Network
+        TUtils.WriteTitle("TestNetwork...");
+        TestNetwork("create pins", (net) => {
+            var pin0 = net.CreatePin();
+            var pin1 = net.CreatePin();
+            var pin2 = net.CreatePin();
+
+            if (net.AllPins.Count != 3)
+            {
+                TUtils.WriteFail($"AllPin count: {net.AllPins.Count}, expected: 3");
+                return TestResult.Failure;
+            }
+            if (net.GuardPins.Count != 3)
+            {
+                TUtils.WriteFail($"AllPin count: {net.AllPins.Count}, expected: 3");
+                return TestResult.Failure;
+            }
+
+            TUtils.WriteSucces("OK");
+            return TestResult.Success;
+        });
+        TestNetwork("connect pins", (net) => {
+            var pin0 = net.CreatePin();
+            var pin1 = net.CreatePin();
+
+            net.ConnectFromTo(pin0, pin1);
+
+            if (net.Wires.Count != 1)
+            {
+                TUtils.WriteFail($"Wires count: {net.AllPins.Count}, expected: 1");
+                return TestResult.Failure;
+            }
+
+            var wire = net.Wires[0];
+            if (wire.StartPin != pin0 || wire.EndPin != pin1)
+            {
+                TUtils.WriteFail($"Wires wrong connectet");
+                return TestResult.Failure;
+            }
+
+            TUtils.WriteSucces("OK");
+            return TestResult.Success;
+        });
+        TestNetwork("connect pin to empty point", (net) => {
+            var pin0 = net.CreatePin();
+            var point = new PointF(10, 0);
+            net.ConnectFromTo(pin0, point);
+
+            if (net.AllPins.Count != 2)
+            {
+                TUtils.WriteFail($"AllPin count: {net.AllPins.Count}, expected: 2");
+                return TestResult.Failure;
+            }
+
+            var pin1 = net.AllPins[1];
+            if (net.Wires.Count != 1)
+            {
+                TUtils.WriteFail($"Wires count: {net.AllPins.Count}, expected: 1");
+                return TestResult.Failure;
+            }
+
+            var wire = net.Wires[0];
+            if (wire.StartPin != pin0 || wire.EndPin != pin1)
+            {
+                TUtils.WriteFail($"Wires wrong connectet");
+                return TestResult.Failure;
+            }
+
+            TUtils.WriteSucces("OK");
+            return TestResult.Success;
+        });
+        TestNetwork("connect pin to pin point", (net) => {
+            var pin0 = net.CreatePin();
+            var pin1 = net.CreatePin();
+            var point = new PointF(10, 0);
+            pin1.Position = point;
+
+            net.ConnectFromTo(pin0, point);
+
+            if (net.AllPins.Count != 2)
+            {
+                TUtils.WriteFail($"AllPin count: {net.AllPins.Count}, expected: 2");
+                return TestResult.Failure;
+            }
+
+            if (net.Wires.Count != 1)
+            {
+                TUtils.WriteFail($"Wires count: {net.AllPins.Count}, expected: 1");
+                return TestResult.Failure;
+            }
+
+            var wire = net.Wires[0];
+            if (wire.StartPin != pin0 || wire.EndPin != pin1)
+            {
+                TUtils.WriteFail($"Wires wrong connectet");
+                return TestResult.Failure;
+            }
+
+            TUtils.WriteSucces("OK");
+            return TestResult.Success;
+        });
+        TestNetwork("connect pin to self point", (net) => {
+            var pin0 = net.CreatePin();
+            var point = new PointF(0, 0);
+
+            net.ConnectFromTo(pin0, point);
+
+            if (net.AllPins.Count != 1)
+            {
+                TUtils.WriteFail($"AllPin count: {net.AllPins.Count}, expected: 1");
+                return TestResult.Failure;
+            }
+
+            if (net.Wires.Count != 0)
+            {
+                TUtils.WriteFail($"Wires count: {net.AllPins.Count}, expected: 0");
+                return TestResult.Failure;
+            }
+
+            TUtils.WriteSucces("OK");
+            return TestResult.Success;
+        });
+        #endregion
+
+        TUtils.WriteTitle("TestNetworkInteraction...");
+        TestCircuit("Network.Join", (c) => {
+            var net0 = c.CreateNet();
+            var net1 = c.CreateNet();
+            var pin0 = net0.CreatePin(-1, -1);
+            var pin1 = net0.CreatePin(-1, 1);
+            var pin2 = net1.CreatePin(1, -1);
+            var pin3 = net1.CreatePin(1, 1);
+
+            net0.ConnectFromTo(pin0, pin1);
+            net1.ConnectFromTo(pin2, pin3);
+
+            net0.ConnectFromTo(pin1, pin2);
+
+            if (net0.AllPins.Count != 4)
+            {
+                TUtils.WriteFail($"0]AllPin count: {net0.AllPins.Count}, expected: 4");
+                return TestResult.Failure;
+            }
+
+            if (net0.Wires.Count != 3)
+            {
+                TUtils.WriteFail($"0]Wires count: {net0.Wires.Count}, expected: 3");
+                return TestResult.Failure;
+            }
+
+            if (net1.AllPins.Count != 0)
+            {
+                TUtils.WriteFail($"1]AllPin count: {net1.AllPins.Count}, expected: 0");
+                return TestResult.Failure;
+            }
+
+            if (net1.Wires.Count != 0)
+            {
+                TUtils.WriteFail($"1]Wires count: {net1.Wires.Count}, expected: 0");
+                return TestResult.Failure;
+            }
+
+            if (c.Networks.Contains(net1))
+            {
+                TUtils.WriteFail($"Net1 not removed from Circuit");
+                return TestResult.Failure;
+            }
+
+            TUtils.WriteSucces("OK");
+            return TestResult.Success;
+        });
+        TestCircuit("Network.Split to 2, after pin.Destroy()", (c) => {
+            var net0 = c.CreateNet();
+            var pin0 = net0.CreatePin(0, 0);
+            var pin1 = net0.CreatePin(1, 0);
+            var pin2 = net0.CreatePin(2, 0);
+
+            net0.ConnectFromTo(pin0, pin1);
+            net0.ConnectFromTo(pin1, pin2);
+
+            pin1.Destroy();
+
+            if (net0.Wires.Count != 0)
+            {
+                TUtils.WriteFail($"0]Wires count: {net0.Wires.Count}, expected: 0");
+                return TestResult.Failure;
+            }
+
+            if (net0.AllPins.Count != 1)
+            {
+                TUtils.WriteFail($"0]Pin count: {net0.AllPins.Count}, expected: 1");
+                return TestResult.Failure;
+            }
+
+            if (c.Networks.Count != 2)
+            {
+                TUtils.WriteFail($"Network count: {c.Networks.Count}, expected: 2");
+                return TestResult.Failure;
+            }
+
+            TUtils.WriteSucces("OK");
+            return TestResult.Success;
+        });
+        TestCircuit("Network.Split to 2, after pin.Destroy()", (c) => {
+            var net0 = c.CreateNet();
+            var pin0 = net0.CreatePin(0, 0);
+            var pin1 = net0.CreatePin(1, 0);
+            var pin2 = net0.CreatePin(2, 0);
+            var pin3 = net0.CreatePin(3, 0);
+            var pin4 = net0.CreatePin(4, 0);
+
+            net0.ConnectFromTo(pin0, pin1);
+            net0.ConnectFromTo(pin1, pin2);
+            net0.ConnectFromTo(pin2, pin3);
+            net0.ConnectFromTo(pin3, pin4);
+
+
+            pin2.Destroy();
+
+
+            if (c.Networks.Count != 2)
+            {
+                TUtils.WriteFail($"Network count: {c.Networks.Count}, expected: 2");
+                return TestResult.Failure;
+            }
+
+            var net1 = c.Networks[1];
+
+            if (net0.AllPins.Count != 2)
+            {
+                TUtils.WriteFail($"0]Pin count: {net0.AllPins.Count}, expected: 2");
+                return TestResult.Failure;
+            }
+            if (net1.AllPins.Count != 2)
+            {
+                TUtils.WriteFail($"1]Pin count: {net1.AllPins.Count}, expected: 2");
+                return TestResult.Failure;
+            }
+
+            if (net0.Wires.Count != 1)
+            {
+                TUtils.WriteFail($"0]Wires count: {net0.Wires.Count}, expected: 1");
+                return TestResult.Failure;
+            }
+            if (net1.Wires.Count != 1)
+            {
+                TUtils.WriteFail($"0]Wires count: {net1.Wires.Count}, expected: 1");
+                return TestResult.Failure;
+            }
+
+
+
+            TUtils.WriteSucces("OK");
+            return TestResult.Success;
+        });
+
+        TestCircuit("Network.Split to 3, after pin.Destroy()", (c) => {
+            var net0 = c.CreateNet();
+            var pin0 = net0.CreatePin(0, 0);
+            var pin1 = net0.CreatePin(1, 0);
+            var pin2 = net0.CreatePin(2, 0);
+            var pin3 = net0.CreatePin(3, 0);
+
+            net0.ConnectFromTo(pin1, pin0);
+            net0.ConnectFromTo(pin2, pin0);
+            net0.ConnectFromTo(pin3, pin0);
+
+
+            pin0.Destroy();
+
+
+            if (c.Networks.Count != 3)
+            {
+                TUtils.WriteFail($"Network count: {c.Networks.Count}, expected: 3");
+                return TestResult.Failure;
+            }
+
+            foreach (var net in c.Networks)
+            {
+                if (net.AllPins.Count != 1)
+                {
+                    TUtils.WriteFail($"Pin count: {net0.AllPins.Count}, expected: 1");
+                    return TestResult.Failure;
+                }
+                if (net.Wires.Count != 0)
+                {
+                    TUtils.WriteFail($"Wires count: {net0.Wires.Count}, expected: 0");
+                    return TestResult.Failure;
+                }
+            }
+
+            TUtils.WriteSucces("OK");
+            return TestResult.Success;
+        });
+        TestCircuit("Network.Split after net.Disconnect(pin,pin)", (c) => {
+            var net0 = c.CreateNet();
+            var pin0 = net0.CreatePin(0, 0);
+            var pin1 = net0.CreatePin(1, 0);
+            net0.ConnectFromTo(pin0, pin1);
+
+            net0.Disconnect(pin0, pin1);
+
+
+            if (c.Networks.Count != 2)
+            {
+                TUtils.WriteFail($"Network count: {c.Networks.Count}, expected: 2");
+                return TestResult.Failure;
+            }
+
+            foreach (var net in c.Networks)
+            {
+                if (net.AllPins.Count != 1)
+                {
+                    TUtils.WriteFail($"Pin count: {net0.AllPins.Count}, expected: 1");
+                    return TestResult.Failure;
+                }
+                if (net.Wires.Count != 0)
+                {
+                    TUtils.WriteFail($"Wires count: {net0.Wires.Count}, expected: 0");
+                    return TestResult.Failure;
+                }
+            }
+
+            TUtils.WriteSucces("OK");
+            return TestResult.Success;
+        });
+
 
         TUtils.WriteResults();
     }
@@ -106,7 +435,7 @@ class Tests
             node.Update();
 
             bool failed = false;
-            for (int i = 0;i < output.Length; i++)
+            for (int i = 0; i < output.Length; i++)
             {
                 if (node.OutputPins[i].Active != output[i])
                 {
@@ -128,10 +457,28 @@ class Tests
         });
     }
 
-    static void TextCircuit(Circuit circuit,string inp)
+    static void TextCircuit(Circuit circuit, string inp)
     {
-    
+
+    }
+
+    static void TestNetwork(string title, Func<Network, TestResult> test)
+    {
+        TUtils.Write($"Test Network <{title}>: ");
+        TUtils.Test(() => {
+            var circuit = new Circuit();
+            var net = circuit.CreateNet();
+            return test(net);
+        });
+    }
+
+    static void TestCircuit(string title, Func<Circuit, TestResult> test)
+    {
+        TUtils.Write($"Test Circuit <{title}>: ");
+        TUtils.Test(() => {
+            var circuit = new Circuit();
+            return test(circuit);
+        });
     }
 }
-
 
