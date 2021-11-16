@@ -117,7 +117,7 @@ internal class Renderer
             if (entity != null)
             {
                 var str = new StringBuilder();
-                str.AppendLine("name:  "+entity.Name);
+                str.AppendLine("name:  "+entity.Name); 
                 str.AppendLine("owner: "+entity.Owner?.Name);
 
                 if (entity is IOPin)

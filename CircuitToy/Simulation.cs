@@ -33,17 +33,17 @@ internal class Simulation
             var input0 = Circuit.CreateNode<Input>(0, 0);
             var input1 = Circuit.CreateNode<Input>(0, 4);
             var output = Circuit.CreateNode<Output>(10, 2);
-            var orgate = Circuit.CreateNode<XorGate>(5, 2);
+            var orgate = Circuit.CreateNode<AndGate>(5, 2);
 
             input0.ConnectTo(orgate, 0, 0);
             input1.ConnectTo(orgate, 0, 1);
             orgate.ConnectTo(output, 0, 0);
 
-            input0.OutputPins[0].ConnectedNetwork.ConnectFromTo(input0.OutputPins[0], new PointF(-10, -10));
+            //input0.OutputPins[0].ConnectedNetwork.ConnectFromTo(input0.OutputPins[0], new PointF(-10, -10));
             input0.Active = true;
             input0.Update();
 
-            input1.Active = true;
+            input1.Active = false;
             input1.Update();
         }
 

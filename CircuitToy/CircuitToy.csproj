@@ -5,8 +5,13 @@
     <TargetFramework>net6.0-windows</TargetFramework>
     <!--<Nullable>enable</Nullable>-->
     <UseWindowsForms>true</UseWindowsForms>
+    <ApplicationIcon>assets\circuit.ico</ApplicationIcon>
     <!--<ImplicitUsings>enable</ImplicitUsings>-->
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="assets\circuit.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\CircuitLib\CircuitLib.csproj" />

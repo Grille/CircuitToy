@@ -9,10 +9,18 @@ namespace CircuitLib.Interface;
 
 public class EditorInterface
 {
+    enum State
+    {
+        None,
+        Selecting,
+        Moving,
+    }
+
     public Circuit Circuit;
     public Camera Camera;
     public Selection Selection;
 
+    private State state = State.None;
     private bool isClick = false;
 
     public bool IsShiftKeyDown = false;
@@ -44,6 +52,7 @@ public class EditorInterface
                 if (!IsShiftKeyDown)
                     Selection.ClearSelection();
                 Selection.SelectAreaBegin(WorldMousePos);
+
                 isClick = false;
             }
             else if (obj.IsSelected)
@@ -69,6 +78,10 @@ public class EditorInterface
         ScreenMousePos = location;
         WorldMousePos = Camera.ScreenToWorldSpace(location);
 
+        Entity entity = null;
+        if (Selection.SelectedEntities.Count == 1)
+            entity = Selection.SelectedEntities[0];
+
         if (left)
         {
             isClick = false;
@@ -78,7 +91,14 @@ public class EditorInterface
             }
             else
             {
-                Selection.Offset = new PointF(WorldMousePos.X - WorldMouseDownPos.X, WorldMousePos.Y - WorldMouseDownPos.Y);
+                if (entity is Pin)
+                {
+
+                }
+                else
+                {
+                    Selection.Offset = new PointF(WorldMousePos.X - WorldMouseDownPos.X, WorldMousePos.Y - WorldMouseDownPos.Y);
+                }
             }
         }
         else
@@ -90,6 +110,10 @@ public class EditorInterface
     public void MouseUp(PointF location, bool left)
     {
         WorldMouseUpPos = WorldMousePos;
+
+        Entity entity = null;
+        if (Selection.SelectedEntities.Count == 1)
+            entity = Selection.SelectedEntities[0];
 
         var obj = Circuit.GetAt(WorldMousePos);
 
@@ -126,7 +150,15 @@ public class EditorInterface
             }
             else
             {
-                Selection.ApplyOffset();
+                if (entity is Pin)
+                {
+                    var pin = (Pin)entity;
+                    pin.ConnectTo(WorldMousePos);
+                }
+                else
+                {
+                    Selection.ApplyOffset();
+                }
             }
         }
     }

@@ -68,6 +68,7 @@ public class Network : Entity
                 Join(pin.Owner);
         }
         Wires.Add(new Wire(this, pin0, pin1));
+        Update();
     }
     public void ConnectFromTo(Pin pin0, PointF pos1)
     {
@@ -83,6 +84,7 @@ public class Network : Entity
         {
             ConnectFromTo(pin0, (Pin)entity);
         }
+        Update();
     }
     public void Disconnect(Pin pin0, Pin pin1)
     {
@@ -128,6 +130,7 @@ public class Network : Entity
                 throw new InvalidOperationException($"InputPin already in this Network!");
             inPin.ConnectedNetwork = this;
             InputPins.Add(inPin);
+            Update();
         }
         else if (pin is OutputPin) {
             var outPin = (OutputPin)pin;
@@ -137,6 +140,7 @@ public class Network : Entity
                 throw new InvalidOperationException($"OutputPin already in this Network!");
             outPin.ConnectedNetwork = this;
             OutputPins.Add(outPin);
+            Update();
         }
         else if (pin is NetPin)
         {
@@ -232,6 +236,7 @@ public class Network : Entity
             net.overtakeWires();
             net.split();
         }
+        Update();
 
         enableSpilt = true;
     }

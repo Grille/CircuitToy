@@ -37,7 +37,7 @@ public abstract class Pin : Entity
     }
 
     public abstract void ConnectTo(Pin pin1);
-
+    public abstract void ConnectTo(PointF pin1);
 
     public override void Destroy()
     {

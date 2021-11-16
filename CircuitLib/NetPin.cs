@@ -27,9 +27,14 @@ public class NetPin : Pin
         set => _active = value;
     }
 
-    public override void ConnectTo(Pin pin1)
+    public override void ConnectTo(Pin pin)
     {
-        throw new NotImplementedException();
+        Owner.ConnectFromTo(this, pin);
+    }
+
+    public override void ConnectTo(PointF pos)
+    {
+        Owner.ConnectFromTo(this, pos);
     }
 
     public override void Destroy()

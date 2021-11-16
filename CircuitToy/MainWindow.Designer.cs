@@ -31,6 +31,7 @@ namespace CircuitToy
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainWindow));
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
@@ -91,7 +92,7 @@ namespace CircuitToy
             this.copyToolStripMenuItem,
             this.pasteToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(181, 92);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(145, 70);
             // 
             // addToolStripMenuItem
             // 
@@ -104,53 +105,53 @@ namespace CircuitToy
             this.nOTToolStripMenuItem,
             this.xORToolStripMenuItem});
             this.addToolStripMenuItem.Name = "addToolStripMenuItem";
-            this.addToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.addToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
             this.addToolStripMenuItem.Text = "Add";
             // 
             // iNToolStripMenuItem
             // 
             this.iNToolStripMenuItem.Name = "iNToolStripMenuItem";
-            this.iNToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.iNToolStripMenuItem.Size = new System.Drawing.Size(99, 22);
             this.iNToolStripMenuItem.Text = "IN";
             this.iNToolStripMenuItem.Click += new System.EventHandler(this.iNToolStripMenuItem_Click);
             // 
             // oUTToolStripMenuItem
             // 
             this.oUTToolStripMenuItem.Name = "oUTToolStripMenuItem";
-            this.oUTToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.oUTToolStripMenuItem.Size = new System.Drawing.Size(99, 22);
             this.oUTToolStripMenuItem.Text = "OUT";
             this.oUTToolStripMenuItem.Click += new System.EventHandler(this.oUTToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(177, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(96, 6);
             // 
             // oRToolStripMenuItem
             // 
             this.oRToolStripMenuItem.Name = "oRToolStripMenuItem";
-            this.oRToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.oRToolStripMenuItem.Size = new System.Drawing.Size(99, 22);
             this.oRToolStripMenuItem.Text = "OR";
             this.oRToolStripMenuItem.Click += new System.EventHandler(this.oRToolStripMenuItem_Click);
             // 
             // aNDToolStripMenuItem
             // 
             this.aNDToolStripMenuItem.Name = "aNDToolStripMenuItem";
-            this.aNDToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.aNDToolStripMenuItem.Size = new System.Drawing.Size(99, 22);
             this.aNDToolStripMenuItem.Text = "AND";
             this.aNDToolStripMenuItem.Click += new System.EventHandler(this.aNDToolStripMenuItem_Click);
             // 
             // nOTToolStripMenuItem
             // 
             this.nOTToolStripMenuItem.Name = "nOTToolStripMenuItem";
-            this.nOTToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.nOTToolStripMenuItem.Size = new System.Drawing.Size(99, 22);
             this.nOTToolStripMenuItem.Text = "NOT";
             this.nOTToolStripMenuItem.Click += new System.EventHandler(this.nOTToolStripMenuItem_Click);
             // 
             // xORToolStripMenuItem
             // 
             this.xORToolStripMenuItem.Name = "xORToolStripMenuItem";
-            this.xORToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.xORToolStripMenuItem.Size = new System.Drawing.Size(99, 22);
             this.xORToolStripMenuItem.Text = "XOR";
             this.xORToolStripMenuItem.Click += new System.EventHandler(this.xORToolStripMenuItem_Click);
             // 
@@ -177,6 +178,7 @@ namespace CircuitToy
             this.Controls.Add(this.renderBox);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.menuStrip1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "MainWindow";

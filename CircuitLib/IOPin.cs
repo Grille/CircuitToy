@@ -24,9 +24,26 @@ public abstract class IOPin : Pin
 
     public Network ConnectedNetwork;
 
-    public override void ConnectTo(Pin pin1)
+    public override void ConnectTo(Pin pin)
     {
-        throw new NotImplementedException();
+        if (ConnectedNetwork == null)
+        {
+            var net = Owner.Owner.CreateNet();
+            net.Add(this);
+        }
+
+        ConnectedNetwork.ConnectFromTo(this, pin);
+    }
+
+    public override void ConnectTo(PointF pos)
+    {
+        if (ConnectedNetwork == null)
+        {
+            var net = Owner.Owner.CreateNet();
+            net.Add(this);
+        }
+
+        ConnectedNetwork.ConnectFromTo(this, pos);
     }
 
     public override void CalcBoundings()

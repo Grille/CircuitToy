@@ -172,5 +172,15 @@ public class Selection
         }
         Offset = PointF.Empty;
     }
+
+    public void Copy()
+    {
+
+    }
+
+    public void Paste()
+    {
+
+    }
 }
 
