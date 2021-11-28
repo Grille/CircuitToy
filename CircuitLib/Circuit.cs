@@ -78,6 +78,7 @@ public class Circuit : Node
                 outputList.Add(pin);
             }
         }
+        
 
         InputPins = inputList.ToArray();
         OutputPins = outputList.ToArray();

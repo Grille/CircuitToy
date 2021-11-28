@@ -228,10 +228,20 @@ internal class Renderer
                 fillCircle(Brushes.LightSeaGreen, spos, 0.35f);
             }
 
-            if (pin.Active)
-                fillCircle(Brushes.Blue, pos, 0.15f);
+            if (pin.ConnectedWires.Count != 2)
+            {
+                if (pin.Active)
+                    fillCircle(Brushes.Blue, pos, 0.15f);
+                else
+                    fillCircle(Brushes.Black, pos, 0.15f);
+            }
             else
-                fillCircle(Brushes.Black, pos, 0.15f);
+            {
+                if (pin.Active)
+                    fillCircle(Brushes.Blue, pos, 0.05f);
+                else
+                    fillCircle(Brushes.Black, pos, 0.05f);
+            }
 
         }
     }

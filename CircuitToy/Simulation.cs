@@ -47,6 +47,10 @@ internal class Simulation
             input1.Update();
         }
 
+        SaveFile.Save("test", Circuit);
+
+        Circuit = SaveFile.Load("test");
+
         Camera = new Camera();
         Selection = new Selection(Circuit);
         Interaction = new EditorInterface(Circuit, Camera, Selection);

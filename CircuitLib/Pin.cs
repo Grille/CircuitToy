@@ -65,6 +65,10 @@ public abstract class Pin : Entity
         CalcBoundings();
     }
 
+    public Pin()
+    {
+    }
+
     public Pin(Entity owner) : this(owner, 0, 0) { }
 
     public Pin(Entity owner, float x, float y)

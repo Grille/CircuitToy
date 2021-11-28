@@ -10,8 +10,11 @@ namespace CircuitLib;
 
 public abstract class IOPin : Pin
 {
+    public IOPin() : base() { }
     public IOPin(Node owner) : base(owner) { }
     public IOPin(Node owner, float x, float y) : base(owner, x, y) { }
+
+    internal bool _active;
 
     public new Node Owner {
         get {

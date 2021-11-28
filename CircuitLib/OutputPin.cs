@@ -9,11 +9,10 @@ namespace CircuitLib;
 
 public class OutputPin : IOPin
 {
-
+    public OutputPin() : base() { }
     public OutputPin(Node owner) : base(owner) { }
     public OutputPin(Node owner, float x, float y) : base(owner, x, y) { }
 
-    private bool _active;
     public override bool Active {
         get {
             return _active;
