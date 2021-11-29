@@ -18,11 +18,12 @@ internal class Simulation
     public Camera Camera;
     public Renderer Renderer;
     public Control Target;
-    public Selection Selection;
     public EditorInterface Interaction;
 
     public ContextMenuStrip ContextMenu;
     public PointF MouseUpPos = Point.Empty;
+
+    string path = "newcircuit.lcp";
 
     public Simulation(Control target)
     {
@@ -56,10 +57,7 @@ internal class Simulation
             input1.ConnectTo(orgate, 0, 1);
             orgate.ConnectTo(output, 0, 0);
 
-
-
-            SaveFile.Save("test", Circuit);
-            Circuit = SaveFile.Load("test");
+            Circuit.UpdateIO();
 
             Circuit.InputPins[0].Active = true;
             Circuit.InputPins[1].Active = true;
@@ -68,8 +66,7 @@ internal class Simulation
 
 
         Camera = new Camera();
-        Selection = new Selection(Circuit);
-        Interaction = new EditorInterface(Circuit, Camera, Selection);
+        Interaction = new EditorInterface(Circuit, Camera);
 
         Renderer = new Renderer(Target, Circuit, Camera, Interaction);
         Renderer.DebugMode = false;
@@ -81,9 +78,38 @@ internal class Simulation
         Target.MouseUp += Target_MouseUp;
 
         Target.KeyDown += Target_KeyDown;
+    }
 
+    public void New()
+    {
+        useCircuit(new Circuit());
+    }
+    public void Save()
+    {
+        SaveFile.Save(path,Circuit);
+    }
+    public void Save(string path)
+    {
+        this.path = path;
+        SaveFile.Save(path, Circuit);
+    }
 
+    public void Load(string path)
+    {
+        this.path = path;
+        useCircuit(SaveFile.Load(path));
+    }
 
+    private void useCircuit(Circuit circuit)
+    {
+        Circuit?.Destroy();
+        Circuit = circuit;
+        Interaction.Circuit = circuit;
+        Interaction.Selection.Circuit = circuit;
+        Renderer.Circuit = circuit;
+
+        Interaction.Clear();
+        
     }
 
     private void Target_KeyDown(object sender, KeyEventArgs e)

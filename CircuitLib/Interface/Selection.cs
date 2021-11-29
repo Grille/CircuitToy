@@ -13,7 +13,7 @@ public class Selection
     public Entity HoveredEntity;
     public List<Entity> SelectedEntities;
 
-    public Entity World;
+    public Entity Circuit;
 
     public PointF Offset;
 
@@ -25,7 +25,7 @@ public class Selection
 
     public Selection(Entity world)
     {
-        World = world;
+        Circuit = world;
 
         HoveredEntity = null;
         SelectedEntities = new List<Entity>();
@@ -35,7 +35,7 @@ public class Selection
 
     public Entity HoverAt(PointF pos)
     {
-        var obj = World.GetAt(pos);
+        var obj = Circuit.GetAt(pos);
         if (obj == null)
         {
             if (HoveredEntity != null)
@@ -58,12 +58,12 @@ public class Selection
 
     public void SelectAt(PointF pos)
     {
-        Select(World.GetAt(pos));
+        Select(Circuit.GetAt(pos));
     }
 
     public void ClickAt(PointF pos)
     {
-        var obj = World.GetAt(pos);
+        var obj = Circuit.GetAt(pos);
         if (obj != null)
             obj.ClickAction();
     }
@@ -87,7 +87,7 @@ public class Selection
 
     public void DeselectAt(PointF pos)
     {
-        var obj = World.GetAt(pos);
+        var obj = Circuit.GetAt(pos);
         if (obj != null && obj.IsSelected)
         {
             obj.IsSelected = false;
@@ -97,7 +97,7 @@ public class Selection
 
     public void ToogleAt(PointF pos)
     {
-        var obj = World.GetAt(pos);
+        var obj = Circuit.GetAt(pos);
         if (obj != null)
         {
             if (!obj.IsSelected)
@@ -137,7 +137,7 @@ public class Selection
     public List<Entity> SelectAreaEnd()
     {
         IsSelectingArea = false;
-        return World.GetListFromArea(SelectetArea);
+        return Circuit.GetListFromArea(SelectetArea);
     }
 
     public void ClearSelection()

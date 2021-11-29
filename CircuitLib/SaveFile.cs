@@ -225,6 +225,10 @@ namespace CircuitLib
                 {
                     int index0 = br.ReadInt32();
                     int index1 = br.ReadInt32();
+
+                    if (index0 == -1 || index1 == -1)
+                        continue;
+
                     net.Add(nodes[index0].InputPins[index1]);
                 }
 
@@ -233,6 +237,10 @@ namespace CircuitLib
                 {
                     int index0 = br.ReadInt32();
                     int index1 = br.ReadInt32();
+
+                    if (index0 == -1 || index1 == -1)
+                        continue;
+
                     net.Add(nodes[index0].OutputPins[index1]);
                 }
             }
@@ -242,6 +250,10 @@ namespace CircuitLib
             {
                 var pin0 = readWirePin();
                 var pin1 = readWirePin();
+
+                if (pin0 == null || pin1 == null)
+                    continue;
+
                 pin0.ConnectTo(pin1);
             }
 
@@ -276,6 +288,9 @@ namespace CircuitLib
                 byte type = br.ReadByte();
                 int index0 = br.ReadInt32();
                 int index1 = br.ReadInt32();
+
+                if (index0 == -1 || index1 == -1)
+                    return null;
 
                 return type switch {
                     0 => networks[index0].GuardPins[index1],

@@ -76,7 +76,7 @@ public abstract class Node : Entity
         {
             pin.Destroy();
         }
-        Owner.Nodes.Remove(this);
+        Owner?.Nodes.Remove(this);
         base.Destroy();
     }
 

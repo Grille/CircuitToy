@@ -104,6 +104,11 @@ public class Network : Entity
         //Split();
     }
 
+    public NetPin CreatePin(PointF pos)
+    {
+        return CreatePin(pos.X, pos.Y);
+    }
+
     public NetPin CreatePin(float x, float y)
     {
         var pin = new NetPin(this, x, y);

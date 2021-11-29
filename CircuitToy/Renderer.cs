@@ -15,7 +15,7 @@ internal class Renderer
 {
     Camera camera;
     Control target;
-    Circuit circuit;
+    public Circuit Circuit;
     EditorInterface editor;
     Selection selection;
     Graphics g;
@@ -30,7 +30,7 @@ internal class Renderer
     public Renderer(Control target, Circuit circuit, Camera camera, EditorInterface editor)
     {
         this.target = target;
-        this.circuit = circuit;
+        this.Circuit = circuit;
         this.camera = camera;
         this.editor = editor;
         this.selection = editor.Selection;
@@ -94,12 +94,12 @@ internal class Renderer
             g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighSpeed;
         }
 
-        foreach (var net in circuit.Networks)
+        foreach (var net in Circuit.Networks)
         {
             drawNet(net);
         }
 
-        foreach (var node in circuit.Nodes)
+        foreach (var node in Circuit.Nodes)
         {
             drawNode(node);
         }

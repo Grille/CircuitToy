@@ -111,36 +111,77 @@ public class Circuit : Node
         }
     }
 
-    public override Entity GetAt(PointF pos)
+    public override void Destroy()
     {
-        foreach (var node in Nodes)
-        {
-            var obj = node.GetAt(pos);
-            if (obj != null)
-            {
-                return obj;
-            }
-        }
+        var refNet = new List<Network>();
         foreach (var net in Networks)
         {
-            var obj = net.GetAt(pos);
-            if (obj != null)
-            {
-                return obj;
-            }
+            refNet.Add(net);
         }
-        return null;
+
+        foreach (var net in refNet)
+        {
+            net.Destroy();
+        }
+
+        var refNodes = new List<Node>();
+        foreach (var node in Nodes)
+        {
+            refNodes.Add(node);
+        }
+
+        foreach (var node in refNodes)
+        {
+            node.Destroy();
+        }
+
+        base.Destroy();
+    }
+
+    public override Entity GetAt(PointF pos)
+    {
+        if (Owner == null)
+        {
+            foreach (var node in Nodes)
+            {
+                var obj = node.GetAt(pos);
+                if (obj != null)
+                {
+                    return obj;
+                }
+            }
+            foreach (var net in Networks)
+            {
+                var obj = net.GetAt(pos);
+                if (obj != null)
+                {
+                    return obj;
+                }
+            }
+            return null;
+        }
+        else
+        {
+            return base.GetAt(pos);
+        }
     }
 
     public override void GetFromArea(List<Entity> entities, BoundingBoxF region)
     {
-        foreach (var node in Nodes)
+        if (Owner == null)
         {
-            node.GetFromArea(entities, region);
+            foreach (var node in Nodes)
+            {
+                node.GetFromArea(entities, region);
+            }
+            foreach (var net in Networks)
+            {
+                net.GetFromArea(entities, region);
+            }
         }
-        foreach (var net in Networks)
+        else
         {
-            net.GetFromArea(entities, region);
+            base.GetFromArea(entities, region);
         }
     }
 }

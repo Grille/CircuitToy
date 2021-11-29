@@ -9,6 +9,8 @@ class Tests
 {
     static void Main(string[] args)
     {
+        var circ = SaveFile.Load("newcircuit_2.lcp");
+
         TUtils.CatchExeptions = false;
 
         TUtils.WriteTitle("TestCascade...");

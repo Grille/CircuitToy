@@ -83,6 +83,15 @@ namespace CircuitLib
             return null;
         }
 
+        public Pin InsertPinAt(PointF pos0)
+        {
+            var pin = Owner.CreatePin(MathF.Round(pos0.X), MathF.Round(pos0.Y));
+            StartPin.ConnectTo(pin);
+            EndPin.ConnectTo(pin);
+            Destroy();
+            return pin;
+        }
+
         public override void GetFromArea(List<Entity> entities, BoundingBoxF region)
         {
             return;
