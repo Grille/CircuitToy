@@ -28,28 +28,44 @@ internal class Simulation
     {
         Target = target;
 
+        var andcirc = new Circuit();
+        {
+            var input0 = andcirc.CreateNode<Input>(0, 0);
+            var input1 = andcirc.CreateNode<Input>(0, 4);
+            var output = andcirc.CreateNode<Output>(10, 2);
+            var orgate = andcirc.CreateNode<AndGate>(5, 2);
+            input0.ConnectTo(orgate, 0, 0);
+            input1.ConnectTo(orgate, 0, 1);
+            orgate.ConnectTo(output, 0, 0);
+            andcirc.UpdateIO();
+
+            andcirc.Position = new PointF(5, 2);
+            andcirc.Size = new Size(2, 2);
+            andcirc.DisplayName = "AN";
+        }
+
         Circuit = new Circuit();
         {
             var input0 = Circuit.CreateNode<Input>(0, 0);
             var input1 = Circuit.CreateNode<Input>(0, 4);
             var output = Circuit.CreateNode<Output>(10, 2);
-            var orgate = Circuit.CreateNode<AndGate>(5, 2);
+            var orgate = andcirc;
+            Circuit.AddNode(orgate);
 
             input0.ConnectTo(orgate, 0, 0);
             input1.ConnectTo(orgate, 0, 1);
             orgate.ConnectTo(output, 0, 0);
 
-            //input0.OutputPins[0].ConnectedNetwork.ConnectFromTo(input0.OutputPins[0], new PointF(-10, -10));
-            input0.Active = true;
-            input0.Update();
 
-            input1.Active = false;
-            input1.Update();
+
+            SaveFile.Save("test", Circuit);
+            Circuit = SaveFile.Load("test");
+
+            Circuit.InputPins[0].Active = true;
+            Circuit.InputPins[1].Active = true;
         }
 
-        SaveFile.Save("test", Circuit);
 
-        Circuit = SaveFile.Load("test");
 
         Camera = new Camera();
         Selection = new Selection(Circuit);

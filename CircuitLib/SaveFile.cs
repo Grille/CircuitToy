@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
+using CircuitLib.Primitives;
 using GGL.IO;
 
 namespace CircuitLib
@@ -13,16 +14,22 @@ namespace CircuitLib
         public static void Save(string path, Circuit circuit)
         {
             using var bw = new BinaryViewWriter(path);
+            bw.WriteInt32(0);
+            bw.CompressAll();
+            WriteCircuit(bw, circuit);
+        }
 
+        public static void WriteCircuit(BinaryViewWriter bw, Circuit circuit)
+        {
             var nodes = circuit.Nodes;
             var networks = circuit.Networks;
-
-            bw.CompressAll();
 
             bw.Write(nodes.Count);
             for (int i = 0; i < nodes.Count; i++)
             {
                 var node = nodes[i];
+
+                writeNodeType(node);
 
                 bw.WriteString(node.Name);
                 bw.WriteString(node.Description);
@@ -97,6 +104,26 @@ namespace CircuitLib
                 writeWirePin(wire.EndPin);
             }
 
+            void writeNodeType(Node node)
+            {
+                int id = node switch {
+                    Input => 0,
+                    Output => 1,
+                    AndGate => 2,
+                    OrGate => 3,
+                    XorGate => 4,
+                    NotGate => 5,
+                    NAndGate => 6,
+                    NOrGate => 7,
+                    XNorGate => 8,
+                    Circuit => 100,
+                    _ => throw new ArgumentOutOfRangeException(),
+                };
+                bw.WriteInt32(id);
+
+                if (id == 100)
+                    WriteCircuit(bw, (Circuit)node);
+            }
             void writeWirePin(Pin pin)
             {
                 switch (pin)
@@ -128,19 +155,23 @@ namespace CircuitLib
 
         public static Circuit Load(string path)
         {
+            using var br = new BinaryViewReader(path);
+            br.ReadInt32();
+            br.DecompressAll();
+            return ReadCircuit(br);
+        }
+
+        public static Circuit ReadCircuit(BinaryViewReader br)
+        {
             var circuit = new Circuit();
 
             var nodes = circuit.Nodes;
             var networks = circuit.Networks;
 
-            using var br = new BinaryViewReader(path);
-
-            br.DecompressAll();
-
             int nodeCount = br.ReadInt32();
             for (int i = 0; i < nodeCount; i++)
             {
-                var node = circuit.CreateNode<IntegratedCircuit>();
+                var node = readNodeType();
 
                 node.Name = br.ReadString();
                 node.Description = br.ReadString();
@@ -207,11 +238,37 @@ namespace CircuitLib
             }
 
             int wireCount = br.ReadInt32();
-            for (int i = 0;i < wireCount; i++)
+            for (int i = 0; i < wireCount; i++)
             {
                 var pin0 = readWirePin();
                 var pin1 = readWirePin();
                 pin0.ConnectTo(pin1);
+            }
+
+            Node readNodeType()
+            {
+                int id = br.ReadInt32();
+
+                if (id == 100)
+                {
+                    var newcirc = ReadCircuit(br);
+                    circuit.AddNode(newcirc);
+                    return newcirc;
+                }
+
+                return id switch {
+                    0 => circuit.CreateNode<Input>(),
+                    1 => circuit.CreateNode<Output>(),
+                    2 => circuit.CreateNode<AndGate>(),
+                    3 => circuit.CreateNode<OrGate>(),
+                    4 => circuit.CreateNode<XorGate>(),
+                    5 => circuit.CreateNode<NotGate>(),
+                    6 => circuit.CreateNode<NAndGate>(),
+                    7 => circuit.CreateNode<NOrGate>(),
+                    8 => circuit.CreateNode<XNorGate>(),
+                    100 => circuit.CreateNode<Circuit>(),
+                    _ => throw new NotImplementedException(),
+                };
             }
 
             Pin readWirePin()
@@ -220,19 +277,15 @@ namespace CircuitLib
                 int index0 = br.ReadInt32();
                 int index1 = br.ReadInt32();
 
-                switch (type)
-                {
-                    case 0:
-                        return networks[index0].GuardPins[index1];
-                    case 1:
-                        return nodes[index0].InputPins[index1];
-                    case 2:
-                        return nodes[index0].OutputPins[index1];
-                    default:
-                        throw new Exception();
-                }
+                return type switch {
+                    0 => networks[index0].GuardPins[index1],
+                    1 => nodes[index0].InputPins[index1],
+                    2 => nodes[index0].OutputPins[index1],
+                    _ => throw new NotImplementedException(),
+                };
             }
 
+            circuit.UpdateIO();
             return circuit;
 
 

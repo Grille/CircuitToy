@@ -13,12 +13,18 @@ public class Circuit : Node
     public List<Node> Nodes;
     public List<Network> Networks;
 
+    private List<Input> inputs;
+    private List<Output> outputs;
+
     private int autoIdCount = 0;
 
     public Circuit()
     {
         Nodes = new List<Node>();
         Networks = new List<Network>();
+
+        inputs = new List<Input>();
+        outputs = new List<Output>();
     }
 
     public void AddNode(Node node)
@@ -58,8 +64,11 @@ public class Circuit : Node
 
     public void UpdateIO()
     {
-        List<InputPin> inputList = new List<InputPin>();
-        List<OutputPin> outputList = new List<OutputPin>();
+        List<InputPin> inputPinList = new List<InputPin>();
+        List<OutputPin> outputPinList = new List<OutputPin>();
+
+        inputs.Clear();
+        outputs.Clear();
 
         for (int i = 0;i< Nodes.Count; i++)
         {
@@ -67,27 +76,39 @@ public class Circuit : Node
             if (node is Input)
             {
                 var input = (Input)node;
+                inputs.Add(input);
                 var pin = new InputPin(this);
-                inputList.Add(pin);
-
+                inputPinList.Add(pin);
             }
             else if (node is Output)
             {
                 var output = (Output)node;
+                outputs.Add(output);
                 var pin = new OutputPin(this);
-                outputList.Add(pin);
+                outputPinList.Add(pin);
             }
         }
         
 
-        InputPins = inputList.ToArray();
-        OutputPins = outputList.ToArray();
+        InputPins = inputPinList.ToArray();
+        OutputPins = outputPinList.ToArray();
 
     }
 
     public override void Update()
     {
-        
+        for (int i = 0; i < inputs.Count; i++)
+        {
+            inputs[i]._active = InputPins[i]._active;
+        }
+        for (int i = 0; i < inputs.Count; i++)
+        {
+            inputs[i].Update();
+        }
+        for (int i = 0; i < outputs.Count; i++)
+        {
+            OutputPins[i].Active = outputs[i]._active;
+        }
     }
 
     public override Entity GetAt(PointF pos)

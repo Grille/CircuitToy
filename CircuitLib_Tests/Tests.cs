@@ -34,10 +34,7 @@ class Tests
         TestNode<NotGate>("0->1");
         TestNode<NotGate>("1->0");
 
-        TUtils.WriteTitle("TestCircuits...");
-        var circuit = new Circuit();
-
-        #region Network
+        #region TestNetwork
         TUtils.WriteTitle("TestNetwork...");
         TestNetwork("create pins", (net) => {
             var pin0 = net.CreatePin();
@@ -161,6 +158,7 @@ class Tests
         });
         #endregion
 
+        #region TestNetworkInteraction
         TUtils.WriteTitle("TestNetworkInteraction...");
         TestCircuit("Network.Join", (c) => {
             var net0 = c.CreateNet();
@@ -363,7 +361,106 @@ class Tests
             TUtils.WriteSucces("OK");
             return TestResult.Success;
         });
+        #endregion
 
+        TUtils.WriteTitle("TestCircuits...");
+        TestCircuit("TestAndCircuit", (c) => {
+
+            var input0 = c.CreateNode<Input>(0, 0);
+            var input1 = c.CreateNode<Input>(0, 4);
+            var output = c.CreateNode<Output>(10, 2);
+            var orgate = c.CreateNode<AndGate>(5, 2);
+
+            input0.ConnectTo(orgate, 0, 0);
+            input1.ConnectTo(orgate, 0, 1);
+            orgate.ConnectTo(output, 0, 0);
+
+            c.UpdateIO();
+
+            c.InputPins[0].Active = true;
+            c.InputPins[1].Active = true;
+
+            if (c.InputPins.Length != 2)
+            {
+                TUtils.WriteFail($"InPin.Len != 2! {c.InputPins.Length}");
+                return TestResult.Failure;
+            }
+            if (c.OutputPins.Length != 1)
+            {
+                TUtils.WriteFail($"OutPin.Len != 1! {c.OutputPins.Length}");
+                return TestResult.Failure;
+            }
+
+            if (c.InputPins[0].Active != true)
+            {
+                TUtils.WriteFail("InPin[0] not true!");
+                return TestResult.Failure;
+            }
+            if (c.InputPins[1].Active != true)
+            {
+                TUtils.WriteFail("InPin[1] not true!");
+                return TestResult.Failure;
+            }
+
+            if (c.OutputPins[0].Active != true)
+            {
+                TUtils.WriteFail("OutPin[0] not true!");
+                return TestResult.Failure;
+            }
+
+            TUtils.WriteSucces("OK");
+            return TestResult.Success;
+        });
+
+        TestCircuit("TestNestedCircuit", (c) => {
+            var andcirc = new Circuit();
+            {
+                var input0 = andcirc.CreateNode<Input>(0, 0);
+                var input1 = andcirc.CreateNode<Input>(0, 4);
+                var output = andcirc.CreateNode<Output>(10, 2);
+                var orgate = andcirc.CreateNode<AndGate>(5, 2);
+                input0.ConnectTo(orgate, 0, 0);
+                input1.ConnectTo(orgate, 0, 1);
+                orgate.ConnectTo(output, 0, 0);
+                andcirc.UpdateIO();
+            }
+            {
+                var input0 = c.CreateNode<Input>(0, 0);
+                var input1 = c.CreateNode<Input>(0, 4);
+                var output = c.CreateNode<Output>(10, 2);
+                var orgate = andcirc;
+                c.AddNode(orgate);
+
+                input0.ConnectTo(orgate, 0, 0);
+                input1.ConnectTo(orgate, 0, 1);
+                orgate.ConnectTo(output, 0, 0);
+
+                c.UpdateIO();
+
+                if (c.InputPins.Length != 2)
+                {
+                    TUtils.WriteFail($"InPin.Len != 2! {c.InputPins.Length}");
+                    return TestResult.Failure;
+                }
+                if (c.OutputPins.Length != 1)
+                {
+                    TUtils.WriteFail($"OutPin.Len != 1! {c.OutputPins.Length}");
+                    return TestResult.Failure;
+                }
+
+                c.InputPins[0].Active = true;
+                c.InputPins[1].Active = true;
+
+                if (c.OutputPins[0].Active != true)
+                {
+                    TUtils.WriteFail("OutPin[0] not true!");
+                    return TestResult.Failure;
+                }
+            }
+
+            TUtils.WriteSucces("OK");
+            return TestResult.Success;
+        });
 
         TUtils.WriteResults();
     }

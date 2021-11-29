@@ -22,6 +22,14 @@ public class Input : Node
         Size = new SizeF(2, 2);
     }
 
+    public override bool Active {
+        get => base.Active;
+        set {
+            base.Active = value;
+            Update();
+        }
+    }
+
     public override void Update()
     {
         OutputPins[0].Active = Active;

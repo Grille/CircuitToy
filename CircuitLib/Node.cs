@@ -35,7 +35,7 @@ public abstract class Node : Entity
         }
     }
 
-    private bool _active = false;
+    internal bool _active = false;
     public override bool Active {
         get => _active;
         set => _active = value;
