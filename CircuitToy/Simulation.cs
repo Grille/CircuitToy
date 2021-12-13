@@ -20,9 +20,6 @@ internal class Simulation
     public Control Target;
     public EditorInterface Interaction;
 
-    public ContextMenuStrip ContextMenu;
-    public PointF MouseUpPos = Point.Empty;
-
     string path = "newcircuit.lcp";
 
     public Simulation(Control target)

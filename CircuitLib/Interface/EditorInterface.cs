@@ -72,7 +72,7 @@ public class EditorInterface
                     if (!IsShiftKeyDown)
                         Selection.ClearSelection();
 
-                    Selection.ToogleAt(WorldMousePos);
+                    Selection.SelectAt(WorldMousePos);
                     isClick = false;
                 }
             }
@@ -114,70 +114,86 @@ public class EditorInterface
 
         var obj = Circuit.GetAt(WorldMousePos);
 
-        if (Mode == ToolMode.SelectAndMove)
+        switch (Mode)
         {
-            if (isClick)
+            case ToolMode.SelectAndMove:
             {
-                if (left)
+                if (isClick)
                 {
-                    if (obj != null && obj.IsSelected)
+                    if (left)
                     {
-                        if (!IsShiftKeyDown)
-                            Selection.ClearSelection();
+                        if (obj != null && obj.IsSelected)
+                        {
+                            if (!IsShiftKeyDown)
+                                Selection.ClearSelection();
 
-                        Selection.ToogleAt(WorldMousePos);
+                            Selection.ToogleAt(WorldMousePos);
+                        }
                     }
-                }
-            }
-            else
-            {
-                if (Selection.IsSelectingArea)
-                {
-                    var list = Selection.SelectAreaEnd();
-                    Selection.Select(list);
                 }
                 else
                 {
-                    Selection.ApplyOffset();
+                    if (Selection.IsSelectingArea)
+                    {
+                        Selection.SelectAreaEnd();
+                        //Selection.Select(Selection.SelectedEntities);
+                    }
+                    else
+                    {
+                        Selection.ApplyOffset();
+                    }
                 }
+                break;
             }
-        }
-        if (Mode == ToolMode.AddWire && !isClick)
-        {
-            var downObj = Circuit.GetAt(WorldMouseDownPos);
-            var upObj = obj;
+            case ToolMode.AddWire:
+            {
+                if (!isClick)
+                {
+                    var downObj = Circuit.GetAt(WorldMouseDownPos);
+                    var upObj = obj;
 
-            Pin pin0 = null;
-            Pin pin1 = null;
+                    Pin pin0 = null;
+                    Pin pin1 = null;
 
-            if (downObj == null)
-            {
-                pin0 = Circuit.CreateNet().CreatePin(MathF.Round(WorldMouseDownPos.X), MathF.Round(WorldMouseDownPos.Y));
-            }
-            if (downObj is Pin)
-            {
-                pin0 = (Pin)downObj;
-            }
-            else if (downObj is Wire)
-            {
-                pin0 = ((Wire)downObj).InsertPinAt(WorldMouseDownPos);
-            }
+                    if (downObj == null)
+                    {
+                        pin0 = Circuit.CreateNet().CreatePin(MathF.Round(WorldMouseDownPos.X), MathF.Round(WorldMouseDownPos.Y));
+                    }
+                    if (downObj is Pin)
+                    {
+                        pin0 = (Pin)downObj;
+                    }
+                    else if (downObj is Wire)
+                    {
+                        pin0 = ((Wire)downObj).InsertPinAt(WorldMouseDownPos);
+                    }
 
-            if (upObj == null)
-            {
-                pin1 = Circuit.CreateNet().CreatePin(MathF.Round(WorldMouseUpPos.X), MathF.Round(WorldMouseUpPos.Y));
-            }
-            if (upObj is Pin)
-            {
-                pin1 = (Pin)upObj;
-            }
-            else if (upObj is Wire)
-            {
-                pin1 = ((Wire)upObj).InsertPinAt(WorldMouseUpPos);
-            }
+                    if (upObj == null)
+                    {
+                        pin1 = Circuit.CreateNet().CreatePin(MathF.Round(WorldMouseUpPos.X), MathF.Round(WorldMouseUpPos.Y));
+                    }
+                    if (upObj is Pin)
+                    {
+                        pin1 = (Pin)upObj;
+                    }
+                    else if (upObj is Wire)
+                    {
+                        pin1 = ((Wire)upObj).InsertPinAt(WorldMouseUpPos);
+                    }
 
-            pin0.ConnectTo(pin1);
+                    pin0.ConnectTo(pin1);
+                }
+                break;
+            }
+            case ToolMode.OnOff:
+            {
+                var downObj = Circuit.GetAt(WorldMouseDownPos);
 
+                if (downObj != null)
+                    downObj.ClickAction();
+
+                break;
+            }    
         }
     }
 

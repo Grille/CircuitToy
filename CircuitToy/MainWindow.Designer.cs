@@ -45,10 +45,13 @@ namespace CircuitToy
             this.iNToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.oUTToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.oRToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.aNDToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.nOTToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.aNDToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.oRToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.xORToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.nANDToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.nORToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.xNORToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.copyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pasteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
@@ -69,7 +72,7 @@ namespace CircuitToy
             this.fileToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(948, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(956, 24);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -119,9 +122,9 @@ namespace CircuitToy
             // 
             // statusStrip1
             // 
-            this.statusStrip1.Location = new System.Drawing.Point(0, 535);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 537);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(948, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(956, 22);
             this.statusStrip1.TabIndex = 3;
             this.statusStrip1.Text = "statusStrip1";
             // 
@@ -134,7 +137,7 @@ namespace CircuitToy
             this.canvas.Location = new System.Drawing.Point(258, 49);
             this.canvas.Margin = new System.Windows.Forms.Padding(0);
             this.canvas.Name = "canvas";
-            this.canvas.Size = new System.Drawing.Size(690, 486);
+            this.canvas.Size = new System.Drawing.Size(698, 488);
             this.canvas.TabIndex = 4;
             this.canvas.TabStop = false;
             // 
@@ -145,7 +148,7 @@ namespace CircuitToy
             this.copyToolStripMenuItem,
             this.pasteToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(145, 70);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(181, 92);
             // 
             // addToolStripMenuItem
             // 
@@ -153,73 +156,97 @@ namespace CircuitToy
             this.iNToolStripMenuItem,
             this.oUTToolStripMenuItem,
             this.toolStripSeparator1,
-            this.oRToolStripMenuItem,
-            this.aNDToolStripMenuItem,
             this.nOTToolStripMenuItem,
-            this.xORToolStripMenuItem});
+            this.aNDToolStripMenuItem,
+            this.oRToolStripMenuItem,
+            this.xORToolStripMenuItem,
+            this.nANDToolStripMenuItem,
+            this.nORToolStripMenuItem,
+            this.xNORToolStripMenuItem});
             this.addToolStripMenuItem.Name = "addToolStripMenuItem";
-            this.addToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
+            this.addToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.addToolStripMenuItem.Text = "Add";
             // 
             // iNToolStripMenuItem
             // 
             this.iNToolStripMenuItem.Name = "iNToolStripMenuItem";
-            this.iNToolStripMenuItem.Size = new System.Drawing.Size(99, 22);
+            this.iNToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.iNToolStripMenuItem.Text = "IN";
             this.iNToolStripMenuItem.Click += new System.EventHandler(this.iNToolStripMenuItem_Click);
             // 
             // oUTToolStripMenuItem
             // 
             this.oUTToolStripMenuItem.Name = "oUTToolStripMenuItem";
-            this.oUTToolStripMenuItem.Size = new System.Drawing.Size(99, 22);
+            this.oUTToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.oUTToolStripMenuItem.Text = "OUT";
             this.oUTToolStripMenuItem.Click += new System.EventHandler(this.oUTToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(96, 6);
-            // 
-            // oRToolStripMenuItem
-            // 
-            this.oRToolStripMenuItem.Name = "oRToolStripMenuItem";
-            this.oRToolStripMenuItem.Size = new System.Drawing.Size(99, 22);
-            this.oRToolStripMenuItem.Text = "OR";
-            this.oRToolStripMenuItem.Click += new System.EventHandler(this.oRToolStripMenuItem_Click);
-            // 
-            // aNDToolStripMenuItem
-            // 
-            this.aNDToolStripMenuItem.Name = "aNDToolStripMenuItem";
-            this.aNDToolStripMenuItem.Size = new System.Drawing.Size(99, 22);
-            this.aNDToolStripMenuItem.Text = "AND";
-            this.aNDToolStripMenuItem.Click += new System.EventHandler(this.aNDToolStripMenuItem_Click);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(177, 6);
             // 
             // nOTToolStripMenuItem
             // 
             this.nOTToolStripMenuItem.Name = "nOTToolStripMenuItem";
-            this.nOTToolStripMenuItem.Size = new System.Drawing.Size(99, 22);
+            this.nOTToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.nOTToolStripMenuItem.Text = "NOT";
             this.nOTToolStripMenuItem.Click += new System.EventHandler(this.nOTToolStripMenuItem_Click);
+            // 
+            // aNDToolStripMenuItem
+            // 
+            this.aNDToolStripMenuItem.Name = "aNDToolStripMenuItem";
+            this.aNDToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.aNDToolStripMenuItem.Text = "AND";
+            this.aNDToolStripMenuItem.Click += new System.EventHandler(this.aNDToolStripMenuItem_Click);
+            // 
+            // oRToolStripMenuItem
+            // 
+            this.oRToolStripMenuItem.Name = "oRToolStripMenuItem";
+            this.oRToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.oRToolStripMenuItem.Text = "OR";
+            this.oRToolStripMenuItem.Click += new System.EventHandler(this.oRToolStripMenuItem_Click);
             // 
             // xORToolStripMenuItem
             // 
             this.xORToolStripMenuItem.Name = "xORToolStripMenuItem";
-            this.xORToolStripMenuItem.Size = new System.Drawing.Size(99, 22);
+            this.xORToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.xORToolStripMenuItem.Text = "XOR";
             this.xORToolStripMenuItem.Click += new System.EventHandler(this.xORToolStripMenuItem_Click);
+            // 
+            // nANDToolStripMenuItem
+            // 
+            this.nANDToolStripMenuItem.Name = "nANDToolStripMenuItem";
+            this.nANDToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.nANDToolStripMenuItem.Text = "NAND";
+            this.nANDToolStripMenuItem.Click += new System.EventHandler(this.nANDToolStripMenuItem_Click);
+            // 
+            // nORToolStripMenuItem
+            // 
+            this.nORToolStripMenuItem.Name = "nORToolStripMenuItem";
+            this.nORToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.nORToolStripMenuItem.Text = "NOR";
+            this.nORToolStripMenuItem.Click += new System.EventHandler(this.nORToolStripMenuItem_Click);
+            // 
+            // xNORToolStripMenuItem
+            // 
+            this.xNORToolStripMenuItem.Name = "xNORToolStripMenuItem";
+            this.xNORToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.xNORToolStripMenuItem.Text = "XNOR";
+            this.xNORToolStripMenuItem.Click += new System.EventHandler(this.xNORToolStripMenuItem_Click);
             // 
             // copyToolStripMenuItem
             // 
             this.copyToolStripMenuItem.Name = "copyToolStripMenuItem";
             this.copyToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
-            this.copyToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
+            this.copyToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.copyToolStripMenuItem.Text = "Copy";
             // 
             // pasteToolStripMenuItem
             // 
             this.pasteToolStripMenuItem.Name = "pasteToolStripMenuItem";
             this.pasteToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.V)));
-            this.pasteToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
+            this.pasteToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.pasteToolStripMenuItem.Text = "Paste";
             // 
             // toolStrip1
@@ -232,7 +259,7 @@ namespace CircuitToy
             this.toolStripSeparator2});
             this.toolStrip1.Location = new System.Drawing.Point(0, 24);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(948, 25);
+            this.toolStrip1.Size = new System.Drawing.Size(956, 25);
             this.toolStrip1.TabIndex = 5;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -284,7 +311,7 @@ namespace CircuitToy
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.ClientSize = new System.Drawing.Size(948, 557);
+            this.ClientSize = new System.Drawing.Size(956, 559);
             this.Controls.Add(this.toolStrip1);
             this.Controls.Add(this.canvas);
             this.Controls.Add(this.statusStrip1);
@@ -334,5 +361,8 @@ namespace CircuitToy
         private ToolStripLabel toolStripLabel1;
         private ToolStripSeparator toolStripSeparator2;
         private ToolStripButton toolStripBtnOnoff;
+        private ToolStripMenuItem nANDToolStripMenuItem;
+        private ToolStripMenuItem nORToolStripMenuItem;
+        private ToolStripMenuItem xNORToolStripMenuItem;
     }
 }

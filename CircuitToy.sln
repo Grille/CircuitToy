@@ -5,9 +5,9 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CircuitToy", "CircuitToy\CircuitToy.csproj", "{000E1369-C715-4FD3-B4F9-A261A96CC61C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CircuitLib", "CircuitLib\CircuitLib.csproj", "{361673B9-F4FE-491F-962A-CDDDE3CF0270}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CircuitLib", "CircuitLib\CircuitLib.csproj", "{361673B9-F4FE-491F-962A-CDDDE3CF0270}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CircuitLib_Tests", "CircuitLib_Tests\CircuitLib_Tests.csproj", "{2C82BF3D-EB45-4FEB-9B32-25AF1F7768FA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CircuitLib_Tests", "CircuitLib_Tests\CircuitLib_Tests.csproj", "{2C82BF3D-EB45-4FEB-9B32-25AF1F7768FA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -70,11 +70,21 @@ public class Selection
 
     public void Select(Entity obj)
     {
-        if (obj != null && !obj.IsSelected)
+        if (obj == null)
+            return;
+
+        bool contain = SelectedEntities.Contains(obj);
+        bool selected = obj.IsSelected;
+
+        if (!selected && !contain)
         {
             obj.IsSelected = true;
             SelectedEntities.Add(obj);
         }
+        else if (selected != contain)
+            throw new InvalidOperationException();
+
+        ProcessSeclection();
     }
 
     public void Select(List<Entity> entities)
@@ -98,19 +108,27 @@ public class Selection
     public void ToogleAt(PointF pos)
     {
         var obj = Circuit.GetAt(pos);
-        if (obj != null)
+
+        if (obj == null)
+            return;
+
+        bool contain = SelectedEntities.Contains(obj);
+        bool selected = obj.IsSelected;
+
+        if (contain != selected)
+            throw new InvalidOperationException();
+
+        if (!selected)
         {
-            if (!obj.IsSelected)
-            {
-                obj.IsSelected = true;
-                SelectedEntities.Add(obj);
-            }
-            else if (obj.IsSelected)
-            {
-                obj.IsSelected = false;
-                SelectedEntities.Remove(obj);
-            }
+            obj.IsSelected = true;
+            SelectedEntities.Add(obj);
         }
+        else if (selected)
+        {
+            obj.IsSelected = false;
+            SelectedEntities.Remove(obj);
+        }
+
     }
 
     public void SelectAreaBegin(PointF pos)
@@ -134,10 +152,18 @@ public class Selection
         SelectetArea = new BoundingBoxF(minX, maxX, minY, maxY);
     }
 
-    public List<Entity> SelectAreaEnd()
+    public void SelectAreaEnd()
     {
         IsSelectingArea = false;
-        return Circuit.GetListFromArea(SelectetArea);
+        SelectedEntities.Clear();
+
+        var selection = Circuit.GetListFromArea(SelectetArea);
+
+        foreach (var obj in selection)
+        {
+            Select(obj);
+        }
+        ProcessSeclection();
     }
 
     public void ClearSelection()
@@ -151,6 +177,7 @@ public class Selection
 
     public void ApplyOffset()
     {
+        Console.WriteLine("Apply");
         foreach (var obj in SelectedEntities)
         {
             bool apply = true;
@@ -160,17 +187,43 @@ public class Selection
                 apply = false;
             }
 
-
-
-
             if (apply)
             {
+                Console.WriteLine($"+ x{Offset.X},y{Offset.Y}");
                 obj.Position = new PointF(obj.Position.X + Offset.X, obj.Position.Y + Offset.Y);
                 obj.RoundPosition();
             }
 
         }
         Offset = PointF.Empty;
+    }
+
+    private void ProcessSeclection()
+    {
+        var list = new List<Entity>();
+        foreach (var obj in SelectedEntities)
+        {
+            if (obj is Wire)
+            {
+                var wire = (Wire)obj;
+
+                if (!wire.StartPin.IsSelected)
+                {
+                    wire.StartPin.IsSelected = true;
+                    list.Add(wire.StartPin);
+                }
+
+                if (!wire.EndPin.IsSelected)
+                {
+                    wire.EndPin.IsSelected = true;
+                    list.Add(wire.EndPin);
+                }
+            }
+        }
+        foreach (var obj in list)
+        {
+            SelectedEntities.Add(obj);
+        }
     }
 
     public void Copy()

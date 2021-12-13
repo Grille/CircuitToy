@@ -15,7 +15,7 @@ public partial class MainWindow : Form
         DoubleBuffered = true;
 
         sim = new Simulation(canvas);
-        sim.ContextMenu = contextMenuStrip1;
+        canvas.ContextMenuStrip = contextMenuStrip1;
     }
 
     private void MainWindow_KeyDown(object sender, KeyEventArgs e)
@@ -48,32 +48,32 @@ public partial class MainWindow : Form
 
     private void iNToolStripMenuItem_Click(object sender, EventArgs e)
     {
-        sim.Circuit.CreateNode<Input>(sim.MouseUpPos.X, sim.MouseUpPos.Y);
+        sim.Circuit.CreateNode<Input>(sim.Interaction.WorldMousePos.X, sim.Interaction.WorldMousePos.Y);
     }
 
     private void oUTToolStripMenuItem_Click(object sender, EventArgs e)
     {
-        sim.Circuit.CreateNode<Output>(sim.MouseUpPos.X, sim.MouseUpPos.Y);
+        sim.Circuit.CreateNode<Output>(sim.Interaction.WorldMousePos.X, sim.Interaction.WorldMousePos.Y);
     }
 
     private void oRToolStripMenuItem_Click(object sender, EventArgs e)
     {
-        sim.Circuit.CreateNode<OrGate>(sim.MouseUpPos.X, sim.MouseUpPos.Y);
+        sim.Circuit.CreateNode<OrGate>(sim.Interaction.WorldMousePos.X, sim.Interaction.WorldMousePos.Y);
     }
 
     private void aNDToolStripMenuItem_Click(object sender, EventArgs e)
     {
-        sim.Circuit.CreateNode<AndGate>(sim.MouseUpPos.X, sim.MouseUpPos.Y);
+        sim.Circuit.CreateNode<AndGate>(sim.Interaction.WorldMousePos.X, sim.Interaction.WorldMousePos.Y);
     }
 
     private void nOTToolStripMenuItem_Click(object sender, EventArgs e)
     {
-        sim.Circuit.CreateNode<NotGate>(sim.MouseUpPos.X, sim.MouseUpPos.Y);
+        sim.Circuit.CreateNode<NotGate>(sim.Interaction.WorldMousePos.X, sim.Interaction.WorldMousePos.Y);
     }
 
     private void xORToolStripMenuItem_Click(object sender, EventArgs e)
     {
-        sim.Circuit.CreateNode<XorGate>(sim.MouseUpPos.X, sim.MouseUpPos.Y);
+        sim.Circuit.CreateNode<XorGate>(sim.Interaction.WorldMousePos.X, sim.Interaction.WorldMousePos.Y);
     }
 
     private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -135,6 +135,21 @@ public partial class MainWindow : Form
         toolStripBtnWire.Checked = false;
         toolStripBtnOnoff.Checked = true;
         sim.Interaction.Mode = ToolMode.OnOff;
+    }
+
+    private void nANDToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+        sim.Circuit.CreateNode<NAndGate>(sim.Interaction.WorldMousePos.X, sim.Interaction.WorldMousePos.Y);
+    }
+
+    private void nORToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+        sim.Circuit.CreateNode<NOrGate>(sim.Interaction.WorldMousePos.X, sim.Interaction.WorldMousePos.Y);
+    }
+
+    private void xNORToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+        sim.Circuit.CreateNode<XNorGate>(sim.Interaction.WorldMousePos.X, sim.Interaction.WorldMousePos.Y);
     }
 }
 
