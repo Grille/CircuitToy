@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
 using CircuitLib.Math;
+using System.Numerics;
 
 namespace CircuitLib.Interface;
 
@@ -12,15 +13,16 @@ public class Selection
 {
     public Entity HoveredEntity;
     public List<Entity> SelectedEntities;
+    private List<Entity> indirectSelection;
 
     public Entity Circuit;
 
-    public PointF Offset;
+    public Vector2 Offset;
 
-    private PointF areaStart;
-    private PointF areaEnd;
+    private Vector2 areaStart;
+    private Vector2 areaEnd;
 
-    public BoundingBoxF SelectetArea;
+    public BoundingBox SelectetArea;
     public bool IsSelectingArea = false;
 
     public Selection(Entity world)
@@ -29,11 +31,12 @@ public class Selection
 
         HoveredEntity = null;
         SelectedEntities = new List<Entity>();
+        indirectSelection = new List<Entity>();
 
-        Offset = PointF.Empty;
+        Offset = Vector2.Zero;
     }
 
-    public Entity HoverAt(PointF pos)
+    public Entity HoverAt(Vector2 pos)
     {
         var obj = Circuit.GetAt(pos);
         if (obj == null)
@@ -56,12 +59,12 @@ public class Selection
         return HoveredEntity;
     }
 
-    public void SelectAt(PointF pos)
+    public void SelectAt(Vector2 pos)
     {
         Select(Circuit.GetAt(pos));
     }
 
-    public void ClickAt(PointF pos)
+    public void ClickAt(Vector2 pos)
     {
         var obj = Circuit.GetAt(pos);
         if (obj != null)
@@ -95,7 +98,7 @@ public class Selection
         }
     }
 
-    public void DeselectAt(PointF pos)
+    public void DeselectAt(Vector2 pos)
     {
         var obj = Circuit.GetAt(pos);
         if (obj != null && obj.IsSelected)
@@ -105,7 +108,7 @@ public class Selection
         }
     }
 
-    public void ToogleAt(PointF pos)
+    public void ToogleAt(Vector2 pos)
     {
         var obj = Circuit.GetAt(pos);
 
@@ -131,15 +134,15 @@ public class Selection
 
     }
 
-    public void SelectAreaBegin(PointF pos)
+    public void SelectAreaBegin(Vector2 pos)
     {
         areaStart = pos;
         areaEnd = pos;
-        SelectetArea = new BoundingBoxF(areaStart, 0);
+        SelectetArea = new BoundingBox(areaStart, 0);
         IsSelectingArea = true;
     }
 
-    public void SelectAreaMove(PointF pos)
+    public void SelectAreaMove(Vector2 pos)
     {
         areaEnd = pos;
 
@@ -149,7 +152,7 @@ public class Selection
         float minY = MathF.Min(areaStart.Y, areaEnd.Y);
         float maxY = MathF.Max(areaStart.Y, areaEnd.Y);
 
-        SelectetArea = new BoundingBoxF(minX, maxX, minY, maxY);
+        SelectetArea = new BoundingBox(minX, maxX, minY, maxY);
     }
 
     public void SelectAreaEnd()
@@ -190,39 +193,53 @@ public class Selection
             if (apply)
             {
                 Console.WriteLine($"+ x{Offset.X},y{Offset.Y}");
-                obj.Position = new PointF(obj.Position.X + Offset.X, obj.Position.Y + Offset.Y);
+                obj.Position = new Vector2(obj.Position.X + Offset.X, obj.Position.Y + Offset.Y);
                 obj.RoundPosition();
             }
 
         }
-        Offset = PointF.Empty;
+        foreach (var obj in indirectSelection)
+        {
+            bool apply = true;
+
+            if (indirectSelection.Contains(obj.Owner))
+            {
+                apply = false;
+            }
+
+            if (apply)
+            {
+                Console.WriteLine($"+ x{Offset.X},y{Offset.Y}");
+                obj.Position = new Vector2(obj.Position.X + Offset.X, obj.Position.Y + Offset.Y);
+                obj.RoundPosition();
+            }
+
+        }
+
+        Offset = Vector2.Zero;
     }
 
     private void ProcessSeclection()
     {
-        var list = new List<Entity>();
+        indirectSelection.Clear();
         foreach (var obj in SelectedEntities)
         {
             if (obj is Wire)
             {
                 var wire = (Wire)obj;
 
-                if (!wire.StartPin.IsSelected)
-                {
-                    wire.StartPin.IsSelected = true;
-                    list.Add(wire.StartPin);
-                }
-
-                if (!wire.EndPin.IsSelected)
-                {
-                    wire.EndPin.IsSelected = true;
-                    list.Add(wire.EndPin);
-                }
+                selectIndirect(wire.StartPin);
+                selectIndirect(wire.EndPin);
             }
         }
-        foreach (var obj in list)
+
+    }
+
+    private void selectIndirect(Entity obj)
+    {
+        if (!SelectedEntities.Contains(obj) && !indirectSelection.Contains(obj))
         {
-            SelectedEntities.Add(obj);
+            indirectSelection.Add(obj);
         }
     }
 

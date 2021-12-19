@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
+using System.Numerics;
 
 namespace CircuitLib.Interface;
 
@@ -36,10 +37,10 @@ public class EditorInterface
     public bool IsShiftKeyDown = false;
     public bool IsAltKeyDown = false;
 
-    public PointF ScreenMousePos = Point.Empty;
-    public PointF WorldMousePos = Point.Empty;
-    public PointF WorldMouseDownPos = Point.Empty;
-    public PointF WorldMouseUpPos = Point.Empty;
+    public Vector2 ScreenMousePos = Vector2.Zero;
+    public Vector2 WorldMousePos = Vector2.Zero;
+    public Vector2 WorldMouseDownPos = Vector2.Zero;
+    public Vector2 WorldMouseUpPos = Vector2.Zero;
 
     public EditorInterface(Circuit circuit, Camera camera)
     {
@@ -48,7 +49,7 @@ public class EditorInterface
         Selection = new Selection(circuit);  
     }
 
-    public void MouseDown(PointF location, bool left)
+    public void MouseDown(Vector2 location, bool left)
     {
         WorldMouseDownPos = WorldMousePos;
 
@@ -79,7 +80,7 @@ public class EditorInterface
         }
     }
 
-    public void MouseMove(PointF location, bool left)
+    public void MouseMove(Vector2 location, bool left)
     {
         ScreenMousePos = location;
         WorldMousePos = Camera.ScreenToWorldSpace(location);
@@ -100,7 +101,7 @@ public class EditorInterface
                 }
                 else if (Mode == ToolMode.SelectAndMove)
                 {
-                    Selection.Offset = new PointF(WorldMousePos.X - WorldMouseDownPos.X, WorldMousePos.Y - WorldMouseDownPos.Y);
+                    Selection.Offset = new Vector2(WorldMousePos.X - WorldMouseDownPos.X, WorldMousePos.Y - WorldMouseDownPos.Y);
                 }
 
             }
@@ -108,7 +109,7 @@ public class EditorInterface
         Selection.HoverAt(WorldMousePos);
     }
 
-    public void MouseUp(PointF location, bool left)
+    public void MouseUp(Vector2 location, bool left)
     {
         WorldMouseUpPos = WorldMousePos;
 

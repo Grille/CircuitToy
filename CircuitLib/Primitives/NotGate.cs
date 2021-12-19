@@ -21,7 +21,7 @@ public class NotGate : Node
             new OutputPin(this,+2,+0),
         };
 
-        Size = new SizeF(2, 2);
+        Size = new System.Numerics.Vector2(2, 2);
     }
 
     public override void Update()

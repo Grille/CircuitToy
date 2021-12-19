@@ -4,17 +4,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
+using System.Numerics;
 
 namespace CircuitLib.Math;
 
-public struct BoundingBoxF
+public struct BoundingBox
 {
     public float BeginX;
     public float EndX;
     public float BeginY;
     public float EndY;
 
-    public BoundingBoxF()
+    public BoundingBox()
     {
         BeginX = 0.0f;
         EndX = 0.0f;
@@ -22,7 +23,7 @@ public struct BoundingBoxF
         EndY = 0.0f;
     }
 
-    public BoundingBoxF(PointF pos, float radius)
+    public BoundingBox(Vector2 pos, float radius)
     {
         BeginX = pos.X - radius;
         EndX = pos.X + radius;
@@ -30,7 +31,7 @@ public struct BoundingBoxF
         EndY = pos.Y + radius;
     }
 
-    public BoundingBoxF(float beginX, float endX, float beginY, float endY)
+    public BoundingBox(float beginX, float endX, float beginY, float endY)
     {
         BeginX = beginX;
         EndX = endX;
@@ -38,7 +39,7 @@ public struct BoundingBoxF
         EndY = endY;
     }
 
-    public void ExtendWith(BoundingBoxF bounds)
+    public void ExtendWith(BoundingBox bounds)
     {
         BeginX = MathF.Min(BeginX, bounds.BeginX);
         EndX = MathF.Max(EndX, bounds.EndX);
@@ -56,18 +57,18 @@ public struct BoundingBoxF
         return MathF.Abs(BeginY - EndY);
     }
 
-    public bool IsInside(PointF pos)
+    public bool IsInside(Vector2 pos)
     {
         return pos.X >= BeginX && pos.X <= EndX && 
                pos.Y >= BeginY && pos.Y <= EndY;
     }
 
-    public bool IsColliding(BoundingBoxF bounds)
+    public bool IsColliding(BoundingBox bounds)
     {
         return (BeginX <= bounds.EndX && EndX >= bounds.BeginX) && (BeginY <= bounds.EndY && EndY >= bounds.BeginY);
     }
 
-    public static explicit operator RectangleF(BoundingBoxF b)
+    public static explicit operator RectangleF(BoundingBox b)
     {
         return new RectangleF(b.BeginX, b.BeginY, b.getWidth(), b.getHeight());
     }

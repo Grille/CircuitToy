@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Numerics;
 
 namespace CircuitLib.Interface;
 
@@ -15,11 +16,11 @@ public class Camera
     private float width, height;
     private float hWidth, hHeight;
 
-    private PointF lastLocation;
+    private Vector2 lastLocation;
 
-    public PointF Position
+    public Vector2 Position
     {
-        get => new PointF(PosX, PosY);
+        get => new Vector2(PosX, PosY);
         set
         {
             PosX = value.X;
@@ -39,7 +40,7 @@ public class Camera
         }
     }
 
-    public void MouseScrollEvent(PointF location, float delta, float scrollFactor)
+    public void MouseScrollEvent(Vector2 location, float delta, float scrollFactor)
     {
         var oldWorldPos = ScreenToWorldSpace(location);
         if (delta > 0)
@@ -52,7 +53,7 @@ public class Camera
         PosY += oldWorldPos.Y - newWorldPos.Y;
     }
 
-    public void MouseMoveEvent(PointF location, bool move)
+    public void MouseMoveEvent(Vector2 location, bool move)
     {
         if (move)
         {
@@ -64,17 +65,17 @@ public class Camera
         lastLocation = location;
     }
 
-    public PointF ScreenToWorldSpace(PointF screenPos)
+    public Vector2 ScreenToWorldSpace(Vector2 screenPos)
     {
-        var transpos = new PointF((screenPos.X - hWidth) / Scale, (screenPos.Y - hHeight) / Scale);
-        var pos = new PointF(transpos.X + PosX, transpos.Y + PosY);
+        var transpos = new Vector2((screenPos.X - hWidth) / Scale, (screenPos.Y - hHeight) / Scale);
+        var pos = new Vector2(transpos.X + PosX, transpos.Y + PosY);
         return pos;
     }
 
-    public PointF WorldToScreenSpace(PointF worldPos)
+    public Vector2 WorldToScreenSpace(Vector2 worldPos)
     {
-        var transpos = new PointF(worldPos.X - PosX, worldPos.Y - PosY);
-        var pos = new PointF(transpos.X * Scale + hWidth, transpos.Y * Scale + hHeight);
+        var transpos = new Vector2(worldPos.X - PosX, worldPos.Y - PosY);
+        var pos = new Vector2(transpos.X * Scale + hWidth, transpos.Y * Scale + hHeight);
         return pos;
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using CircuitLib.Math;
@@ -26,7 +27,7 @@ public class Network : Entity
     public List<Wire> Wires = new List<Wire>();
 
     private bool enableSpilt = true;
-    public override PointF Position {
+    public override Vector2 Position {
         get { return Owner.Position; }
         set { Owner.Position = value; }
     }
@@ -70,12 +71,12 @@ public class Network : Entity
         Wires.Add(new Wire(this, pin0, pin1));
         Update();
     }
-    public void ConnectFromTo(Pin pin0, PointF pos1)
+    public void ConnectFromTo(Pin pin0, Vector2 pos1)
     {
         var entity = Owner.GetAt(pos1);
         if (entity == null)
         {
-            var rpos1 = new PointF(MathF.Round(pos1.X), MathF.Round(pos1.Y));
+            var rpos1 = new Vector2(MathF.Round(pos1.X), MathF.Round(pos1.Y));
             var pin1 = CreatePin();
             pin1.Position = rpos1;
             Wires.Add(new Wire(this, pin0, pin1));
@@ -104,7 +105,7 @@ public class Network : Entity
         //Split();
     }
 
-    public NetPin CreatePin(PointF pos)
+    public NetPin CreatePin(Vector2 pos)
     {
         return CreatePin(pos.X, pos.Y);
     }
@@ -390,7 +391,7 @@ public class Network : Entity
         }
     }
 
-    public override Entity GetAt(PointF pos)
+    public override Entity GetAt(Vector2 pos)
     {
         foreach (var pin in AllPins)
         {
@@ -411,7 +412,7 @@ public class Network : Entity
         return null;
     }
 
-    public override void GetFromArea(List<Entity> entities, BoundingBoxF region)
+    public override void GetFromArea(List<Entity> entities, BoundingBox region)
     {
         foreach (var pin in AllPins)
         {

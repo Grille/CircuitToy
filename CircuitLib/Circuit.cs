@@ -4,6 +4,7 @@ using System.Drawing;
 using System.IO;
 using CircuitLib.Math;
 using CircuitLib.Primitives;
+using System.Numerics;
 using GGL;
 
 namespace CircuitLib;
@@ -50,7 +51,7 @@ public class Circuit : Node
     public T CreateNode<T>(float x, float y) where T : Node, new()
     {
         var node = CreateNode<T>();
-        node.Position = new PointF(x, y);
+        node.Position = new Vector2(x, y);
         node.RoundPosition();
         return node;
     }
@@ -138,7 +139,7 @@ public class Circuit : Node
         base.Destroy();
     }
 
-    public override Entity GetAt(PointF pos)
+    public override Entity GetAt(Vector2 pos)
     {
         if (Owner == null)
         {
@@ -166,7 +167,7 @@ public class Circuit : Node
         }
     }
 
-    public override void GetFromArea(List<Entity> entities, BoundingBoxF region)
+    public override void GetFromArea(List<Entity> entities, BoundingBox region)
     {
         if (Owner == null)
         {

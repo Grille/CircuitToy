@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
+using System.Numerics;
+
 using CircuitLib.Primitives;
 using GGL.IO;
 
@@ -24,34 +26,7 @@ namespace CircuitLib
             var nodes = circuit.Nodes;
             var networks = circuit.Networks;
 
-            bw.Write(nodes.Count);
-            for (int i = 0; i < nodes.Count; i++)
-            {
-                var node = nodes[i];
-
-                writeNodeType(node);
-
-                bw.WriteString(node.Name);
-                bw.WriteString(node.Description);
-
-                bw.Write(node.Position);
-                bw.Write(node.Size);
-
-                writePinArray(node.InputPins);
-                writePinArray(node.OutputPins);
-
-                void writePinArray(Pin[] pins)
-                {
-                    bw.WriteInt32(pins.Length);
-                    foreach (var pin in pins)
-                    {
-                        bw.WriteString(pin.Name);
-                        bw.WriteString(pin.Description);
-                        bw.WriteBoolean(pin.Active);
-                        bw.Write(pin.RelativePosition);
-                    }
-                }
-            }
+            WriteNodes(bw, nodes);
 
             bw.Write(networks.Count);
             for (int i = 0; i < networks.Count; i++)
@@ -104,26 +79,6 @@ namespace CircuitLib
                 writeWirePin(wire.EndPin);
             }
 
-            void writeNodeType(Node node)
-            {
-                int id = node switch {
-                    Input => 0,
-                    Output => 1,
-                    AndGate => 2,
-                    OrGate => 3,
-                    XorGate => 4,
-                    NotGate => 5,
-                    NAndGate => 6,
-                    NOrGate => 7,
-                    XNorGate => 8,
-                    Circuit => 100,
-                    _ => throw new ArgumentOutOfRangeException(),
-                };
-                bw.WriteInt32(id);
-
-                if (id == 100)
-                    WriteCircuit(bw, (Circuit)node);
-            }
             void writeWirePin(Pin pin)
             {
                 switch (pin)
@@ -153,6 +108,59 @@ namespace CircuitLib
 
         }
 
+        public static void WriteNodes(BinaryViewWriter bw, IList<Node> nodes)
+        {
+            bw.Write(nodes.Count);
+            for (int i = 0; i < nodes.Count; i++)
+            {
+                var node = nodes[i];
+
+                writeNodeType(node);
+
+                bw.WriteString(node.Name);
+                bw.WriteString(node.Description);
+
+                bw.Write(node.Position);
+                bw.Write(node.Size);
+
+                writePinArray(node.InputPins);
+                writePinArray(node.OutputPins);
+
+                void writePinArray(Pin[] pins)
+                {
+                    bw.WriteInt32(pins.Length);
+                    foreach (var pin in pins)
+                    {
+                        bw.WriteString(pin.Name);
+                        bw.WriteString(pin.Description);
+                        bw.WriteBoolean(pin.Active);
+                        bw.Write(pin.RelativePosition);
+                    }
+                }
+            }
+
+            void writeNodeType(Node node)
+            {
+                int id = node switch {
+                    Input => 0,
+                    Output => 1,
+                    AndGate => 2,
+                    OrGate => 3,
+                    XorGate => 4,
+                    NotGate => 5,
+                    NAndGate => 6,
+                    NOrGate => 7,
+                    XNorGate => 8,
+                    Circuit => 100,
+                    _ => throw new ArgumentOutOfRangeException(),
+                };
+                bw.WriteInt32(id);
+
+                if (id == 100)
+                    WriteCircuit(bw, (Circuit)node);
+            }
+        }
+
         public static Circuit Load(string path)
         {
             using var br = new BinaryViewReader(path);
@@ -176,8 +184,8 @@ namespace CircuitLib
                 node.Name = br.ReadString();
                 node.Description = br.ReadString();
 
-                node.Position = br.Read<PointF>();
-                node.Size = br.Read<SizeF>();
+                node.Position = br.Read<Vector2>();
+                node.Size = br.Read<Vector2>();
 
                 node.InputPins = readPinArray<InputPin>();
                 node.OutputPins = readPinArray<OutputPin>();
@@ -196,7 +204,7 @@ namespace CircuitLib
                         pin.Name = br.ReadString();
                         pin.Description = br.ReadString();
                         pin._active = br.ReadBoolean();
-                        pin.RelativePosition = br.Read<PointF>();
+                        pin.RelativePosition = br.Read<Vector2>();
 
                         pins[i] = pin;
                     }
@@ -304,6 +312,11 @@ namespace CircuitLib
             return circuit;
 
 
+        }
+
+        public static List<Node> ReadNodes(BinaryViewReader br)
+        {
+            return null;
         }
     }
 }

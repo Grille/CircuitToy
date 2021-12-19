@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using CircuitLib;
 using CircuitLib.Math;
 using CircuitLib.Interface;
+using System.Numerics;
 
 namespace CircuitToy;
 
@@ -21,7 +22,7 @@ internal class Renderer
     Graphics g;
     Timer timer;
 
-    BoundingBoxF view;
+    BoundingBox view;
 
     public bool DebugMode = false;
     public bool HighQuality = true;
@@ -67,8 +68,8 @@ internal class Renderer
 
         camera.ScreenSize = target.ClientSize;
 
-        var begin = camera.ScreenToWorldSpace(new PointF(0, 0));
-        var end = camera.ScreenToWorldSpace(new PointF(camera.ScreenSize.Width, camera.ScreenSize.Height));
+        var begin = camera.ScreenToWorldSpace(new Vector2(0, 0));
+        var end = camera.ScreenToWorldSpace(new Vector2(camera.ScreenSize.Width, camera.ScreenSize.Height));
 
         view.BeginX = begin.X;
         view.BeginY = begin.Y;
@@ -129,7 +130,7 @@ internal class Renderer
                 {
 
                 }
-                g.DrawString("#\n*\n" + str.ToString(), new Font("consolas", 12.0f), Brushes.Magenta, editor.ScreenMousePos);
+                g.DrawString("#\n*\n" + str.ToString(), new Font("consolas", 12.0f), Brushes.Magenta, (PointF)editor.ScreenMousePos);
             }
         }
 
@@ -147,16 +148,13 @@ internal class Renderer
         if (DebugMode)
             DrawRectangle(new Pen(Brushes.Magenta, 0.01f), (RectangleF)node.Bounds);
 
-        float width = node.Size.Width;
-        float height = node.Size.Height;
+        float width = node.Size.X;
+        float height = node.Size.Y;
         var rect = new RectangleF(node.Position.X - width/2, node.Position.Y - height/2, width, height);
         fillRectangle(Brushes.White, rect);
         if (node.IsHovered)
         {
-            var hrect = rect;
-            hrect.X += selection.Offset.X;
-            hrect.Y += selection.Offset.Y;
-            DrawRectangle(new Pen(Brushes.Lime, 0.2f), hrect);
+            DrawRectangle(new Pen(Brushes.Lime, 0.2f), rect);
         }
         if (node.IsSelected)
         {
@@ -164,6 +162,8 @@ internal class Renderer
             srect.X += MathF.Round(selection.Offset.X);
             srect.Y += MathF.Round(selection.Offset.Y);
             DrawRectangle(new Pen(Brushes.LightSeaGreen, 0.2f), srect);
+
+
         }
         DrawRectangle(new Pen(Brushes.Black, 0.1f), rect);
         drawString(node.DisplayName, new Font("consolas", 0.6f), Brushes.Black, rect);
@@ -184,10 +184,7 @@ internal class Renderer
 
             if (pin.IsHovered)
             {
-                var hpos = pos;
-                hpos.X += selection.Offset.X;
-                hpos.Y += selection.Offset.Y;
-                fillCircle(Brushes.Lime, hpos, 0.35f);
+                fillCircle(Brushes.Lime, pos, 0.35f);
             }
             if (pin.IsSelected)
             {
@@ -195,6 +192,37 @@ internal class Renderer
                 spos.X += MathF.Round(selection.Offset.X);
                 spos.Y += MathF.Round(selection.Offset.Y);
                 fillCircle(Brushes.LightSeaGreen, spos, 0.35f);
+
+                foreach (var wire in pin.ConnectedWires)
+                {
+                    PointF point1;
+                    PointF point2;
+
+                    if (wire.StartPin.IsSelected)
+                    {
+                        float X = MathF.Round(selection.Offset.X);
+                        float Y = MathF.Round(selection.Offset.Y);
+                        point1 = (PointF)camera.WorldToScreenSpace(new Vector2(wire.StartPin.Position.X+X, wire.StartPin.Position.Y + Y));
+                    }
+                    else
+                    {
+                        point1 = (PointF)camera.WorldToScreenSpace(wire.StartPin.Position);
+                    }
+
+                    if (wire.EndPin.IsSelected)
+                    {
+                        float X = MathF.Round(selection.Offset.X);
+                        float Y = MathF.Round(selection.Offset.Y);
+                        point2 = (PointF)camera.WorldToScreenSpace(new Vector2(wire.EndPin.Position.X + X, wire.EndPin.Position.Y + Y));
+                    }
+                    else
+                    {
+                        point2 = (PointF)camera.WorldToScreenSpace(wire.EndPin.Position);
+                    }
+
+
+                    g.DrawLine(new Pen(Brushes.LightSeaGreen, 0.2f * camera.Scale), point1, point2);
+                }
             }
 
             if (pin.Active) 
@@ -215,10 +243,7 @@ internal class Renderer
 
             if (pin.IsHovered)
             {
-                var hpos = pos;
-                hpos.X += selection.Offset.X;
-                hpos.Y += selection.Offset.Y;
-                fillCircle(Brushes.Lime, hpos, 0.35f);
+                fillCircle(Brushes.Lime, pos, 0.35f);
             }
             if (pin.IsSelected)
             {
@@ -226,6 +251,37 @@ internal class Renderer
                 spos.X += MathF.Round(selection.Offset.X);
                 spos.Y += MathF.Round(selection.Offset.Y);
                 fillCircle(Brushes.LightSeaGreen, spos, 0.35f);
+
+                foreach (var wire in pin.ConnectedWires)
+                {
+                    PointF point1;
+                    PointF point2;
+
+                    if (wire.StartPin.IsSelected)
+                    {
+                        float X = MathF.Round(selection.Offset.X);
+                        float Y = MathF.Round(selection.Offset.Y);
+                        point1 = (PointF)camera.WorldToScreenSpace(new Vector2(wire.StartPin.Position.X + X, wire.StartPin.Position.Y + Y));
+                    }
+                    else
+                    {
+                        point1 = (PointF)camera.WorldToScreenSpace(wire.StartPin.Position);
+                    }
+
+                    if (wire.EndPin.IsSelected)
+                    {
+                        float X = MathF.Round(selection.Offset.X);
+                        float Y = MathF.Round(selection.Offset.Y);
+                        point2 = (PointF)camera.WorldToScreenSpace(new Vector2(wire.EndPin.Position.X + X, wire.EndPin.Position.Y + Y));
+                    }
+                    else
+                    {
+                        point2 = (PointF)camera.WorldToScreenSpace(wire.EndPin.Position);
+                    }
+
+
+                    g.DrawLine(new Pen(Brushes.LightSeaGreen, 0.2f * camera.Scale), point1, point2);
+                }
             }
 
             if (pin.ConnectedWires.Count != 2)
@@ -275,14 +331,14 @@ internal class Renderer
         var point2 = camera.WorldToScreenSpace(wire.EndPin.Position);
 
         if (wire.IsHovered)
-            g.DrawLine(new Pen(Brushes.Lime, 0.2f * camera.Scale), point1, point2);
+            g.DrawLine(new Pen(Brushes.Lime, 0.2f * camera.Scale), (PointF)point1, (PointF)point2);
         if (wire.IsSelected)
-            g.DrawLine(new Pen(Brushes.LightSeaGreen, 0.2f * camera.Scale), point1, point2);
+            g.DrawLine(new Pen(Brushes.LightSeaGreen, 0.2f * camera.Scale), (PointF)point1, (PointF)point2);
 
         if (wire.Active)
-            g.DrawLine(new Pen(Brushes.Blue, 0.1f * camera.Scale), point1, point2);
+            g.DrawLine(new Pen(Brushes.Blue, 0.1f * camera.Scale), (PointF)point1, (PointF)point2);
         else
-            g.DrawLine(new Pen(Brushes.Black, 0.1f * camera.Scale), point1, point2);
+            g.DrawLine(new Pen(Brushes.Black, 0.1f * camera.Scale), (PointF)point1, (PointF)point2);
 
         if (DebugMode)
             DrawRectangle(new Pen(Brushes.Magenta, 0.01f), (RectangleF)wire.Bounds);
@@ -295,11 +351,11 @@ internal class Renderer
         drawGrid(100, Pens.WhiteSmoke);
     }
 
-    void drawLine(Pen pen, PointF point1, PointF point2)
+    void drawLine(Pen pen, Vector2 point1, Vector2 point2)
     {
         var npen = new Pen(pen.Color, pen.Width * camera.Scale);
 
-        g.DrawLine(npen, camera.WorldToScreenSpace(point1), camera.WorldToScreenSpace(point2));
+        g.DrawLine(npen, (PointF)camera.WorldToScreenSpace(point1), (PointF)camera.WorldToScreenSpace(point2));
     }
 
     void drawGrid(float gridSize, Pen pen)
@@ -311,7 +367,7 @@ internal class Renderer
 
         var clientSize = target.ClientSize;
 
-        var distToNull = camera.WorldToScreenSpace(PointF.Empty);
+        var distToNull = camera.WorldToScreenSpace(Vector2.Zero);
         float offsetX = distToNull.X % scaledGridSize;
         float offsetY = distToNull.Y % scaledGridSize;
 
@@ -331,14 +387,14 @@ internal class Renderer
         }
     }
 
-    void fillCircle(Brush brush, PointF pos, float radius)
+    void fillCircle(Brush brush, Vector2 pos, float radius)
     {
         var drawPos = camera.WorldToScreenSpace(pos);
         int scaledRadius = (int)(radius * camera.Scale);
 
         g.FillEllipse(brush, new((int)drawPos.X - scaledRadius, (int)drawPos.Y - scaledRadius, scaledRadius * 2, scaledRadius * 2));
     }
-    void drawCircle(Pen pen,PointF pos,float radius)
+    void drawCircle(Pen pen,Vector2 pos,float radius)
     {
         var npen = new Pen(pen.Color, pen.Width * camera.Scale);
 
@@ -351,7 +407,7 @@ internal class Renderer
     void DrawRectangle(Pen pen,RectangleF rect)
     {
         var npen = new Pen(pen.Color, pen.Width*camera.Scale);
-        var drawPos = camera.WorldToScreenSpace(rect.Location);
+        var drawPos = camera.WorldToScreenSpace((Vector2)rect.Location);
         float width = rect.Width * camera.Scale;
         float height = rect.Height * camera.Scale;
         g.DrawRectangle(npen, drawPos.X, drawPos.Y, width, height);
@@ -359,7 +415,7 @@ internal class Renderer
 
     void fillRectangle(Brush brush, RectangleF rect)
     {
-        var drawPos = camera.WorldToScreenSpace(rect.Location);
+        var drawPos = camera.WorldToScreenSpace((Vector2)rect.Location);
         float width = rect.Width * camera.Scale;
         float height = rect.Height * camera.Scale;
         g.FillRectangle(brush, drawPos.X, drawPos.Y, width, height);
@@ -368,7 +424,7 @@ internal class Renderer
     void drawString(string text, Font font, Brush brush, RectangleF rect)
     {
         var nfont = new Font(font.Name,font.Size * camera.Scale);
-        var drawPos = camera.WorldToScreenSpace(rect.Location);
+        var drawPos = camera.WorldToScreenSpace((Vector2)rect.Location);
         float width = rect.Width * camera.Scale;
         float height = rect.Height * camera.Scale;
         var format = new StringFormat(StringFormatFlags.NoWrap  ) { 

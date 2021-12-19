@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Drawing;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using System.Drawing;
 using CircuitLib.Math;
 
 namespace CircuitLib;
@@ -24,10 +25,10 @@ public abstract class Node : Entity
     public InputPin[] InputPins;
     public OutputPin[] OutputPins;
 
-    public BoundingBoxF ChipBounds;
+    public BoundingBox ChipBounds;
 
-    private SizeF _size;
-    public SizeF Size {
+    private Vector2 _size;
+    public Vector2 Size {
         get { return _size; }
         set { 
             _size = value;
@@ -41,8 +42,8 @@ public abstract class Node : Entity
         set => _active = value;
     }
 
-    private PointF _pos;
-    public override PointF Position {
+    private Vector2 _pos;
+    public override Vector2 Position {
         get { return _pos; }
         set { 
             _pos = value;
@@ -98,11 +99,11 @@ public abstract class Node : Entity
 
     public override void CalcBoundings()
     {
-        var bounds = new BoundingBoxF(
-            _pos.X - _size.Width / 2 -0.1f,
-            _pos.X + _size.Width / 2 +0.1f,
-            _pos.Y - _size.Height / 2 -0.1f,
-            _pos.Y + _size.Height / 2 + 0.1f
+        var bounds = new BoundingBox(
+            _pos.X - _size.X / 2 -0.1f,
+            _pos.X + _size.X / 2 +0.1f,
+            _pos.Y - _size.Y / 2 -0.1f,
+            _pos.Y + _size.Y / 2 + 0.1f
         );
 
         ChipBounds = bounds;
@@ -125,7 +126,7 @@ public abstract class Node : Entity
         Bounds = bounds;
     }
 
-    public override Entity GetAt(PointF pos)
+    public override Entity GetAt(Vector2 pos)
     {
         if (Bounds.IsInside(pos))
         {
@@ -151,7 +152,7 @@ public abstract class Node : Entity
         return null;
     }
 
-    public override void GetFromArea(List<Entity> entities, BoundingBoxF region)
+    public override void GetFromArea(List<Entity> entities, BoundingBox region)
     {
         if (Bounds.IsColliding(region))
         {

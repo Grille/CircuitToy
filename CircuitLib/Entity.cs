@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Drawing;
 using CircuitLib.Math;
 using System.IO;
+using System.Numerics;
 
 namespace CircuitLib;
 
@@ -20,7 +21,7 @@ public abstract class Entity
             _owner = value;
         }
     }
-    public BoundingBoxF Bounds;
+    public BoundingBox Bounds;
 
     public bool IsAlive = true;
     public bool IsHovered = false;
@@ -30,7 +31,7 @@ public abstract class Entity
     public string Name = "";
     public string Description = "";
 
-    public abstract PointF Position {
+    public abstract Vector2 Position {
         get; set; 
     }
     public abstract void CalcBoundings();
@@ -40,7 +41,7 @@ public abstract class Entity
         IsAlive = false;
     }
 
-    public virtual Entity GetAt(PointF pos)
+    public virtual Entity GetAt(Vector2 pos)
     {
         if (Bounds.IsInside(pos))
             return this;
@@ -48,13 +49,13 @@ public abstract class Entity
             return null;
     }
 
-    public virtual void GetFromArea(List<Entity> entities, BoundingBoxF region)
+    public virtual void GetFromArea(List<Entity> entities, BoundingBox region)
     {
         if (Bounds.IsColliding(region))
             entities.Add(this);
     }
 
-    public virtual List<Entity> GetListFromArea(BoundingBoxF region)
+    public virtual List<Entity> GetListFromArea(BoundingBox region)
     {
         var list = new List<Entity>();
         GetFromArea(list, region);
@@ -68,7 +69,7 @@ public abstract class Entity
 
     public void RoundPosition()
     {
-        Position =  new PointF(MathF.Round(Position.X), MathF.Round(Position.Y));
+        Position =  new Vector2(MathF.Round(Position.X), MathF.Round(Position.Y));
     }
 
     public abstract bool Active {

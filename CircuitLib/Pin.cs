@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
 using CircuitLib.Math;
+using System.Numerics;
 
 namespace CircuitLib;
 
@@ -12,12 +13,12 @@ public abstract class Pin : Entity
 {
     public List<Wire> ConnectedWires = new List<Wire>();
 
-    private PointF _pos;
-    private PointF _rPos;
-    public override PointF Position {
+    private Vector2 _pos;
+    private Vector2 _rPos;
+    public override Vector2 Position {
         set {
             _pos = value;
-            _rPos = new PointF(_pos.X - Owner.Position.X, _pos.Y - Owner.Position.Y);
+            _rPos = new Vector2(_pos.X - Owner.Position.X, _pos.Y - Owner.Position.Y);
             CalcBoundings();
         }
         get { 
@@ -25,10 +26,10 @@ public abstract class Pin : Entity
         }
     }
 
-    public PointF RelativePosition {
+    public Vector2 RelativePosition {
         set { 
             _rPos = value;
-            _pos = new PointF(Owner.Position.X + _rPos.X, Owner.Position.Y + _rPos.Y);
+            _pos = new Vector2(Owner.Position.X + _rPos.X, Owner.Position.Y + _rPos.Y);
             CalcBoundings();
         }
         get { 
@@ -37,7 +38,7 @@ public abstract class Pin : Entity
     }
 
     public abstract void ConnectTo(Pin pin1);
-    public abstract void ConnectTo(PointF pin1);
+    public abstract void ConnectTo(Vector2 pin1);
 
     public override void Destroy()
     {
@@ -61,7 +62,7 @@ public abstract class Pin : Entity
 
     public void UpdatePosition()
     {
-        _pos = new PointF(Owner.Position.X + _rPos.X, Owner.Position.Y + _rPos.Y);
+        _pos = new Vector2(Owner.Position.X + _rPos.X, Owner.Position.Y + _rPos.Y);
         CalcBoundings();
     }
 
@@ -74,7 +75,7 @@ public abstract class Pin : Entity
     public Pin(Entity owner, float x, float y)
     {
         Owner = owner;
-        RelativePosition = new PointF(x,y);
+        RelativePosition = new Vector2(x,y);
     }
 
     public List<Pin> GetConnectedPins()
@@ -104,7 +105,7 @@ public abstract class Pin : Entity
 
     public override void CalcBoundings()
     {
-        Bounds = new BoundingBoxF(_pos, 0.35f);
+        Bounds = new BoundingBox(_pos, 0.35f);
         Owner.CalcBoundings();
         foreach (var wire in ConnectedWires)
         {

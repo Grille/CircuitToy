@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Drawing;
+using System.Numerics;
 
 using CircuitLib;
 using CircuitLib.Primitives;
@@ -37,8 +38,8 @@ internal class Simulation
             orgate.ConnectTo(output, 0, 0);
             andcirc.UpdateIO();
 
-            andcirc.Position = new PointF(5, 2);
-            andcirc.Size = new Size(2, 2);
+            andcirc.Position = new Vector2(5, 2);
+            andcirc.Size = new Vector2(2, 2);
             andcirc.DisplayName = "AN";
         }
 
@@ -116,22 +117,22 @@ internal class Simulation
 
     private void Target_MouseWheel(object sender, MouseEventArgs e)
     {
-        Camera.MouseScrollEvent(e.Location,e.Delta, 1.5f);
+        Camera.MouseScrollEvent((Vector2)(PointF)e.Location,e.Delta, 1.5f);
     }
 
     private void Target_MouseMove(object sender, MouseEventArgs e)
     {
-        Camera.MouseMoveEvent(e.Location, e.Button.HasFlag(MouseButtons.Middle));
-        Interaction.MouseMove(e.Location, e.Button.HasFlag(MouseButtons.Left));
+        Camera.MouseMoveEvent((Vector2)(PointF)e.Location, e.Button.HasFlag(MouseButtons.Middle));
+        Interaction.MouseMove((Vector2)(PointF)e.Location, e.Button.HasFlag(MouseButtons.Left));
     }
 
     private void Target_MouseDown(object sender, MouseEventArgs e)
     {
-        Interaction.MouseDown(e.Location, e.Button.HasFlag(MouseButtons.Left));
+        Interaction.MouseDown((Vector2)(PointF)e.Location, e.Button.HasFlag(MouseButtons.Left));
     }
 
     private void Target_MouseUp(object sender, MouseEventArgs e)
     {
-        Interaction.MouseUp(e.Location, e.Button.HasFlag(MouseButtons.Left));
+        Interaction.MouseUp((Vector2)(PointF)e.Location, e.Button.HasFlag(MouseButtons.Left));
     }
 }

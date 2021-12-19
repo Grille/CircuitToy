@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
+using System.Numerics;
+
 using CircuitLib.Math;
 
 namespace CircuitLib;
@@ -38,7 +40,7 @@ public abstract class IOPin : Pin
         ConnectedNetwork.ConnectFromTo(this, pin);
     }
 
-    public override void ConnectTo(PointF pos)
+    public override void ConnectTo(Vector2 pos)
     {
         if (ConnectedNetwork == null)
         {

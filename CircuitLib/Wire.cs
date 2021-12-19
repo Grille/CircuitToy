@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CircuitLib.Math;
+using System.Numerics;
 
 namespace CircuitLib
 {
@@ -33,9 +34,9 @@ namespace CircuitLib
         }
 
 
-        PointF _pos;
-        public override PointF Position {
-            get => new PointF((StartPin.Position.X+EndPin.Position.X)/2f, (StartPin.Position.Y + EndPin.Position.Y) / 2f);
+        Vector2 _pos;
+        public override Vector2 Position {
+            get => new Vector2((StartPin.Position.X+EndPin.Position.X)/2f, (StartPin.Position.Y + EndPin.Position.Y) / 2f);
             set =>  _pos = value;
         }
 
@@ -48,7 +49,7 @@ namespace CircuitLib
         public override void CalcBoundings()
         {
             const float margin = 0.2f;
-            Bounds = new BoundingBoxF(
+            Bounds = new BoundingBox(
                 MathF.Min(StartPin.Position.X, EndPin.Position.X) - margin,
                 MathF.Max(StartPin.Position.X, EndPin.Position.X) + margin,
                 MathF.Min(StartPin.Position.Y, EndPin.Position.Y) - margin,
@@ -65,7 +66,7 @@ namespace CircuitLib
             Owner.Remove(this);
         }
 
-        public override Entity GetAt(PointF pos0)
+        public override Entity GetAt(Vector2 pos0)
         {
             if (Bounds.IsInside(pos0))
             {
@@ -83,7 +84,7 @@ namespace CircuitLib
             return null;
         }
 
-        public Pin InsertPinAt(PointF pos0)
+        public Pin InsertPinAt(Vector2 pos0)
         {
             var pin = Owner.CreatePin(MathF.Round(pos0.X), MathF.Round(pos0.Y));
             StartPin.ConnectTo(pin);
@@ -92,7 +93,7 @@ namespace CircuitLib
             return pin;
         }
 
-        public override void GetFromArea(List<Entity> entities, BoundingBoxF region)
+        public override void GetFromArea(List<Entity> entities, BoundingBox region)
         {
             return;
         }

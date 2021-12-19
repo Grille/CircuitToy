@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
+using System.Numerics;
 
 namespace CircuitLib;
 
@@ -32,7 +33,7 @@ public class NetPin : Pin
         Owner.ConnectFromTo(this, pin);
     }
 
-    public override void ConnectTo(PointF pos)
+    public override void ConnectTo(Vector2 pos)
     {
         Owner.ConnectFromTo(this, pos);
     }
