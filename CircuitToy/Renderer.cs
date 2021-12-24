@@ -109,7 +109,7 @@ internal class Renderer
         {
             var rect = (RectangleF)selection.SelectetArea;
             fillRectangle(new SolidBrush(Color.FromArgb(50,Color.DarkSeaGreen)), rect);
-            DrawRectangle(new Pen(Brushes.DarkSeaGreen,0.01f), rect);
+            drawRectangle(new Pen(Brushes.DarkSeaGreen,0.01f), rect);
         }
 
         if (true || DebugMode)
@@ -146,7 +146,7 @@ internal class Renderer
         drawPins(node.OutputPins);
 
         if (DebugMode)
-            DrawRectangle(new Pen(Brushes.Magenta, 0.01f), (RectangleF)node.Bounds);
+            drawRectangle(new Pen(Brushes.Magenta, 0.01f), (RectangleF)node.Bounds);
 
         float width = node.Size.X;
         float height = node.Size.Y;
@@ -154,18 +154,18 @@ internal class Renderer
         fillRectangle(Brushes.White, rect);
         if (node.IsHovered)
         {
-            DrawRectangle(new Pen(Brushes.Lime, 0.2f), rect);
+            drawRectangle(new Pen(Brushes.Lime, 0.2f), rect);
         }
         if (node.IsSelected)
         {
             var srect = rect;
             srect.X += MathF.Round(selection.Offset.X);
             srect.Y += MathF.Round(selection.Offset.Y);
-            DrawRectangle(new Pen(Brushes.LightSeaGreen, 0.2f), srect);
+            drawRectangle(new Pen(Brushes.LightSeaGreen, 0.2f), srect);
 
 
         }
-        DrawRectangle(new Pen(Brushes.Black, 0.1f), rect);
+        drawRectangle(new Pen(Brushes.Black, 0.1f), rect);
         drawString(node.DisplayName, new Font("consolas", 0.6f), Brushes.Black, rect);
     }
 
@@ -175,7 +175,7 @@ internal class Renderer
         {
             var pos = pin.Position;
             if (DebugMode)
-                DrawRectangle(new Pen(Brushes.Magenta, 0.01f), (RectangleF)pin.Bounds);
+                drawRectangle(new Pen(Brushes.Magenta, 0.01f), (RectangleF)pin.Bounds);
 
             if (pin.Active)
                 drawLine(new Pen(Brushes.Blue, 0.1f), pos, pin.Owner.Position);
@@ -239,7 +239,7 @@ internal class Renderer
         {
             var pos = pin.Position;
             if (DebugMode)
-                DrawRectangle(new Pen(Brushes.Magenta, 0.01f), (RectangleF)pin.Bounds);
+                drawRectangle(new Pen(Brushes.Magenta, 0.01f), (RectangleF)pin.Bounds);
 
             if (pin.IsHovered)
             {
@@ -320,7 +320,7 @@ internal class Renderer
                 }
             }
 
-            DrawRectangle(new Pen(Brushes.Magenta, 0.01f), (RectangleF)net.Bounds);
+            drawRectangle(new Pen(Brushes.Magenta, 0.01f), (RectangleF)net.Bounds);
         }
 
     }
@@ -341,7 +341,7 @@ internal class Renderer
             g.DrawLine(new Pen(Brushes.Black, 0.1f * camera.Scale), (PointF)point1, (PointF)point2);
 
         if (DebugMode)
-            DrawRectangle(new Pen(Brushes.Magenta, 0.01f), (RectangleF)wire.Bounds);
+            drawRectangle(new Pen(Brushes.Magenta, 0.01f), (RectangleF)wire.Bounds);
     }
 
     void drawGrid()
@@ -390,21 +390,21 @@ internal class Renderer
     void fillCircle(Brush brush, Vector2 pos, float radius)
     {
         var drawPos = camera.WorldToScreenSpace(pos);
-        int scaledRadius = (int)(radius * camera.Scale);
+        float scaledRadius = (radius * camera.Scale);
 
-        g.FillEllipse(brush, new((int)drawPos.X - scaledRadius, (int)drawPos.Y - scaledRadius, scaledRadius * 2, scaledRadius * 2));
+        g.FillEllipse(brush, drawPos.X - scaledRadius, drawPos.Y - scaledRadius, scaledRadius * 2, scaledRadius * 2);
     }
     void drawCircle(Pen pen,Vector2 pos,float radius)
     {
         var npen = new Pen(pen.Color, pen.Width * camera.Scale);
 
         var drawPos = camera.WorldToScreenSpace(pos);
-        int scaledRadius = (int)(radius * camera.Scale);
+        float scaledRadius = (radius * camera.Scale);
 
-        g.DrawEllipse(npen, new((int)drawPos.X - scaledRadius, (int)drawPos.Y - scaledRadius, scaledRadius * 2, scaledRadius * 2));
+        g.DrawEllipse(npen, drawPos.X - scaledRadius, drawPos.Y - scaledRadius, scaledRadius * 2, scaledRadius * 2);
     }
 
-    void DrawRectangle(Pen pen,RectangleF rect)
+    void drawRectangle(Pen pen,RectangleF rect)
     {
         var npen = new Pen(pen.Color, pen.Width*camera.Scale);
         var drawPos = camera.WorldToScreenSpace((Vector2)rect.Location);
