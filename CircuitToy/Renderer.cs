@@ -14,13 +14,13 @@ namespace CircuitToy;
 
 internal class Renderer
 {
-    Camera camera;
     Control target;
     public Circuit Circuit;
     EditorInterface editor;
     Selection selection;
-    Graphics g;
     Timer timer;
+
+    RenderCore rc;
 
     BoundingBox view;
 
@@ -32,9 +32,10 @@ internal class Renderer
     {
         this.target = target;
         this.Circuit = circuit;
-        this.camera = camera;
         this.editor = editor;
         this.selection = editor.Selection;
+
+        rc = new RenderCore(target, camera);
 
         target.Paint += Target_Paint;
         timer = new Timer();
@@ -66,34 +67,17 @@ internal class Renderer
     {
         g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighSpeed;
 
-        camera.ScreenSize = target.ClientSize;
+        rc.UseGraphics(g);
 
-        var begin = camera.ScreenToWorldSpace(new Vector2(0, 0));
-        var end = camera.ScreenToWorldSpace(new Vector2(camera.ScreenSize.Width, camera.ScreenSize.Height));
-
-        view.BeginX = begin.X;
-        view.BeginY = begin.Y;
-        view.EndX = end.X;
-        view.EndY = end.Y;
-
-        this.g = g;
-        g.Clear(Color.White);
-
+        rc.Clear(Color.White);
+        
         if (ViewGrid)
         {
+            rc.HighQuality = false;
             drawGrid();
         }
 
-        if (HighQuality)
-        {
-            g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-        }
-        else
-        {
-            g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
-            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighSpeed;
-        }
+        rc.HighQuality = HighQuality;
 
         foreach (var net in Circuit.Networks)
         {
@@ -108,8 +92,12 @@ internal class Renderer
         if (selection.IsSelectingArea)
         {
             var rect = (RectangleF)selection.SelectetArea;
-            fillRectangle(new SolidBrush(Color.FromArgb(50,Color.DarkSeaGreen)), rect);
-            drawRectangle(new Pen(Brushes.DarkSeaGreen,0.01f), rect);
+            Console.WriteLine($"boun X{selection.SelectetArea.BeginX} EX{selection.SelectetArea.EndY} W{selection.SelectetArea.getWidth()}");
+
+            Console.WriteLine($"rect X{rect.X} W{rect.Width}");
+
+            rc.FillRectangle(new SolidBrush(Color.FromArgb(50, Color.DarkSeaGreen)), rect);
+            rc.DrawRectangle(new Pen(Brushes.DarkSeaGreen, 0.01f), rect);
         }
 
         if (true || DebugMode)
@@ -146,27 +134,27 @@ internal class Renderer
         drawPins(node.OutputPins);
 
         if (DebugMode)
-            drawRectangle(new Pen(Brushes.Magenta, 0.01f), (RectangleF)node.Bounds);
+            rc.DrawRectangle(new Pen(Brushes.Magenta, 0.01f), (RectangleF)node.Bounds);
 
         float width = node.Size.X;
         float height = node.Size.Y;
         var rect = new RectangleF(node.Position.X - width/2, node.Position.Y - height/2, width, height);
-        fillRectangle(Brushes.White, rect);
+        rc.FillRectangle(Brushes.White, rect);
         if (node.IsHovered)
         {
-            drawRectangle(new Pen(Brushes.Lime, 0.2f), rect);
+            rc.DrawRectangle(new Pen(Brushes.Lime, 0.2f), rect);
         }
         if (node.IsSelected)
         {
             var srect = rect;
             srect.X += MathF.Round(selection.Offset.X);
             srect.Y += MathF.Round(selection.Offset.Y);
-            drawRectangle(new Pen(Brushes.LightSeaGreen, 0.2f), srect);
+            rc.DrawRectangle(new Pen(Brushes.LightSeaGreen, 0.2f), srect);
 
 
         }
-        drawRectangle(new Pen(Brushes.Black, 0.1f), rect);
-        drawString(node.DisplayName, new Font("consolas", 0.6f), Brushes.Black, rect);
+        rc.DrawRectangle(new Pen(Brushes.Black, 0.1f), rect);
+        rc.DrawString(node.DisplayName, new Font("consolas", 0.6f), Brushes.Black, rect);
     }
 
     void drawPins(IOPin[] pins)
@@ -175,24 +163,25 @@ internal class Renderer
         {
             var pos = pin.Position;
             if (DebugMode)
-                drawRectangle(new Pen(Brushes.Magenta, 0.01f), (RectangleF)pin.Bounds);
+                rc.DrawRectangle(new Pen(Brushes.Magenta, 0.01f), (RectangleF)pin.Bounds);
 
             if (pin.Active)
-                drawLine(new Pen(Brushes.Blue, 0.1f), pos, pin.Owner.Position);
+                rc.DrawLine(new Pen(Brushes.Blue, 0.1f), pos, pin.Owner.Position);
             else
-                drawLine(new Pen(Brushes.Black, 0.1f), pos, pin.Owner.Position);
+                rc.DrawLine(new Pen(Brushes.Black, 0.1f), pos, pin.Owner.Position);
 
             if (pin.IsHovered)
             {
-                fillCircle(Brushes.Lime, pos, 0.35f);
+                rc.FillCircle(Brushes.Lime, pos, 0.35f);
             }
             if (pin.IsSelected)
             {
                 var spos = pos;
                 spos.X += MathF.Round(selection.Offset.X);
                 spos.Y += MathF.Round(selection.Offset.Y);
-                fillCircle(Brushes.LightSeaGreen, spos, 0.35f);
+                rc.FillCircle(Brushes.LightSeaGreen, spos, 0.35f);
 
+                /*
                 foreach (var wire in pin.ConnectedWires)
                 {
                     PointF point1;
@@ -223,12 +212,13 @@ internal class Renderer
 
                     g.DrawLine(new Pen(Brushes.LightSeaGreen, 0.2f * camera.Scale), point1, point2);
                 }
+                */
             }
 
             if (pin.Active) 
-                fillCircle(Brushes.Blue, pos, 0.25f);
+                rc.FillCircle(Brushes.Blue, pos, 0.25f);
             else
-                fillCircle(Brushes.Black, pos, 0.25f);
+                rc.FillCircle(Brushes.Black, pos, 0.25f);
 
         }
     }
@@ -239,19 +229,20 @@ internal class Renderer
         {
             var pos = pin.Position;
             if (DebugMode)
-                drawRectangle(new Pen(Brushes.Magenta, 0.01f), (RectangleF)pin.Bounds);
+                rc.DrawRectangle(new Pen(Brushes.Magenta, 0.01f), (RectangleF)pin.Bounds);
 
             if (pin.IsHovered)
             {
-                fillCircle(Brushes.Lime, pos, 0.35f);
+                rc.FillCircle(Brushes.Lime, pos, 0.35f);
             }
             if (pin.IsSelected)
             {
                 var spos = pos;
                 spos.X += MathF.Round(selection.Offset.X);
                 spos.Y += MathF.Round(selection.Offset.Y);
-                fillCircle(Brushes.LightSeaGreen, spos, 0.35f);
+                rc.FillCircle(Brushes.LightSeaGreen, spos, 0.35f);
 
+                /*
                 foreach (var wire in pin.ConnectedWires)
                 {
                     PointF point1;
@@ -282,21 +273,23 @@ internal class Renderer
 
                     g.DrawLine(new Pen(Brushes.LightSeaGreen, 0.2f * camera.Scale), point1, point2);
                 }
+                */
+
             }
 
             if (pin.ConnectedWires.Count != 2)
             {
                 if (pin.Active)
-                    fillCircle(Brushes.Blue, pos, 0.15f);
+                    rc.FillCircle(Brushes.Blue, pos, 0.15f);
                 else
-                    fillCircle(Brushes.Black, pos, 0.15f);
+                    rc.FillCircle(Brushes.Black, pos, 0.15f);
             }
             else
             {
                 if (pin.Active)
-                    fillCircle(Brushes.Blue, pos, 0.05f);
+                    rc.FillCircle(Brushes.Blue, pos, 0.05f);
                 else
-                    fillCircle(Brushes.Black, pos, 0.05f);
+                    rc.FillCircle(Brushes.Black, pos, 0.05f);
             }
 
         }
@@ -316,123 +309,35 @@ internal class Renderer
             {
                 foreach (var inPin in net.InputPins)
                 {
-                    drawLine(new Pen(Brushes.Magenta, 0.01f), inPin.Position, outPin.Position);
+                    rc.DrawLine(new Pen(Brushes.Magenta, 0.01f), inPin.Position, outPin.Position);
                 }
             }
 
-            drawRectangle(new Pen(Brushes.Magenta, 0.01f), (RectangleF)net.Bounds);
+            rc.DrawRectangle(new Pen(Brushes.Magenta, 0.01f), (RectangleF)net.Bounds);
         }
 
     }
 
     void drawWire(Wire wire)
     {
-        var point1 = camera.WorldToScreenSpace(wire.StartPin.Position);
-        var point2 = camera.WorldToScreenSpace(wire.EndPin.Position);
-
-        if (wire.IsHovered)
-            g.DrawLine(new Pen(Brushes.Lime, 0.2f * camera.Scale), (PointF)point1, (PointF)point2);
-        if (wire.IsSelected)
-            g.DrawLine(new Pen(Brushes.LightSeaGreen, 0.2f * camera.Scale), (PointF)point1, (PointF)point2);
-
         if (wire.Active)
-            g.DrawLine(new Pen(Brushes.Blue, 0.1f * camera.Scale), (PointF)point1, (PointF)point2);
+            rc.DrawLine(new Pen(Brushes.Blue, 0.1f), wire.StartPin.Position, wire.EndPin.Position);
         else
-            g.DrawLine(new Pen(Brushes.Black, 0.1f * camera.Scale), (PointF)point1, (PointF)point2);
+            rc.DrawLine(new Pen(Brushes.Black, 0.1f), wire.StartPin.Position, wire.EndPin.Position);
 
         if (DebugMode)
-            drawRectangle(new Pen(Brushes.Magenta, 0.01f), (RectangleF)wire.Bounds);
+            rc.DrawRectangle(new Pen(Brushes.Magenta, 0.01f), (RectangleF)wire.Bounds);
+        
     }
 
     void drawGrid()
     {
-        drawGrid(1, Pens.WhiteSmoke);
-        drawGrid(10, Pens.WhiteSmoke);
-        drawGrid(100, Pens.WhiteSmoke);
+        rc.DrawGrid(1, Pens.WhiteSmoke);
+        rc.DrawGrid(10, Pens.WhiteSmoke);
+        rc.DrawGrid(100, Pens.WhiteSmoke);
     }
 
-    void drawLine(Pen pen, Vector2 point1, Vector2 point2)
-    {
-        var npen = new Pen(pen.Color, pen.Width * camera.Scale);
 
-        g.DrawLine(npen, (PointF)camera.WorldToScreenSpace(point1), (PointF)camera.WorldToScreenSpace(point2));
-    }
-
-    void drawGrid(float gridSize, Pen pen)
-    {
-        float scaledGridSize = gridSize * camera.Scale;
-
-        if (scaledGridSize < 5)
-            return;
-
-        var clientSize = target.ClientSize;
-
-        var distToNull = camera.WorldToScreenSpace(Vector2.Zero);
-        float offsetX = distToNull.X % scaledGridSize;
-        float offsetY = distToNull.Y % scaledGridSize;
-
-        int countX = (int)(clientSize.Width / scaledGridSize);
-        int countY = (int)(clientSize.Height / scaledGridSize);
-
-        for (int ix = 0; ix <= countX; ix++)
-        {
-            int posX = (int)((ix * scaledGridSize) + offsetX);
-            g.DrawLine(pen, new(posX, 0), new(posX, clientSize.Height));
-        }
-
-        for (int iy = 0; iy <= countY; iy++)
-        {
-            int posY = (int)((iy * scaledGridSize) + offsetY);
-            g.DrawLine(pen, new(0, posY), new(clientSize.Width, posY));
-        }
-    }
-
-    void fillCircle(Brush brush, Vector2 pos, float radius)
-    {
-        var drawPos = camera.WorldToScreenSpace(pos);
-        float scaledRadius = (radius * camera.Scale);
-
-        g.FillEllipse(brush, drawPos.X - scaledRadius, drawPos.Y - scaledRadius, scaledRadius * 2, scaledRadius * 2);
-    }
-    void drawCircle(Pen pen,Vector2 pos,float radius)
-    {
-        var npen = new Pen(pen.Color, pen.Width * camera.Scale);
-
-        var drawPos = camera.WorldToScreenSpace(pos);
-        float scaledRadius = (radius * camera.Scale);
-
-        g.DrawEllipse(npen, drawPos.X - scaledRadius, drawPos.Y - scaledRadius, scaledRadius * 2, scaledRadius * 2);
-    }
-
-    void drawRectangle(Pen pen,RectangleF rect)
-    {
-        var npen = new Pen(pen.Color, pen.Width*camera.Scale);
-        var drawPos = camera.WorldToScreenSpace((Vector2)rect.Location);
-        float width = rect.Width * camera.Scale;
-        float height = rect.Height * camera.Scale;
-        g.DrawRectangle(npen, drawPos.X, drawPos.Y, width, height);
-    }
-
-    void fillRectangle(Brush brush, RectangleF rect)
-    {
-        var drawPos = camera.WorldToScreenSpace((Vector2)rect.Location);
-        float width = rect.Width * camera.Scale;
-        float height = rect.Height * camera.Scale;
-        g.FillRectangle(brush, drawPos.X, drawPos.Y, width, height);
-    }
-
-    void drawString(string text, Font font, Brush brush, RectangleF rect)
-    {
-        var nfont = new Font(font.Name,font.Size * camera.Scale);
-        var drawPos = camera.WorldToScreenSpace((Vector2)rect.Location);
-        float width = rect.Width * camera.Scale;
-        float height = rect.Height * camera.Scale;
-        var format = new StringFormat(StringFormatFlags.NoWrap  ) { 
-            Alignment = StringAlignment.Center,
-            LineAlignment = StringAlignment.Center,
-        };
-        g.DrawString(text, nfont, brush, new RectangleF(drawPos.X, drawPos.Y, width, height), format);
-    }
 
 
 }

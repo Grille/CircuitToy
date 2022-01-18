@@ -105,7 +105,7 @@ public class EditorInterface
                 }
 
             }
-        }
+        } 
         Selection.HoverAt(WorldMousePos);
     }
 

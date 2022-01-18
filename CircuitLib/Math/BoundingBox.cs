@@ -31,20 +31,36 @@ public struct BoundingBox
         EndY = pos.Y + radius;
     }
 
-    public BoundingBox(float beginX, float endX, float beginY, float endY)
+    public BoundingBox(Vector2 begin, Vector2 end)
+    {
+        BeginX = begin.X;
+        BeginY = begin.Y;
+        EndX = end.X;
+        EndY = end.Y;
+    }
+
+    public BoundingBox(float beginX, float beginY, float endX, float endY)
     {
         BeginX = beginX;
-        EndX = endX;
         BeginY = beginY;
+        EndX = endX;
         EndY = endY;
     }
 
     public void ExtendWith(BoundingBox bounds)
     {
         BeginX = MathF.Min(BeginX, bounds.BeginX);
-        EndX = MathF.Max(EndX, bounds.EndX);
         BeginY = MathF.Min(BeginY, bounds.BeginY);
+        EndX = MathF.Max(EndX, bounds.EndX);
         EndY = MathF.Max(EndY, bounds.EndY);
+    }
+
+    public void ExtendWidth(Vector2 pos)
+    {
+        BeginX = MathF.Min(BeginX, pos.X);
+        BeginY = MathF.Min(BeginY, pos.Y);
+        EndX = MathF.Max(EndX, pos.X);
+        EndY = MathF.Max(EndY, pos.Y);
     }
 
     public float getWidth()

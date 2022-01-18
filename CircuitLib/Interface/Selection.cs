@@ -138,7 +138,7 @@ public class Selection
     {
         areaStart = pos;
         areaEnd = pos;
-        SelectetArea = new BoundingBox(areaStart, 0);
+        SelectetArea = new BoundingBox(areaStart, areaEnd);
         IsSelectingArea = true;
     }
 
@@ -146,13 +146,13 @@ public class Selection
     {
         areaEnd = pos;
 
-        float minX = MathF.Min(areaStart.X,areaEnd.X);
-        float maxX = MathF.Max(areaStart.X,areaEnd.X);
+        float minX = MathF.Min(areaStart.X, areaEnd.X);
+        float maxX = MathF.Max(areaStart.X, areaEnd.X);
 
         float minY = MathF.Min(areaStart.Y, areaEnd.Y);
         float maxY = MathF.Max(areaStart.Y, areaEnd.Y);
 
-        SelectetArea = new BoundingBox(minX, maxX, minY, maxY);
+        SelectetArea = new BoundingBox(minX, minY, maxX, maxY);
     }
 
     public void SelectAreaEnd()

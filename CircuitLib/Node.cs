@@ -101,8 +101,8 @@ public abstract class Node : Entity
     {
         var bounds = new BoundingBox(
             _pos.X - _size.X / 2 -0.1f,
-            _pos.X + _size.X / 2 +0.1f,
             _pos.Y - _size.Y / 2 -0.1f,
+            _pos.X + _size.X / 2 + 0.1f,
             _pos.Y + _size.Y / 2 + 0.1f
         );
 
