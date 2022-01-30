@@ -11,11 +11,11 @@ using CircuitLib.Interface;
 
 namespace CircuitToy
 {
-    enum ColorB {
-        True,
-        False,
-        Heigh,
-        Error,
+    enum RenderStyle {
+        StateTrue,
+        StateFalse,
+        StateHeigh,
+        StateError,
     }
 
     internal class RenderCore

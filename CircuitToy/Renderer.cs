@@ -28,6 +28,17 @@ internal class Renderer
     public bool HighQuality = true;
     public bool ViewGrid = true;
 
+    const float outlineWidth = 0.1f;
+     
+    const float textSize = 0.8f;
+    const float linewWidth = 0.2f;
+    const float linewOutlineWidth = linewWidth + outlineWidth;
+     
+    const float pin0Radius = 0.1f;
+    const float pin0OutlineRadius = pin0Radius + outlineWidth;
+    const float pin1Radius = 0.4f;
+    const float pin1OutlineRadius = pin1Radius + outlineWidth;
+
     public Renderer(Control target, Circuit circuit, Camera camera, EditorInterface editor)
     {
         this.target = target;
@@ -134,7 +145,7 @@ internal class Renderer
         drawPins(node.OutputPins);
 
         if (DebugMode)
-            rc.DrawRectangle(new Pen(Brushes.Magenta, 0.01f), (RectangleF)node.Bounds);
+            rc.DrawRectangle(new Pen(Brushes.Magenta, linewWidth), (RectangleF)node.Bounds);
 
         float width = node.Size.X;
         float height = node.Size.Y;
@@ -142,19 +153,19 @@ internal class Renderer
         rc.FillRectangle(Brushes.White, rect);
         if (node.IsHovered)
         {
-            rc.DrawRectangle(new Pen(Brushes.Lime, 0.2f), rect);
+            rc.DrawRectangle(new Pen(Brushes.Lime, linewOutlineWidth), rect);
         }
         if (node.IsSelected)
         {
             var srect = rect;
             srect.X += MathF.Round(selection.Offset.X);
             srect.Y += MathF.Round(selection.Offset.Y);
-            rc.DrawRectangle(new Pen(Brushes.LightSeaGreen, 0.2f), srect);
+            rc.DrawRectangle(new Pen(Brushes.LightSeaGreen, linewOutlineWidth), srect);
 
 
         }
-        rc.DrawRectangle(new Pen(Brushes.Black, 0.1f), rect);
-        rc.DrawString(node.DisplayName, new Font("consolas", 0.6f), Brushes.Black, rect);
+        rc.DrawRectangle(new Pen(Brushes.Black, linewWidth), rect);
+        rc.DrawString(node.DisplayName, new Font("consolas", textSize), Brushes.Black, rect);
     }
 
     void drawPins(IOPin[] pins)
@@ -163,23 +174,23 @@ internal class Renderer
         {
             var pos = pin.Position;
             if (DebugMode)
-                rc.DrawRectangle(new Pen(Brushes.Magenta, 0.01f), (RectangleF)pin.Bounds);
+                rc.DrawRectangle(new Pen(Brushes.Magenta, linewWidth), (RectangleF)pin.Bounds);
 
             if (pin.Active)
-                rc.DrawLine(new Pen(Brushes.Blue, 0.1f), pos, pin.Owner.Position);
+                rc.DrawLine(new Pen(Brushes.Blue, linewWidth), pos, pin.LineEndPosition);
             else
-                rc.DrawLine(new Pen(Brushes.Black, 0.1f), pos, pin.Owner.Position);
+                rc.DrawLine(new Pen(Brushes.Black, linewWidth), pos, pin.LineEndPosition);
 
             if (pin.IsHovered)
             {
-                rc.FillCircle(Brushes.Lime, pos, 0.35f);
+                rc.FillCircle(Brushes.Lime, pos, pin1OutlineRadius);
             }
             if (pin.IsSelected)
             {
                 var spos = pos;
                 spos.X += MathF.Round(selection.Offset.X);
                 spos.Y += MathF.Round(selection.Offset.Y);
-                rc.FillCircle(Brushes.LightSeaGreen, spos, 0.35f);
+                rc.FillCircle(Brushes.LightSeaGreen, spos, pin1OutlineRadius);
 
                 /*
                 foreach (var wire in pin.ConnectedWires)
@@ -216,9 +227,9 @@ internal class Renderer
             }
 
             if (pin.Active) 
-                rc.FillCircle(Brushes.Blue, pos, 0.25f);
+                rc.FillCircle(Brushes.Blue, pos, pin1Radius);
             else
-                rc.FillCircle(Brushes.Black, pos, 0.25f);
+                rc.FillCircle(Brushes.Black, pos, pin1Radius);
 
         }
     }
@@ -229,18 +240,18 @@ internal class Renderer
         {
             var pos = pin.Position;
             if (DebugMode)
-                rc.DrawRectangle(new Pen(Brushes.Magenta, 0.01f), (RectangleF)pin.Bounds);
+                rc.DrawRectangle(new Pen(Brushes.Magenta, linewWidth), (RectangleF)pin.Bounds);
 
             if (pin.IsHovered)
             {
-                rc.FillCircle(Brushes.Lime, pos, 0.35f);
+                rc.FillCircle(Brushes.Lime, pos, pin1OutlineRadius);
             }
             if (pin.IsSelected)
             {
                 var spos = pos;
                 spos.X += MathF.Round(selection.Offset.X);
                 spos.Y += MathF.Round(selection.Offset.Y);
-                rc.FillCircle(Brushes.LightSeaGreen, spos, 0.35f);
+                rc.FillCircle(Brushes.LightSeaGreen, spos, pin1OutlineRadius);
 
                 /*
                 foreach (var wire in pin.ConnectedWires)
@@ -280,16 +291,16 @@ internal class Renderer
             if (pin.ConnectedWires.Count != 2)
             {
                 if (pin.Active)
-                    rc.FillCircle(Brushes.Blue, pos, 0.15f);
+                    rc.FillCircle(Brushes.Blue, pos, pin0OutlineRadius);
                 else
-                    rc.FillCircle(Brushes.Black, pos, 0.15f);
+                    rc.FillCircle(Brushes.Black, pos, pin0OutlineRadius);
             }
             else
             {
                 if (pin.Active)
-                    rc.FillCircle(Brushes.Blue, pos, 0.05f);
+                    rc.FillCircle(Brushes.Blue, pos, pin0Radius);
                 else
-                    rc.FillCircle(Brushes.Black, pos, 0.05f);
+                    rc.FillCircle(Brushes.Black, pos, pin0Radius);
             }
 
         }
@@ -309,11 +320,11 @@ internal class Renderer
             {
                 foreach (var inPin in net.InputPins)
                 {
-                    rc.DrawLine(new Pen(Brushes.Magenta, 0.01f), inPin.Position, outPin.Position);
+                    rc.DrawLine(new Pen(Brushes.Magenta, linewWidth), inPin.Position, outPin.Position);
                 }
             }
 
-            rc.DrawRectangle(new Pen(Brushes.Magenta, 0.01f), (RectangleF)net.Bounds);
+            rc.DrawRectangle(new Pen(Brushes.Magenta, linewWidth), (RectangleF)net.Bounds);
         }
 
     }
@@ -321,12 +332,12 @@ internal class Renderer
     void drawWire(Wire wire)
     {
         if (wire.Active)
-            rc.DrawLine(new Pen(Brushes.Blue, 0.1f), wire.StartPin.Position, wire.EndPin.Position);
+            rc.DrawLine(new Pen(Brushes.Blue, linewWidth), wire.StartPin.Position, wire.EndPin.Position);
         else
-            rc.DrawLine(new Pen(Brushes.Black, 0.1f), wire.StartPin.Position, wire.EndPin.Position);
+            rc.DrawLine(new Pen(Brushes.Black, linewWidth), wire.StartPin.Position, wire.EndPin.Position);
 
         if (DebugMode)
-            rc.DrawRectangle(new Pen(Brushes.Magenta, 0.01f), (RectangleF)wire.Bounds);
+            rc.DrawRectangle(new Pen(Brushes.Magenta, linewWidth), (RectangleF)wire.Bounds);
         
     }
 

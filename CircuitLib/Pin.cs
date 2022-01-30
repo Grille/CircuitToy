@@ -13,8 +13,8 @@ public abstract class Pin : Entity
 {
     public List<Wire> ConnectedWires = new List<Wire>();
 
-    private Vector2 _pos;
-    private Vector2 _rPos;
+    protected internal Vector2 _pos;
+    protected internal Vector2 _rPos;
     public override Vector2 Position {
         set {
             _pos = value;
@@ -26,7 +26,7 @@ public abstract class Pin : Entity
         }
     }
 
-    public Vector2 RelativePosition {
+    public virtual Vector2 RelativePosition {
         set { 
             _rPos = value;
             _pos = new Vector2(Owner.Position.X + _rPos.X, Owner.Position.Y + _rPos.Y);
@@ -58,12 +58,6 @@ public abstract class Pin : Entity
         {
             wire.Destroy();
         }
-    }
-
-    public void UpdatePosition()
-    {
-        _pos = new Vector2(Owner.Position.X + _rPos.X, Owner.Position.Y + _rPos.Y);
-        CalcBoundings();
     }
 
     public Pin()

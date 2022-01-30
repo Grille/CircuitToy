@@ -18,6 +18,34 @@ public abstract class IOPin : Pin
 
     internal bool _active;
 
+    public override Vector2 Position {
+        set {
+            _pos = value;
+            _rPos = new Vector2(_pos.X - Owner.Position.X, _pos.Y - Owner.Position.Y);
+            calcLineEnd();
+            CalcBoundings();
+        }
+        get {
+            return _pos;
+        }
+    }
+
+    public override Vector2 RelativePosition {
+        set {
+            _rPos = value;
+            _pos = new Vector2(Owner.Position.X + _rPos.X, Owner.Position.Y + _rPos.Y);
+            calcLineEnd();
+            CalcBoundings();
+        }
+        get {
+            return _rPos;
+        }
+    }
+
+    public Vector2 LineEndPosition {
+        private set; get;
+    }
+
     public new Node Owner {
         get {
             return (Node)base.Owner;
@@ -61,6 +89,32 @@ public abstract class IOPin : Pin
     {
         ConnectedNetwork?.Remove(this);
         base.Destroy();
+    }
+
+    public void UpdatePosition()
+    {
+        _pos = new Vector2(Owner.Position.X + _rPos.X, Owner.Position.Y + _rPos.Y);
+        calcLineEnd();
+        CalcBoundings();
+    }
+
+    private void calcLineEnd()
+    {
+        Vector2 endpos = Vector2.Zero;
+
+        if (Owner.Size.X / 2 < MathF.Abs(_rPos.X))
+            endpos.Y = _pos.Y;
+        else
+            endpos.Y = Owner.Position.Y;
+
+        if (Owner.Size.Y / 2 < MathF.Abs(_rPos.Y))
+            endpos.X = _pos.X;
+        else
+            endpos.X = Owner.Position.X;
+
+        LineEndPosition = endpos;
+
+        Console.WriteLine(endpos);
     }
 }
 

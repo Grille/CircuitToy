@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Drawing;
+using System.Numerics;
+
 using CircuitLib;
 using CircuitLib.Primitives;
 
@@ -81,7 +83,7 @@ class Tests
         });
         TestNetwork("connect pin to empty point", (net) => {
             var pin0 = net.CreatePin();
-            var point = new PointF(10, 0);
+            var point = new Vector2(10, 0);
             net.ConnectFromTo(pin0, point);
 
             if (net.AllPins.Count != 2)
@@ -110,7 +112,7 @@ class Tests
         TestNetwork("connect pin to pin point", (net) => {
             var pin0 = net.CreatePin();
             var pin1 = net.CreatePin();
-            var point = new PointF(10, 0);
+            var point = new Vector2(10, 0);
             pin1.Position = point;
 
             net.ConnectFromTo(pin0, point);
@@ -139,7 +141,7 @@ class Tests
         });
         TestNetwork("connect pin to self point", (net) => {
             var pin0 = net.CreatePin();
-            var point = new PointF(0, 0);
+            var point = new Vector2(0, 0);
 
             net.ConnectFromTo(pin0, point);
 

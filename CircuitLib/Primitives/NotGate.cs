@@ -11,17 +11,17 @@ public class NotGate : Node
 {
     public NotGate()
     {
-        DisplayName = "NOT";
+        DisplayName = "!";
 
         InputPins = new[] {
-            new InputPin(this,-2,+0),
+            new InputPin(this,-3,+0),
         };
 
         OutputPins = new[] {
-            new OutputPin(this,+2,+0),
+            new OutputPin(this,+3,+0),
         };
 
-        Size = new System.Numerics.Vector2(2, 2);
+        Size = new System.Numerics.Vector2(4, 4);
     }
 
     public override void Update()

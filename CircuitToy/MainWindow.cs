@@ -16,6 +16,20 @@ public partial class MainWindow : Form
 
         sim = new Simulation(canvas);
         canvas.ContextMenuStrip = contextMenuStrip1;
+
+        var node = treeView1.Nodes.Add("primitives");
+        node.Expand();
+        node.Nodes.Add("IN");
+        node.Nodes.Add("OUT");
+        node.Nodes.Add("NOT");
+        node.Nodes.Add("AND");
+        node.Nodes.Add("OR");
+        node.Nodes.Add("XOR");
+        node.Nodes.Add("NAND");
+        node.Nodes.Add("NOR");
+        node.Nodes.Add("XNOR");
+
+        treeView1.Nodes.Add("std");
     }
 
     private void MainWindow_KeyDown(object sender, KeyEventArgs e)
@@ -150,6 +164,11 @@ public partial class MainWindow : Form
     private void xNORToolStripMenuItem_Click(object sender, EventArgs e)
     {
         sim.Circuit.CreateNode<XNorGate>(sim.Interaction.WorldMousePos.X, sim.Interaction.WorldMousePos.Y);
+    }
+
+    private void MainWindow_Load(object sender, EventArgs e)
+    {
+
     }
 }
 
