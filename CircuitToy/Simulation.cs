@@ -61,6 +61,30 @@ internal class Simulation
             Circuit.InputPins[1].Active = true;
         }
 
+        
+        {
+            var c = new Circuit();
+            var input0set = c.CreateNode<Input>(0, 0);
+            var input1reset = c.CreateNode<Input>(0, 4);
+            var output = c.CreateNode<Output>(10, 2);
+
+            var norgate0 = c.CreateNode<NOrGate>(5, -5);
+            var norgate1 = c.CreateNode<NOrGate>(5, 5);
+
+
+            input0set.ConnectTo(norgate0, 0, 0);
+
+            input1reset.ConnectTo(norgate1, 0, 1);
+
+            norgate0.ConnectTo(norgate1, 0, 0);
+
+            norgate1.ConnectTo(norgate0, 0, 1);
+            norgate1.ConnectTo(output, 0, 0);
+
+            Circuit = c;
+        }
+        
+
 
 
         Camera = new Camera();

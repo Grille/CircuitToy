@@ -113,8 +113,6 @@ public abstract class IOPin : Pin
             endpos.X = Owner.Position.X;
 
         LineEndPosition = endpos;
-
-        Console.WriteLine(endpos);
     }
 }
 

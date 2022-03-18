@@ -22,7 +22,7 @@ public class XorGate : Node
             new OutputPin(this,+3,+0),
         };
 
-        Size = new System.Numerics.Vector2(4, 4);
+        Size = new System.Numerics.Vector2(6, 4);
     }
 
     public override void Update()

@@ -83,18 +83,23 @@ public abstract class Node : Entity
 
     public void ConnectTo(Node target, int outId, int inId)
     {
-        Network net;
-        if (target.InputPins[inId].ConnectedNetwork == null)
+        var outPin = OutputPins[outId];
+        var inPin = target.InputPins[inId];
+
+        if (outPin.ConnectedNetwork != null)
         {
-            net = Owner.CreateNet();
-            net.Add(OutputPins[outId]);
+            outPin.ConnectedNetwork.ConnectFromTo(outPin, inPin);
+        }
+        else if (inPin.ConnectedNetwork != null)
+        {
+            inPin.ConnectedNetwork.ConnectFromTo(inPin, outPin);
         }
         else
         {
-            net = target.InputPins[inId].ConnectedNetwork;
+            var net = Owner.CreateNet();
+            net.Add(outPin);
+            net.ConnectFromTo(outPin, inPin);
         }
-
-        net.ConnectFromTo(OutputPins[outId], target.InputPins[inId]);
     }
 
     public override void CalcBoundings()

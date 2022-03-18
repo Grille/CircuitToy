@@ -19,7 +19,7 @@ public class Output : Node
 
         OutputPins = new OutputPin[0];
 
-        Size = new System.Numerics.Vector2(2, 2);
+        Size = new System.Numerics.Vector2(4, 2);
     }
 
     public override void Update()

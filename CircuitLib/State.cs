@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CircuitLib_Tests;
+namespace CircuitLib;
 
-internal enum TestResult
+public enum State
 {
-    Success,
-    Failure,
+    Low,
+    High,
+    Off,
     Error,
 }
-

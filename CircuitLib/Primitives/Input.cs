@@ -19,7 +19,7 @@ public class Input : Node
             new OutputPin(this,+2,+0),
         };
 
-        Size = new System.Numerics.Vector2(2, 2);
+        Size = new System.Numerics.Vector2(4, 2);
     }
 
     public override bool Active {

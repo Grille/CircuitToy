@@ -1,54 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CircuitLib_Tests;
+﻿namespace CircuitLib_Tests;
 
 static class TUtils
 {
-    static int successCount = 0;
-    static int failureCount = 0;
-    static int errorCount = 0;
+    public static int SuccessCount = 0;
+    public static int FailureCount = 0;
+    public static int ErrorCount = 0;
 
     public static bool CatchExeptions = false;
-    public static void Test(Func<TestResult> test)
-    {
-        TestResult result;
-        if (CatchExeptions)
-        {
-            try
-            {
-                result = test();
-            }
-            catch (Exception e)
-            {
-                Write("\n");
-                WriteError(e.ToString());
-                result = TestResult.Error;
 
-            }
-        }
-        else
-        {
-            result = test();
-        }
-        Write("\n");
-
-        switch (result)
-        {
-            case TestResult.Success:
-                successCount++;
-                break;
-            case TestResult.Failure:
-                failureCount++;
-                break;
-            case TestResult.Error:
-                errorCount++;
-                break;
-        }
-    }
 
     public static void Write(string msg, ConsoleColor color)
     {
@@ -83,10 +42,12 @@ static class TUtils
     public static void WriteResults()
     {
         WriteTitle("Results:");
-        int testCount = successCount + errorCount + failureCount;
+        float testCount = SuccessCount + ErrorCount + FailureCount;
+        float sucCount = SuccessCount;
+        float failCount = FailureCount + ErrorCount;
         Write($"Testcases: {testCount}\n");
-        Write($"* Success: {successCount}\n");
-        Write($"* failure: {failureCount + errorCount}\n");
+        Write($"* Success: {sucCount} {(int)(sucCount / testCount * 100)}%\n");
+        Write($"* failure: {failCount} {(int)(failCount / testCount * 100)}%\n");
     }
     public static void WriteList<T>(List<T> list, Func<T, string> func)
     {
