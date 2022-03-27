@@ -69,13 +69,19 @@ public abstract class Node : Entity
 
     public override void Destroy()
     {
-        foreach (var pin in InputPins)
+        if (InputPins != null)
         {
-            pin.Destroy();
+            foreach (var pin in InputPins)
+            {
+                pin.Destroy();
+            }
         }
-        foreach (var pin in OutputPins)
+        if (OutputPins != null)
         {
-            pin.Destroy();
+            foreach (var pin in OutputPins)
+            {
+                pin.Destroy();
+            }
         }
         Owner?.Nodes.Remove(this);
         base.Destroy();

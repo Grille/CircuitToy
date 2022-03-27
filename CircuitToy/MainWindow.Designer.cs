@@ -64,6 +64,7 @@ namespace CircuitToy
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.RefreshTimer = new System.Windows.Forms.Timer(this.components);
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.canvas)).BeginInit();
             this.contextMenuStrip1.SuspendLayout();
@@ -145,6 +146,7 @@ namespace CircuitToy
             this.canvas.Size = new System.Drawing.Size(941, 711);
             this.canvas.TabIndex = 4;
             this.canvas.TabStop = false;
+            this.canvas.Paint += new System.Windows.Forms.PaintEventHandler(this.canvas_Paint);
             // 
             // contextMenuStrip1
             // 
@@ -326,6 +328,7 @@ namespace CircuitToy
             // 
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage2);
+            this.tabControl1.HotTrack = true;
             this.tabControl1.Location = new System.Drawing.Point(0, 49);
             this.tabControl1.Margin = new System.Windows.Forms.Padding(0);
             this.tabControl1.Name = "tabControl1";
@@ -352,6 +355,12 @@ namespace CircuitToy
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "tabPage2";
             this.tabPage2.UseVisualStyleBackColor = true;
+            // 
+            // RefreshTimer
+            // 
+            this.RefreshTimer.Enabled = true;
+            this.RefreshTimer.Interval = 10;
+            this.RefreshTimer.Tick += new System.EventHandler(this.RefreshTimer_Tick);
             // 
             // MainWindow
             // 
@@ -419,5 +428,6 @@ namespace CircuitToy
         private TabControl tabControl1;
         private TabPage tabPage1;
         private TabPage tabPage2;
+        private Timer RefreshTimer;
     }
 }

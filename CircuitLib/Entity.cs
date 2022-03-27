@@ -25,6 +25,7 @@ public abstract class Entity
 
     public bool IsAlive = true;
     public bool IsHovered = false;
+    public bool IsVisible = true;
     public bool IsSelected = false;
 
     public int ID = -1;

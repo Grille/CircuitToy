@@ -170,5 +170,15 @@ public partial class MainWindow : Form
     {
 
     }
+
+    private void RefreshTimer_Tick(object sender, EventArgs e)
+    {
+        canvas.Refresh();
+    }
+
+    private void canvas_Paint(object sender, PaintEventArgs e)
+    {
+        sim.Refresh(e.Graphics);
+    }
 }
 

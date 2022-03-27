@@ -97,5 +97,21 @@ namespace CircuitLib
         {
             return;
         }
+
+        public Pin GetOtherPin(Pin pin)
+        {
+            if (pin == StartPin)
+            {
+                return EndPin;
+            }
+            else if (pin == EndPin)
+            {
+                return StartPin;
+            }
+            else
+            {
+                throw new ArgumentException("Pin not connected to wire!");
+            }
+        }
     }
 }

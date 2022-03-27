@@ -15,6 +15,30 @@ public struct BoundingBox
     public float BeginY;
     public float EndY;
 
+    public Vector2 Begin {
+        get {
+            return new Vector2(BeginX, BeginY);
+        }
+        set {
+            BeginX = value.X; BeginY = value.Y;
+        }
+    }
+
+    public Vector2 End {
+        get {
+            return new Vector2(EndX, EndY);
+        }
+        set {
+            EndX = value.X; EndY = value.Y;
+        }
+    }
+
+    public Vector2 Size {
+        get {
+            return new Vector2(getWidth(), getHeight());
+        }
+    }
+
     public BoundingBox()
     {
         BeginX = 0.0f;

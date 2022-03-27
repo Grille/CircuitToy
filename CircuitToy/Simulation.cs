@@ -10,6 +10,7 @@ using System.Numerics;
 using CircuitLib;
 using CircuitLib.Primitives;
 using CircuitLib.Interface;
+using CircuitLib.Rendering;
 
 namespace CircuitToy;
 
@@ -17,9 +18,11 @@ internal class Simulation
 {
     public Circuit Circuit;
     public Camera Camera;
+    public RendererGdiBackend RendererBackend;
     public Renderer Renderer;
     public Control Target;
     public EditorInterface Interaction;
+    public Theme Theme;
 
     string path = "newcircuit.lcp";
 
@@ -83,16 +86,36 @@ internal class Simulation
 
             Circuit = c;
         }
-        
+
+
+        Theme = new Theme() {
+            SceneBackColor = Color.White,
+            SceneGridColor = Color.WhiteSmoke,
+
+            NodeBackColor = Color.LightGray,
+            NodeTextColor = Color.Black,
+
+            StateLowColor = Color.Black,
+            StateHighColor = Color.Blue,
+            StateOffColor = Color.Gray,
+            StateErrorColor = Color.Red,
+
+            SelectionColor = Color.DarkSeaGreen,
+            HoverColor = Color.Lime,
+            DebugColor = Color.Magenta,
+        };
 
 
 
         Camera = new Camera();
         Interaction = new EditorInterface(Circuit, Camera);
 
-        Renderer = new Renderer(Target, Circuit, Camera, Interaction);
-        Renderer.DebugMode = false;
-        Renderer.Start();
+
+        RendererBackend = new RendererGdiBackend();
+        Renderer = new Renderer(RendererBackend, Camera, Theme, Interaction, Circuit);
+
+        //Renderer.DebugMode = false;
+        //Renderer.Start();
 
         Target.MouseMove += Target_MouseMove;
         Target.MouseWheel += Target_MouseWheel;
@@ -102,6 +125,15 @@ internal class Simulation
         Target.KeyDown += Target_KeyDown;
     }
 
+    public void Refresh(Graphics g)
+    {
+        RendererBackend.UseGraphics(g);
+
+
+        Camera.ScreenSize = Target.ClientSize;
+
+        Renderer.Render();
+    }
     public void New()
     {
         useCircuit(new Circuit());
@@ -128,7 +160,7 @@ internal class Simulation
         Circuit = circuit;
         Interaction.Circuit = circuit;
         Interaction.Selection.Circuit = circuit;
-        Renderer.Circuit = circuit;
+        //Renderer.Circuit = circuit;
 
         Interaction.Clear();
         

@@ -49,6 +49,12 @@ public class EditorInterface
         Selection = new Selection(circuit);  
     }
 
+    public bool IsMoving {
+        get {
+            return state == State.Moving;
+        }
+    }
+
     public void MouseDown(Vector2 location, bool left)
     {
         WorldMouseDownPos = WorldMousePos;
@@ -62,6 +68,8 @@ public class EditorInterface
             {
                 if (obj == null)
                 {
+                    //state = State.Selecting;
+
                     if (!IsShiftKeyDown)
                         Selection.ClearSelection();
                     Selection.SelectAreaBegin(WorldMousePos);
