@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -28,6 +29,8 @@ public class Circuit : Node
 
         inputs = new List<Input>();
         outputs = new List<Output>();
+
+        InitPins(new Vector2[0], new Vector2[0]);
     }
 
     public void AddNode(Node node)
@@ -102,9 +105,12 @@ public class Circuit : Node
         InputPins = inputPinList.ToArray();
         OutputPins = outputPinList.ToArray();
 
+        int outCount = OutputPins.Length;
+        OutputStateCmpBuffer = new State[outCount];
+
     }
 
-    public override void Update()
+    protected override void OnUpdate()
     {
         for (int i = 0; i < inputs.Count; i++)
         {
@@ -199,34 +205,43 @@ public class Circuit : Node
         }
     }
 
-    public override void EMP()
+    public override void Reset(State state = State.Off)
     {
-        WaitIdle();
+        ForceIdel();
 
-        base.EMP();
+        base.Reset(state);
 
         foreach (var node in Nodes)
         {
-            node.EMP();
+            node.Reset(state);
         }
 
         foreach (var net in Networks)
         {
-            net.State = State.Off;
+            net.Reset(state);
         }
+    }
 
+    public override void ForceIdel()
+    {
+        base.ForceIdel();
+
+        foreach (var node in Nodes)
+        {
+            node.ForceIdel();
+        }
     }
 
     public override void WaitIdle()
     {
-        foreach (var node in Nodes)
-        {
-            node.WaitIdle();
-        }
+        base.WaitIdle();
 
-        foreach (var net in Networks)
+        for (int i = 0; i < 100; i++)
         {
-            net.WaitIdle();
+            foreach (var node in Nodes)
+            {
+                node.WaitIdle();
+            }
         }
     }
 

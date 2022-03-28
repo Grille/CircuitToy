@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
+using System.Numerics;
 
 namespace CircuitLib.Primitives;
 
@@ -13,29 +14,25 @@ public class NotGate : Node
     {
         DisplayName = "NOT";
 
-        InputPins = new[] {
-            new InputPin(this,-2,+0),
-        };
+        InitPins(
+            new Vector2[] {
+                new (-2,-0),
+            },
+            new Vector2[] {
+                new (+2,+0)
+            }
+        );
 
-        OutputPins = new[] {
-            new OutputPin(this,+2,+0),
-        };
-
-        Size = new System.Numerics.Vector2(4, 2);
+        Size = new Vector2(4, 2);
     }
 
-    public override void Update()
+    protected override void OnUpdate()
     {
-        var oldState = OutputPins[0].State;
-
         OutputPins[0].State = InputPins[0].State switch {
             State.Low => State.High,
             State.High => State.Low,
-            _ => State.Error,
+            _ => State.Off,
         };
-
-        if (oldState != OutputPins[0].State)
-            OutputPins[0].ConnectedNetwork?.Update();
     }
 }
 

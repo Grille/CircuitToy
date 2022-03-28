@@ -67,6 +67,7 @@ internal class Simulation
         
         {
             var c = new Circuit();
+
             var input0set = c.CreateNode<Input>(0, 0);
             var input1reset = c.CreateNode<Input>(0, 4);
             var output = c.CreateNode<Output>(10, 2);
@@ -97,7 +98,7 @@ internal class Simulation
 
             StateLowColor = Color.Black,
             StateHighColor = Color.Blue,
-            StateOffColor = Color.DarkGray,
+            StateOffColor = Color.FromArgb(150,150,150),
             StateErrorColor = Color.Red,
 
             SelectionColor = Color.DarkSeaGreen,

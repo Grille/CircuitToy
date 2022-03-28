@@ -111,6 +111,7 @@ class Tests
             }
 
             node.Update();
+            node.WaitIdle();
 
             bool failed = false;
             for (int i = 0; i < output.Length; i++)

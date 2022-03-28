@@ -25,9 +25,17 @@ public abstract class Node : Entity
     public InputPin[] InputPins;
     public OutputPin[] OutputPins;
 
+    protected State[] OutputStateCmpBuffer;
+
     public BoundingBox ChipBounds;
 
     private Vector2 _size;
+
+    private Task updateTask;
+    private bool semaphoreStateChanged = false;
+    private bool semaphoreTaskRunning = false;
+    private bool semaphoreStop = false;
+
     public Vector2 Size {
         get { return _size; }
         set { 
@@ -59,7 +67,47 @@ public abstract class Node : Entity
         }
     }
 
-    public abstract void Update();
+    public void Update()
+    {
+
+        semaphoreStateChanged = true;
+
+        if (semaphoreTaskRunning || semaphoreStop)
+            return;
+
+        runUpdateTask();
+    }
+
+    private void runUpdateTask()
+    {
+        updateTask = Task.Run(() => {
+            semaphoreTaskRunning = true;
+            semaphoreStateChanged = false;
+
+            for (int i = 0; i < OutputPins.Length; i++)
+            {
+                OutputStateCmpBuffer[i] = OutputPins[i].State;
+            }
+
+            OnUpdate();
+
+            for (int i = 0; i < OutputPins.Length; i++)
+            {
+                if (OutputPins[i].State != OutputStateCmpBuffer[i])
+                {
+                    OutputPins[i].ConnectedNetwork?.Update();
+                }
+            }
+
+            if (semaphoreStateChanged && !semaphoreStop)
+                runUpdateTask();
+            else
+                semaphoreTaskRunning = false;
+
+        });
+    }
+
+    protected abstract void OnUpdate();
 
     public override void Destroy()
     {
@@ -223,32 +271,61 @@ public abstract class Node : Entity
             pin.RelativePosition = new Vector2(-pin.RelativePosition.X, -pin.RelativePosition.Y);
     }
 
-    public bool IsErrorState()
+    public virtual void Reset(State state = State.Off)
     {
+        ForceIdel();
 
-
-
-        return false;
-    }
-
-    public virtual void EMP()
-    {
         if (InputPins != null)
         foreach (var pin in InputPins)
         {
-            pin.State = State.Off;
+            pin.State = state;
         }
 
         if (OutputPins != null)
         foreach (var pin in OutputPins)
         {
-            pin.State = State.Off;
+            pin.State = state;
         }
+    }
+
+    public virtual void ForceIdel()
+    {
+        semaphoreStop = true;
+        semaphoreStateChanged = false;
+        if (updateTask != null)
+            updateTask.Wait();
+        semaphoreStop = false;
     }
 
     public override void WaitIdle()
     {
-        
+        if (updateTask != null)
+        {
+            while (semaphoreTaskRunning || semaphoreStateChanged)
+            {
+                updateTask?.Wait();
+            }
+        }
     }
+
+    protected void InitPins(Vector2[] inputs, Vector2[] outputs)
+    {
+        int inCount = inputs.Length;
+        int outCount = outputs.Length;
+
+        InputPins = new InputPin[inCount];
+        OutputPins = new OutputPin[outCount];
+
+        OutputStateCmpBuffer = new State[outCount];
+
+        for (int i = 0; i < inCount; i++)
+            InputPins[i] = new InputPin(this, inputs[i]);
+
+        for (int i = 0; i < outCount; i++)
+            OutputPins[i] = new OutputPin(this, outputs[i]);
+
+        CalcBoundings();
+    }
+
 }
 

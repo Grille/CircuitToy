@@ -184,7 +184,7 @@ public partial class MainWindow : Form
 
     private void toolStripButton1_Click(object sender, EventArgs e)
     {
-        sim.Circuit.EMP();
+        sim.Circuit.Reset();
     }
 }
 

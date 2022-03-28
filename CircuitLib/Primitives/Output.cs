@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
+using System.Numerics;
 
 namespace CircuitLib.Primitives;
 
@@ -12,21 +13,24 @@ public class Output : Node
     public Output()
     {
         DisplayName = "OUT";
-        
-        InputPins = new[] {
-            new InputPin(this,-2,+0),
-        };
 
-        OutputPins = new OutputPin[0];
+        InitPins(
+            new Vector2[] {
+                new (-2,-0),
+            },
+            new Vector2[] {
 
-        Size = new System.Numerics.Vector2(4, 2);
+            }
+        );
+
+        Size = new Vector2(4, 2);
     }
 
     public State State {
         get => InputPins[0].State;
     }
 
-    public override void Update()
+    protected override void OnUpdate()
     {
         //Active = InputPins[0].Active;
     }

@@ -26,8 +26,6 @@ public class Network : Entity
     public List<Pin> AllPins = new List<Pin>();
     public List<Wire> Wires = new List<Wire>();
 
-    private List<Task> taskList = new List<Task>();
-
     private bool enableSpilt = true;
     public override Vector2 Position {
         get { return Owner.Position; }
@@ -115,6 +113,7 @@ public class Network : Entity
     public NetPin CreatePin(float x, float y)
     {
         var pin = new NetPin(this, x, y);
+        pin.CalcBoundings();
         GuardPins.Add(pin);
         AllPins.Add(pin);
         return pin;
@@ -122,6 +121,7 @@ public class Network : Entity
     public NetPin CreatePin()
     {
         var pin = new NetPin(this);
+        pin.CalcBoundings();
         GuardPins.Add(pin);
         AllPins.Add(pin);
         return pin;
@@ -377,40 +377,27 @@ public class Network : Entity
             }
         }
 
-        if (lowCount> 0)
+
+        if (lowCount + highCount > 1)
+            State = State.Error;
+        else if (lowCount == 1)
             State = State.Low;
-        if (highCount > 0)
+        else if (highCount == 1)
             State = State.High;
-        if (errorCount > 0)
+        else if (errorCount > 0)
             State = State.Error;
 
-        //if (oldState == State)
-        //    return;
+        if (State == State.Error)
+            return;
 
         foreach (var pin in InputPins)
         {
             pin.State = State;
         }
 
-        for (int i = 0; i < taskList.Count; i++)
+        foreach (var pin in InputPins)
         {
-            var task = taskList[i];
-            if (task.IsCompleted)
-                taskList.Remove(task);
-        }
-
-        {
-            var task = new Task(() => {
-
-                foreach (var pin in InputPins)
-                {
-
-                    pin.Owner.Update();
-
-                }
-            });
-            taskList.Add(task);
-            task.Start();
+            pin.Owner.Update();
         }
     }
 
@@ -459,21 +446,14 @@ public class Network : Entity
         }
     }
 
+    public void Reset(State state = State.Off)
+    {
+        State = state;
+    }
+
     public override void WaitIdle()
     {
-        for (int i = 0; i < taskList.Count; i++)
-        {
-            var task = taskList[i];
-            if (task.IsCompleted)
-                taskList.Remove(task);
-        }
 
-        Console.WriteLine($"{taskList.Count} task to await");
-        for (int i = 0; i < taskList.Count; i++)
-        {
-            var task = taskList[i];
-            task.Wait();
-        }
     }
 }
 

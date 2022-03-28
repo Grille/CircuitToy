@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
+using System.Numerics;
 
 namespace CircuitLib.Primitives;
 
@@ -13,22 +14,21 @@ public class AndGate : Node
     {
         DisplayName = "AND";
 
-        InputPins = new[] {
-            new InputPin(this,-3,-1),
-            new InputPin(this,-3,+1),
-        };
+        InitPins(
+            new Vector2[] {
+                new (-3,-1),
+                new (-3,+1),
+            }, 
+            new Vector2[] {
+                new (+3,+0)
+            }
+        );
 
-        OutputPins = new[] {
-            new OutputPin(this,+3,+0),
-        };
-
-        Size = new System.Numerics.Vector2(6, 4);
+        Size = new Vector2(6, 4);
     }
 
-    public override void Update()
+    protected override void OnUpdate()
     {
-        var oldState = OutputPins[0].State;
-
         OutputPins[0].State = (InputPins[0].State, InputPins[1].State) switch {
             (State.Low, State.Low) => State.Low,
             (State.Low, State.High) => State.Low,
@@ -38,11 +38,8 @@ public class AndGate : Node
             (_, State.Low) => State.Low,
             (State.High, _) => State.Low,
             (_, State.High) => State.Low,
-            (_, _) => State.Error,
+            (_, _) => State.Off,
         };
-
-        if (oldState != OutputPins[0].State)
-            OutputPins[0].ConnectedNetwork?.Update();
     }
 }
 

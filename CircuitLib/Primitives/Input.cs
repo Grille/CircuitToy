@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
+using System.Numerics;
 
 namespace CircuitLib.Primitives;
 
@@ -13,31 +14,34 @@ public class Input : Node
     {
         DisplayName = "IN";
 
-        InputPins = new InputPin[0];
+        InitPins(
+            new Vector2[] {
 
-        OutputPins = new[] {
-            new OutputPin(this,+2,+0),
-        };
+            },
+            new Vector2[] {
+                new (+2,+0)
+            }
+        );
 
-        Size = new System.Numerics.Vector2(4, 2);
+        Size = new Vector2(4, 2);
 
         State = State.Off;
     }
 
     public State State {
-        get => OutputPins[0].State;
-        set {
-            OutputPins[0].State = value;
-        }
+        get;
+        set;
     }
 
-    public override void Update()
+    protected override void OnUpdate() 
     {
-        OutputPins[0].ConnectedNetwork?.Update();
+        OutputPins[0].State = State;
     }
 
     public override void ClickAction()
     {
+        State = OutputPins[0].State;
+
         if (State == State.Low)
             State = State.High;
 

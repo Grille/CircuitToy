@@ -15,6 +15,7 @@ public abstract class IOPin : Pin
     public IOPin() : base() { }
     public IOPin(Node owner) : base(owner) { }
     public IOPin(Node owner, float x, float y) : base(owner, x, y) { }
+    public IOPin(Node owner, Vector2 pos) : base(owner, pos) { }
 
     internal State _state = State.Off;
 
@@ -25,25 +26,23 @@ public abstract class IOPin : Pin
 
     public override Vector2 Position {
         set {
-            _pos = value;
-            _rPos = new Vector2(_pos.X - Owner.Position.X, _pos.Y - Owner.Position.Y);
+            _position = value;
             calcLineEnd();
             CalcBoundings();
         }
         get {
-            return _pos;
+            return _position;
         }
     }
 
     public override Vector2 RelativePosition {
         set {
-            _rPos = value;
-            _pos = new Vector2(Owner.Position.X + _rPos.X, Owner.Position.Y + _rPos.Y);
+            _relativePosition = value;
             calcLineEnd();
             CalcBoundings();
         }
         get {
-            return _rPos;
+            return _relativePosition;
         }
     }
 
@@ -98,7 +97,7 @@ public abstract class IOPin : Pin
 
     public void UpdatePosition()
     {
-        _pos = new Vector2(Owner.Position.X + _rPos.X, Owner.Position.Y + _rPos.Y);
+        _position = new Vector2(Owner.Position.X + _relativePosition.X, Owner.Position.Y + _relativePosition.Y);
         calcLineEnd();
         CalcBoundings();
     }
@@ -107,13 +106,13 @@ public abstract class IOPin : Pin
     {
         Vector2 endpos = Vector2.Zero;
 
-        if (Owner.Size.X / 2 < MathF.Abs(_rPos.X))
-            endpos.Y = _pos.Y;
+        if (Owner.Size.X / 2 < MathF.Abs(_relativePosition.X))
+            endpos.Y = _position.Y;
         else
             endpos.Y = Owner.Position.Y;
 
-        if (Owner.Size.Y / 2 < MathF.Abs(_rPos.Y))
-            endpos.X = _pos.X;
+        if (Owner.Size.Y / 2 < MathF.Abs(_relativePosition.Y))
+            endpos.X = _position.X;
         else
             endpos.X = Owner.Position.X;
 

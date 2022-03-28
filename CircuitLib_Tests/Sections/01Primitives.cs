@@ -28,7 +28,7 @@ partial class Section
         Tests.RunIOTable<NotGate>("0->1");
         Tests.RunIOTable<NotGate>("1->0");
         Tests.RunIOTable<NotGate>("Z->Z");
-        Tests.RunIOTable<NotGate>("E->E");
+        Tests.RunIOTable<NotGate>("E->Z");
 
         Tests.RunIOTable<NAndGate>("00->1");
         Tests.RunIOTable<NAndGate>("01->1");

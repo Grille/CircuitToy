@@ -13,12 +13,32 @@ public abstract class Pin : Entity
 {
     public List<Wire> ConnectedWires = new List<Wire>();
 
-    protected internal Vector2 _pos;
-    protected internal Vector2 _rPos;
-    public override Vector2 Position {
+    private Vector2 _pos;
+    private Vector2 _rPos;
+
+    protected internal Vector2 _position {
         set {
             _pos = value;
             _rPos = new Vector2(_pos.X - Owner.Position.X, _pos.Y - Owner.Position.Y);
+        }
+        get {
+            return _pos;
+        }
+    }
+
+    protected internal Vector2 _relativePosition {
+        set {
+            _rPos = value;
+            _pos = new Vector2(Owner.Position.X + _rPos.X, Owner.Position.Y + _rPos.Y);
+        }
+        get {
+            return _rPos;
+        }
+    }
+
+    public override Vector2 Position {
+        set {
+            _position = value;
             CalcBoundings();
         }
         get { 
@@ -27,9 +47,8 @@ public abstract class Pin : Entity
     }
 
     public virtual Vector2 RelativePosition {
-        set { 
-            _rPos = value;
-            _pos = new Vector2(Owner.Position.X + _rPos.X, Owner.Position.Y + _rPos.Y);
+        set {
+            _relativePosition = value;
             CalcBoundings();
         }
         get { 
@@ -69,7 +88,13 @@ public abstract class Pin : Entity
     public Pin(Entity owner, float x, float y)
     {
         Owner = owner;
-        RelativePosition = new Vector2(x,y);
+        _relativePosition = new Vector2(x,y);
+    }
+
+    public Pin(Entity owner, Vector2 pos)
+    {
+        Owner = owner;
+        _relativePosition = pos;
     }
 
     public List<Pin> GetConnectedPins()

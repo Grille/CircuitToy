@@ -8,7 +8,7 @@ namespace CircuitLib;
 
 public class IntegratedCircuit : Node
 {
-    public override void Update()
+    protected override void OnUpdate()
     {
 
     }

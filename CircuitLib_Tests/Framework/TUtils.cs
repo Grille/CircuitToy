@@ -129,7 +129,7 @@ static class TUtils
         if (pin is InputPin)
             pinType = $"{pin.Owner.Name}.InPin[{Array.IndexOf(pin.Owner.InputPins, pin)}]";
         else
-            pinType = $"{pin.Owner.Name}.OutPin[{Array.IndexOf(pin.Owner.InputPins, pin)}]";
+            pinType = $"{pin.Owner.Name}.OutPin[{Array.IndexOf(pin.Owner.OutputPins, pin)}]";
 
         if (pin.State != state)
         {

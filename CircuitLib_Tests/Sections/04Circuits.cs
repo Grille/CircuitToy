@@ -11,7 +11,7 @@ partial class Section
 
             var input0 = c.CreateNode<Input>(0, 0);
             var input1 = c.CreateNode<Input>(0, 4);
-            var output = c.CreateNode<Output>(10, 2);
+            var output = c.CreateNode<Output>(10, 2, "out");
             var andgate = c.CreateNode<AndGate>(5, 2, "and");
 
             input0.ConnectTo(andgate, 0, 0);
@@ -60,6 +60,9 @@ partial class Section
                 return TestResult.Failure;
 
             if (TUtils.AssertPinState(andgate.OutputPins[0], State.High))
+                return TestResult.Failure;
+
+            if (TUtils.AssertPinState(output.InputPins[0], State.High))
                 return TestResult.Failure;
 
             if (TUtils.AssertPinState(c.OutputPins[0], State.High))

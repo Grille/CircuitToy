@@ -12,6 +12,7 @@ public class NetPin : Pin
 {
     public NetPin(Network owner) : base(owner) { }
     public NetPin(Network owner, float x, float y) : base(owner, x, y) { }
+    public NetPin(Node owner, Vector2 pos) : base(owner, pos) { }
 
     public new Network Owner {
         get {
