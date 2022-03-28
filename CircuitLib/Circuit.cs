@@ -19,6 +19,8 @@ public class Circuit : Node
 
     private int autoIdCount = 0;
 
+    public bool UseAsync = true;
+
     public Circuit()
     {
         Nodes = new List<Node>();
@@ -42,24 +44,30 @@ public class Circuit : Node
 
     public T CreateNode<T>() where T : Node, new()
     {
-        var node = new T();
-        AddNode(node);
-        node.Name += $"_{autoIdCount++}";
-        return node;
+        return CreateNode<T>(0, 0);
     }
 
     public T CreateNode<T>(float x, float y) where T : Node, new()
     {
-        var node = CreateNode<T>();
+        return CreateNode<T>(x,y, $"AutID_{autoIdCount++}");
+    }
+
+    public T CreateNode<T>(float x, float y, string name) where T : Node, new()
+    {
+        var node = new T();
         node.Position = new Vector2(x, y);
         node.RoundPosition();
+        node.Name = name;
+
+        AddNode(node);
         return node;
     }
+
     public Network CreateNet()
     {
         var net = new Network();
         AddNet(net);
-        net.Name += $"_{autoIdCount++}";
+        net.Name += $"AutID_{autoIdCount++}";
         return net;
     }
 
@@ -100,7 +108,7 @@ public class Circuit : Node
     {
         for (int i = 0; i < inputs.Count; i++)
         {
-            inputs[i]._active = InputPins[i]._active;
+            inputs[i].State = InputPins[i].State;
         }
         for (int i = 0; i < inputs.Count; i++)
         {
@@ -108,8 +116,13 @@ public class Circuit : Node
         }
         for (int i = 0; i < outputs.Count; i++)
         {
-            OutputPins[i].Active = outputs[i]._active;
+            OutputPins[i].State = outputs[i].State;
         }
+        for (int i = 0; i < outputs.Count; i++)
+        {
+            OutputPins[i].ConnectedNetwork?.Update();
+        }
+
     }
 
     public override void Destroy()
@@ -185,4 +198,37 @@ public class Circuit : Node
             base.GetFromArea(entities, region);
         }
     }
+
+    public override void EMP()
+    {
+        WaitIdle();
+
+        base.EMP();
+
+        foreach (var node in Nodes)
+        {
+            node.EMP();
+        }
+
+        foreach (var net in Networks)
+        {
+            net.State = State.Off;
+        }
+
+    }
+
+    public override void WaitIdle()
+    {
+        foreach (var node in Nodes)
+        {
+            node.WaitIdle();
+        }
+
+        foreach (var net in Networks)
+        {
+            net.WaitIdle();
+        }
+    }
+
+
 }

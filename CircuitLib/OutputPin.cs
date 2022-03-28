@@ -13,15 +13,14 @@ public class OutputPin : IOPin
     public OutputPin(Node owner) : base(owner) { }
     public OutputPin(Node owner, float x, float y) : base(owner, x, y) { }
 
-    public override bool Active {
+    public override State State {
         get {
-            return _active;
+            return _state;
         }
         set {
-            if (_active != value)
+            if (_state != value)
             {
-                _active = value;
-                ConnectedNetwork?.Update();
+                _state = value;
             }
         }
     }

@@ -126,14 +126,14 @@ namespace CircuitLib
                 writePinArray(node.InputPins);
                 writePinArray(node.OutputPins);
 
-                void writePinArray(Pin[] pins)
+                void writePinArray(IOPin[] pins)
                 {
                     bw.WriteInt32(pins.Length);
                     foreach (var pin in pins)
                     {
                         bw.WriteString(pin.Name);
                         bw.WriteString(pin.Description);
-                        bw.WriteBoolean(pin.Active);
+                        bw.Write(pin.State);
                         bw.Write(pin.RelativePosition);
                     }
                 }
@@ -203,7 +203,7 @@ namespace CircuitLib
 
                         pin.Name = br.ReadString();
                         pin.Description = br.ReadString();
-                        pin._active = br.ReadBoolean();
+                        pin._state = br.Read<State>();
                         pin.RelativePosition = br.Read<Vector2>();
 
                         pins[i] = pin;

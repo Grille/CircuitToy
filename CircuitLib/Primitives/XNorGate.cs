@@ -27,7 +27,22 @@ public class XNorGate : Node
 
     public override void Update()
     {
-        OutputPins[0].Active = !(InputPins[0].Active ^ InputPins[1].Active);
+        var oldState = OutputPins[0].State;
+
+        OutputPins[0].State = (InputPins[0].State, InputPins[1].State) switch {
+            (State.Low, State.Low) => State.High,
+            (State.Low, State.High) => State.Low,
+            (State.High, State.Low) => State.Low,
+            (State.High, State.High) => State.High,
+            (State.Low, _) => State.High,
+            (_, State.Low) => State.High,
+            (State.High, _) => State.Low,
+            (_, State.High) => State.Low,
+            (_, _) => State.Error,
+        };
+
+        if (oldState != OutputPins[0].State)
+            OutputPins[0].ConnectedNetwork?.Update();
     }
 }
 

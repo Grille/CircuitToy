@@ -27,6 +27,8 @@ internal class PaintPalette
     public int SelectionOpaque;
     public int SelectionTransparent;
     public int SelectionWire;
+    public int SelectionOutline;
+    public int SelectionOutlineWire;
 
     public int SelectionHover;
 
@@ -36,13 +38,13 @@ internal class PaintPalette
     {
         this.ctx = ctx;
 
-        float scaledWireWidth = theme.WireWidth * cam.Scale;
+        float scaledWireWidth = Theme.WireWidth * cam.Scale;
 
         SceneBack = ctx.CreatePaint(theme.SceneBackColor);
         SceneGrid = ctx.CreatePaint(theme.SceneGridColor);
 
         NodeBack = ctx.CreatePaint(theme.NodeBackColor);
-        NodeText = ctx.CreateStrPaint(theme.NodeTextColor, 1 * cam.Scale, "consolas", theme.NodeTextSize * cam.Scale);
+        NodeText = ctx.CreateStrPaint(theme.NodeTextColor, 1 * cam.Scale, "consolas", Theme.NodeTextSize * cam.Scale);
 
         StateLow = ctx.CreatePaint(theme.StateLowColor, scaledWireWidth);
         StateHigh = ctx.CreatePaint(theme.StateHighColor, scaledWireWidth);
@@ -51,7 +53,10 @@ internal class PaintPalette
 
         SelectionOpaque = ctx.CreatePaint(theme.SelectionColor,2);
         SelectionTransparent = ctx.CreatePaint(Color.FromArgb(50, theme.SelectionColor));
-        SelectionWire = ctx.CreatePaint(theme.SelectionColor, scaledWireWidth);
+
+        SelectionWire = ctx.CreatePaint(theme.SelectionColor, (Theme.WireWidth) * cam.Scale);
+        SelectionOutline = ctx.CreatePaint(theme.SelectionColor, (Theme.SelectionOutline * 2) * cam.Scale);
+        SelectionOutlineWire = ctx.CreatePaint(theme.SelectionColor, (Theme.WireWidth + Theme.SelectionOutline * 2) * cam.Scale);
         SelectionHover = ctx.CreatePaint(theme.HoverColor,2);
 
         Debug = ctx.CreatePaint(theme.DebugColor);
@@ -73,6 +78,8 @@ internal class PaintPalette
         ctx.DestroyPaint(SelectionOpaque);
         ctx.DestroyPaint(SelectionTransparent);
         ctx.DestroyPaint(SelectionWire);
+        ctx.DestroyPaint(SelectionOutline);
+        ctx.DestroyPaint(SelectionOutlineWire);
         ctx.DestroyPaint(SelectionHover);
 
         ctx.DestroyPaint(Debug);

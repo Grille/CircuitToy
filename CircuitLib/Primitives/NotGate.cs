@@ -26,7 +26,16 @@ public class NotGate : Node
 
     public override void Update()
     {
-        OutputPins[0].Active = !InputPins[0].Active;
+        var oldState = OutputPins[0].State;
+
+        OutputPins[0].State = InputPins[0].State switch {
+            State.Low => State.High,
+            State.High => State.Low,
+            _ => State.Error,
+        };
+
+        if (oldState != OutputPins[0].State)
+            OutputPins[0].ConnectedNetwork?.Update();
     }
 }
 

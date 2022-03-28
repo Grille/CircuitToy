@@ -21,6 +21,7 @@ public partial class MainWindow : Form
         node.Expand();
         node.Nodes.Add("IN");
         node.Nodes.Add("OUT");
+        node.Nodes.Add("BUF");
         node.Nodes.Add("NOT");
         node.Nodes.Add("AND");
         node.Nodes.Add("OR");
@@ -179,6 +180,11 @@ public partial class MainWindow : Form
     private void canvas_Paint(object sender, PaintEventArgs e)
     {
         sim.Refresh(e.Graphics);
+    }
+
+    private void toolStripButton1_Click(object sender, EventArgs e)
+    {
+        sim.Circuit.EMP();
     }
 }
 

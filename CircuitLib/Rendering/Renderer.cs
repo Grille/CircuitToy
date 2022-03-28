@@ -24,6 +24,15 @@ public class Renderer
     Circuit circuit;
     PaintPalette palette;
 
+    public Circuit Circuit {
+        get {
+            return circuit;
+        }
+        set {
+            circuit = value;
+        }
+    }
+
     public Renderer(IRendererBackend renderBackend, Camera camera, Theme theme, EditorInterface @interface, Circuit circuit)
     {
         ctx = renderBackend;
@@ -61,6 +70,8 @@ public class Renderer
         }
 
 
+        DrawSelection();
+
         foreach (var net in circuit.Networks)
         {
             DrawNetwork(net);
@@ -71,84 +82,7 @@ public class Renderer
             DrawNode(node);
         }
 
-        foreach (var entity in selection.SelectedEntities)
-        {
-            if (entity is Node)
-            {
-                var node = (Node)entity;
 
-                foreach (var pin in node.InputPins)
-                {
-                    drawSelectedPin(pin);
-                }
-
-                foreach (var pin in node.OutputPins)
-                {
-                    drawSelectedPin(pin);
-                }
-
-                var screenPos = camera.WorldToScreenSpace(node.Position + selection.Offset);
-                var screenSize = node.Size * camera.Scale;
-                var scrennHalfSize = screenSize * 0.5f;
-                var drawPos = screenPos - scrennHalfSize;
-
-                ctx.FillRectangle(palette.NodeBack, drawPos, screenSize);
-                ctx.DrawText(palette.NodeText, node.DisplayName, drawPos, screenSize);
-            }
-            if (entity is NetPin)
-            {
-                var pin = (NetPin)entity;
-
-                drawSelectedPin(pin);
-            }
-
-            {
-                var bounds = entity.Bounds;
-
-                var pos = camera.WorldToScreenSpace(bounds.Begin);
-                var size = bounds.Size * camera.Scale;
-
-                ctx.DrawRectangle(palette.SelectionOpaque, pos, size);
-            }
-        }
-
-        void drawSelectedPin(Pin pin)
-        {
-            var pos = camera.WorldToScreenSpace(pin.Position + selection.Offset);
-            float rad = 0f;
-
-            if (pin is NetPin)
-            {
-                if (pin.ConnectedWires.Count == 2)
-                {
-                    rad = theme.NetPinInlineRadius * camera.Scale;
-                }
-                else
-                {
-                    rad = theme.NetPinJointRadius * camera.Scale;
-                }
-            }
-            else if (pin is IOPin)
-            {
-                rad = theme.IoPinRadius * camera.Scale;
-            }
-
-            ctx.FillCircle(palette.SelectionOpaque, pos, rad);
-
-            foreach (var wire in pin.ConnectedWires)
-            {
-                var pin2 = wire.GetOtherPin(pin);
-
-                Vector2 pos2;
-
-                if (selection.SelectedEntities.Contains(pin2))
-                    pos2 = camera.WorldToScreenSpace(pin2.Position + selection.Offset);
-                else
-                    pos2 = camera.WorldToScreenSpace(pin2.Position);
-
-                ctx.DrawLine(palette.SelectionWire, pos, pos2);
-            }
-        };
 
         if (selection.HoveredEntity != null)
         {
@@ -169,9 +103,11 @@ public class Renderer
 
     public void DrawNetwork(Network network)
     {
-        int paint = network.Active switch {
-            false => palette.StateLow,
-            true => palette.StateHigh,
+        int paint = network.State switch {
+            State.Off => palette.StateOff,
+            State.Low => palette.StateLow,
+            State.High => palette.StateHigh,
+            _ => palette.StateError,
         };
 
         foreach (var wire in network.Wires)
@@ -187,8 +123,8 @@ public class Renderer
             var pos = camera.WorldToScreenSpace(pin.Position);
 
             float rad = pin.ConnectedWires.Count == 2 ?
-                theme.NetPinInlineRadius * camera.Scale :
-                theme.NetPinJointRadius * camera.Scale;
+                Theme.NetPinInlineRadius * camera.Scale :
+                Theme.NetPinJointRadius * camera.Scale;
 
             ctx.FillCircle(paint, pos, rad);
 
@@ -203,11 +139,13 @@ public class Renderer
         foreach (var pin in node.InputPins)
         {
             var pos = camera.WorldToScreenSpace(pin.Position);
-            var rad = theme.IoPinRadius * camera.Scale;
+            var rad = Theme.IoPinRadius * camera.Scale;
 
-            int paint = pin.Active switch {
-                false => palette.StateLow,
-                true => palette.StateHigh,
+            int paint = pin.State switch {
+                State.Off => palette.StateOff,
+                State.Low => palette.StateLow,
+                State.High => palette.StateHigh,
+                _ => palette.StateError,
             };
 
             ctx.FillCircle(paint, pos, rad);
@@ -216,11 +154,13 @@ public class Renderer
         foreach (var pin in node.OutputPins)
         {
             var pos = camera.WorldToScreenSpace(pin.Position);
-            var rad = theme.IoPinRadius * camera.Scale;
+            var rad = Theme.IoPinRadius * camera.Scale;
 
-            int paint = pin.Active switch {
-                false => palette.StateLow,
-                true => palette.StateHigh,
+            int paint = pin.State switch {
+                State.Off => palette.StateOff,
+                State.Low => palette.StateLow,
+                State.High => palette.StateHigh,
+                _ => palette.StateError,
             };
 
             ctx.FillCircle(paint, pos, rad);
@@ -269,5 +209,81 @@ public class Renderer
         DrawGrid(1, palette.SceneGrid);
         DrawGrid(10, palette.SceneGrid);
         DrawGrid(100, palette.SceneGrid);
+    }
+
+    public void DrawSelection()
+    {
+        var outlineOffset = new Vector2(Theme.SelectionOutline, Theme.SelectionOutline);
+
+        foreach (var entity in selection.SelectedEntities)
+        {
+            if (entity is Node)
+            {
+                var node = (Node)entity;
+
+                foreach (var pin in node.InputPins)
+                {
+                    drawSelectedPin(pin);
+                }
+
+                foreach (var pin in node.OutputPins)
+                {
+                    drawSelectedPin(pin);
+                }
+
+                var screenPos = camera.WorldToScreenSpace(node.Position + selection.SnapOffset);
+                var screenSize = node.Size * camera.Scale;
+                var scrennHalfSize = screenSize * 0.5f;
+                var drawPos = screenPos - scrennHalfSize;
+
+                ctx.DrawRectangle(palette.SelectionOutline, drawPos, screenSize);
+                ctx.FillRectangle(palette.SelectionOpaque, drawPos, screenSize);
+                //ctx.DrawText(palette.NodeText, node.DisplayName, drawPos, screenSize);
+            }
+            if (entity is NetPin)
+            {
+                var pin = (NetPin)entity;
+
+                drawSelectedPin(pin);
+            }
+        }
+
+        void drawSelectedPin(Pin pin)
+        {
+            var pos = camera.WorldToScreenSpace(pin.Position + selection.SnapOffset);
+            float rad = 0f;
+
+            if (pin is NetPin)
+            {
+                if (pin.ConnectedWires.Count == 2)
+                {
+                    rad = (Theme.NetPinInlineRadius + Theme.SelectionOutline) * camera.Scale;
+                }
+                else
+                {
+                    rad = (Theme.NetPinJointRadius + Theme.SelectionOutline) * camera.Scale;
+                }
+            }
+            else if (pin is IOPin)
+            {
+                rad = (Theme.IoPinRadius + Theme.SelectionOutline) * camera.Scale;
+            }
+
+            ctx.FillCircle(palette.SelectionOpaque, pos, rad);
+
+            foreach (var wire in pin.ConnectedWires)
+            {
+                var pin2 = wire.GetOtherPin(pin);
+
+                Vector2 pos2;
+
+                if (selection.SelectedEntities.Contains(pin2))
+                    pos2 = camera.WorldToScreenSpace(pin2.Position + selection.SnapOffset);
+                else
+                    pos2 = camera.WorldToScreenSpace(pin2.Position);
+
+                ctx.DrawLine(palette.SelectionWire, pos, pos2);
+            }
+        };
     }
 }

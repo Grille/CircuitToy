@@ -40,10 +40,8 @@ namespace CircuitLib
             set =>  _pos = value;
         }
 
-        private bool _active = false;
-        public override bool Active {
-            get => _active;
-            set => _active = value;
+        public State State {
+            get => Owner.State;
         }
 
         public override void CalcBoundings()
@@ -112,6 +110,11 @@ namespace CircuitLib
             {
                 throw new ArgumentException("Pin not connected to wire!");
             }
+        }
+
+        public override void WaitIdle()
+        {
+            throw new NotImplementedException();
         }
     }
 }

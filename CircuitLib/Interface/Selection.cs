@@ -18,6 +18,9 @@ public class Selection
     public Entity Circuit;
 
     public Vector2 Offset;
+    public Vector2 SnapOffset {
+        get => new Vector2(MathF.Round(Offset.X), MathF.Round(Offset.Y));
+    }
 
     private Vector2 areaStart;
     private Vector2 areaEnd;

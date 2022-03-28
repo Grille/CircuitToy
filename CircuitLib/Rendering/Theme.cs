@@ -9,11 +9,12 @@ namespace CircuitLib.Rendering;
 
 public record class Theme
 {
-    public float IoPinRadius = 0.5f;
-    public float NetPinInlineRadius = 0.1f;
-    public float NetPinJointRadius = 0.2f;
-    public float WireWidth = 0.2f;
-    public float NodeTextSize = 1f;
+    public const float IoPinRadius = 0.5f;
+    public const float NetPinInlineRadius = 0.1f;
+    public const float NetPinJointRadius = 0.2f;
+    public const float WireWidth = 0.2f;
+    public const float NodeTextSize = 1f;
+    public const float SelectionOutline = 0.2f;
 
     public Color SceneBackColor;
     public Color SceneGridColor;

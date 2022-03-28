@@ -27,7 +27,22 @@ public class OrGate : Node
 
     public override void Update()
     {
-        OutputPins[0].Active = InputPins[0].Active || InputPins[1].Active;
+        var oldState = OutputPins[0].State;
+
+        OutputPins[0].State = (InputPins[0].State, InputPins[1].State) switch {
+            (State.Low, State.Low) => State.Low,
+            (State.Low, State.High) => State.High,
+            (State.High, State.Low) => State.High,
+            (State.High, State.High) => State.High,
+            (State.Low, _) => State.Low,
+            (_, State.Low) => State.Low,
+            (State.High, _) => State.High,
+            (_, State.High) => State.High,
+            (_, _) => State.Error,
+        };
+
+        if (oldState != OutputPins[0].State)
+            OutputPins[0].ConnectedNetwork?.Update();
     }
 }
 

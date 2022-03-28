@@ -103,5 +103,50 @@ static class TUtils
 
         return outstr;
     }
+
+    public static State[] StrToStateArray(string str)
+    {
+        string tinstr = str.Trim();
+
+        State[] outarray = new State[tinstr.Length];
+
+        for (int i = 0; i < tinstr.Length; i++)
+        {
+            outarray[i] = tinstr[i] switch {
+                '0' => State.Low,
+                '1' => State.High,
+                'Z' => State.Off,
+                _ => State.Error,
+            };
+        }
+
+        return outarray;
+    }
+
+    public static bool AssertPinState(IOPin pin, State state, string msg = "")
+    {
+        string pinType;
+        if (pin is InputPin)
+            pinType = $"{pin.Owner.Name}.InPin[{Array.IndexOf(pin.Owner.InputPins, pin)}]";
+        else
+            pinType = $"{pin.Owner.Name}.OutPin[{Array.IndexOf(pin.Owner.InputPins, pin)}]";
+
+        if (pin.State != state)
+        {
+            WriteFail($"{msg}{pinType} is {pin.State}, expected {state}");
+            return true;
+        }
+        return false;
+    }
+
+    public static bool AssertNetState(Network net, State state, string msg = "")
+    {
+        if (net.State != state)
+        {
+            WriteFail($"{msg}{net.Name} is {net.State}, expected {state}");
+            return true;
+        }
+        return false;
+    }
 }
 

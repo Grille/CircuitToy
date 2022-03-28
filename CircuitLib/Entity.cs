@@ -73,8 +73,6 @@ public abstract class Entity
         Position =  new Vector2(MathF.Round(Position.X), MathF.Round(Position.Y));
     }
 
-    public abstract bool Active {
-        get; set;
-    }
+    public abstract void WaitIdle();
 }
 

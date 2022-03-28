@@ -20,24 +20,33 @@ public class Input : Node
         };
 
         Size = new System.Numerics.Vector2(4, 2);
+
+        State = State.Off;
     }
 
-    public override bool Active {
-        get => base.Active;
+    public State State {
+        get => OutputPins[0].State;
         set {
-            base.Active = value;
-            Update();
+            OutputPins[0].State = value;
         }
     }
 
     public override void Update()
     {
-        OutputPins[0].Active = Active;
+        OutputPins[0].ConnectedNetwork?.Update();
     }
 
     public override void ClickAction()
     {
-        Active = !Active;
+        if (State == State.Low)
+            State = State.High;
+
+        else if (State == State.High)
+            State = State.Low;
+
+        else
+            State = State.Low;
+
         Update();
     }
 }

@@ -16,7 +16,12 @@ public abstract class IOPin : Pin
     public IOPin(Node owner) : base(owner) { }
     public IOPin(Node owner, float x, float y) : base(owner, x, y) { }
 
-    internal bool _active;
+    internal State _state = State.Off;
+
+    public abstract State State {
+        get;
+        set;
+    }
 
     public override Vector2 Position {
         set {

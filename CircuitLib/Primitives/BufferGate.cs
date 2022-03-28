@@ -7,28 +7,31 @@ using System.Drawing;
 
 namespace CircuitLib.Primitives;
 
-public class Output : Node
+public class BufferGate : Node
 {
-    public Output()
+    public BufferGate()
     {
-        DisplayName = "OUT";
-        
+        DisplayName = "Buffer";
+
         InputPins = new[] {
             new InputPin(this,-2,+0),
         };
 
-        OutputPins = new OutputPin[0];
+        OutputPins = new[] {
+            new OutputPin(this,+2,+0),
+        };
 
         Size = new System.Numerics.Vector2(4, 2);
     }
 
-    public State State {
-        get => InputPins[0].State;
-    }
-
     public override void Update()
     {
-        //Active = InputPins[0].Active;
+        var oldState = OutputPins[0].State;
+
+        OutputPins[0].State = InputPins[0].State;
+
+        if (oldState != OutputPins[0].State)
+            OutputPins[0].ConnectedNetwork?.Update();
     }
 }
 

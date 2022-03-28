@@ -106,5 +106,10 @@ public abstract class Pin : Entity
             wire.CalcBoundings();
         }
     }
+
+    public override void WaitIdle()
+    {
+        throw new NotImplementedException();
+    }
 }
 

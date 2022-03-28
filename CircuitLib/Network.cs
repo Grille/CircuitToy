@@ -26,14 +26,16 @@ public class Network : Entity
     public List<Pin> AllPins = new List<Pin>();
     public List<Wire> Wires = new List<Wire>();
 
+    private List<Task> taskList = new List<Task>();
+
     private bool enableSpilt = true;
     public override Vector2 Position {
         get { return Owner.Position; }
         set { Owner.Position = value; }
     }
 
-    private bool _active = false;
-    public override bool Active {
+    private State _active = State.Off;
+    public State State {
         get => _active;
         set => _active = value;
     }
@@ -355,27 +357,60 @@ public class Network : Entity
 
     public void Update()
     {
-        Active = false;
+        var oldState = State;
+
+        State = State.Off;
+
+        int offCount = 0;
+        int lowCount = 0;
+        int highCount = 0;
+        int errorCount = 0;
 
         for (int i = 0; i < OutputPins.Count; i++)
         {
-            if (OutputPins[i].Active)
+            switch (OutputPins[i].State)
             {
-                Active = true;
+                case State.Off: offCount++; break;
+                case State.Low: lowCount++; break;
+                case State.High: highCount++; break;
+                case State.Error: errorCount++; break;
             }
         }
 
+        if (lowCount> 0)
+            State = State.Low;
+        if (highCount > 0)
+            State = State.High;
+        if (errorCount > 0)
+            State = State.Error;
+
+        //if (oldState == State)
+        //    return;
+
         foreach (var pin in InputPins)
         {
-            pin.Active = Active;
+            pin.State = State;
         }
-        foreach (var pin in GuardPins)
+
+        for (int i = 0; i < taskList.Count; i++)
         {
-            pin.Active = Active;
+            var task = taskList[i];
+            if (task.IsCompleted)
+                taskList.Remove(task);
         }
-        foreach (var wire in Wires)
+
         {
-            wire.Active = Active;
+            var task = new Task(() => {
+
+                foreach (var pin in InputPins)
+                {
+
+                    pin.Owner.Update();
+
+                }
+            });
+            taskList.Add(task);
+            task.Start();
         }
     }
 
@@ -421,6 +456,23 @@ public class Network : Entity
         foreach (var wire in Wires)
         {
             wire.GetFromArea(entities, region);
+        }
+    }
+
+    public override void WaitIdle()
+    {
+        for (int i = 0; i < taskList.Count; i++)
+        {
+            var task = taskList[i];
+            if (task.IsCompleted)
+                taskList.Remove(task);
+        }
+
+        Console.WriteLine($"{taskList.Count} task to await");
+        for (int i = 0; i < taskList.Count; i++)
+        {
+            var task = taskList[i];
+            task.Wait();
         }
     }
 }

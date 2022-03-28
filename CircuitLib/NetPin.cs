@@ -22,10 +22,12 @@ public class NetPin : Pin
         }
     }
 
-    private bool _active;
-    public override bool Active {
-        get => _active;
-        set => _active = value;
+    public State State {
+        get => Owner.State;
+    }
+
+    public bool IsJoint {
+        get => ConnectedWires.Count != 2;
     }
 
     public override void ConnectTo(Pin pin)

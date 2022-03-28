@@ -36,12 +36,6 @@ public abstract class Node : Entity
         }
     }
 
-    internal bool _active = false;
-    public override bool Active {
-        get => _active;
-        set => _active = value;
-    }
-
     private Vector2 _pos;
     public override Vector2 Position {
         get { return _pos; }
@@ -178,6 +172,83 @@ public abstract class Node : Entity
             if (ChipBounds.IsColliding(region))
                 entities.Add(this);
         }
+    }
+
+    public void FlipX()
+    {
+        foreach (var pin in OutputPins)
+            pin.RelativePosition = new Vector2(-pin.RelativePosition.X, pin.RelativePosition.Y);
+
+        foreach (var pin in InputPins)
+            pin.RelativePosition = new Vector2(-pin.RelativePosition.X, pin.RelativePosition.Y);
+    }
+
+    public void FlipY()
+    {
+        foreach (var pin in OutputPins)
+            pin.RelativePosition = new Vector2(pin.RelativePosition.X, -pin.RelativePosition.Y);
+
+        foreach (var pin in InputPins)
+            pin.RelativePosition = new Vector2(pin.RelativePosition.X, -pin.RelativePosition.Y);
+    }
+
+    public void RotateAdd90Deg()
+    {
+        Size = new Vector2(Size.Y, Size.X);
+
+        foreach (var pin in OutputPins)
+            pin.RelativePosition = new Vector2(pin.RelativePosition.Y, pin.RelativePosition.X);
+
+        foreach (var pin in InputPins)
+            pin.RelativePosition = new Vector2(pin.RelativePosition.Y, pin.RelativePosition.X);
+    }
+
+    public void RotateSub90Deg()
+    {
+        Size = new Vector2(Size.Y, Size.X);
+
+        foreach (var pin in OutputPins)
+            pin.RelativePosition = new Vector2(-pin.RelativePosition.Y, -pin.RelativePosition.X);
+
+        foreach (var pin in InputPins)
+            pin.RelativePosition = new Vector2(-pin.RelativePosition.Y, -pin.RelativePosition.X);
+    }
+
+    public void Rotate180Deg()
+    {
+        foreach (var pin in OutputPins)
+            pin.RelativePosition = new Vector2(-pin.RelativePosition.X, -pin.RelativePosition.Y);
+
+        foreach (var pin in InputPins)
+            pin.RelativePosition = new Vector2(-pin.RelativePosition.X, -pin.RelativePosition.Y);
+    }
+
+    public bool IsErrorState()
+    {
+
+
+
+        return false;
+    }
+
+    public virtual void EMP()
+    {
+        if (InputPins != null)
+        foreach (var pin in InputPins)
+        {
+            pin.State = State.Off;
+        }
+
+        if (OutputPins != null)
+        foreach (var pin in OutputPins)
+        {
+            pin.State = State.Off;
+        }
+    }
+
+    public override void WaitIdle()
+    {
+        
     }
 }
 

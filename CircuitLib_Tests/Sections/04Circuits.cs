@@ -12,16 +12,18 @@ partial class Section
             var input0 = c.CreateNode<Input>(0, 0);
             var input1 = c.CreateNode<Input>(0, 4);
             var output = c.CreateNode<Output>(10, 2);
-            var andgate = c.CreateNode<AndGate>(5, 2);
+            var andgate = c.CreateNode<AndGate>(5, 2, "and");
 
             input0.ConnectTo(andgate, 0, 0);
             input1.ConnectTo(andgate, 0, 1);
             andgate.ConnectTo(output, 0, 0);
 
-            c.UpdateIO();
+            var innet0 = input0.OutputPins[0].ConnectedNetwork;
+            var innet1 = input1.OutputPins[0].ConnectedNetwork;
+            innet0.Name = "innet0";
+            innet1.Name = "innet1";
 
-            c.InputPins[0].Active = true;
-            c.InputPins[1].Active = true;
+            c.UpdateIO();
 
             if (c.InputPins.Length != 2)
             {
@@ -34,22 +36,34 @@ partial class Section
                 return TestResult.Failure;
             }
 
-            if (c.InputPins[0].Active != true)
-            {
-                TUtils.WriteFail("InPin[0] not true!");
-                return TestResult.Failure;
-            }
-            if (c.InputPins[1].Active != true)
-            {
-                TUtils.WriteFail("InPin[1] not true!");
-                return TestResult.Failure;
-            }
+            c.InputPins[0].State = State.High;
+            c.InputPins[1].State = State.High;
+            c.Update();
+            c.WaitIdle();
 
-            if (c.OutputPins[0].Active != true)
-            {
-                TUtils.WriteFail("OutPin[0] not true!");
+            if (TUtils.AssertPinState(c.InputPins[0], State.High))
                 return TestResult.Failure;
-            }
+
+            if (TUtils.AssertPinState(c.InputPins[1], State.High))
+                return TestResult.Failure;
+
+            if (TUtils.AssertNetState(innet0, State.High))
+                return TestResult.Failure;
+
+            if (TUtils.AssertNetState(innet1, State.High))
+                return TestResult.Failure;
+
+            if (TUtils.AssertPinState(andgate.InputPins[0], State.High))
+                return TestResult.Failure;
+
+            if (TUtils.AssertPinState(andgate.InputPins[1], State.High))
+                return TestResult.Failure;
+
+            if (TUtils.AssertPinState(andgate.OutputPins[0], State.High))
+                return TestResult.Failure;
+
+            if (TUtils.AssertPinState(c.OutputPins[0], State.High))
+                return TestResult.Failure;
 
             TUtils.WriteSucces("OK");
             return TestResult.Success;
@@ -91,14 +105,13 @@ partial class Section
                     return TestResult.Failure;
                 }
 
-                c.InputPins[0].Active = true;
-                c.InputPins[1].Active = true;
+                c.InputPins[0].State = State.High;
+                c.InputPins[1].State = State.High;
+                c.Update();
+                c.WaitIdle();
 
-                if (c.OutputPins[0].Active != true)
-                {
-                    TUtils.WriteFail("OutPin[0] not true!");
+                if (TUtils.AssertPinState(c.OutputPins[0], State.High))
                     return TestResult.Failure;
-                }
             }
 
             TUtils.WriteSucces("OK");
@@ -112,8 +125,8 @@ partial class Section
             var input1reset = c.CreateNode<Input>(0, 4);
             var output = c.CreateNode<Output>(10, 2);
 
-            var norgate0 = c.CreateNode<NOrGate>(5, -5);
-            var norgate1 = c.CreateNode<NOrGate>(5, 5);
+            var norgate0 = c.CreateNode<NOrGate>(5, -5, "nor0");
+            var norgate1 = c.CreateNode<NOrGate>(5, 5, "nor1");
 
 
             input0set.ConnectTo(norgate0, 0, 0);
@@ -127,34 +140,42 @@ partial class Section
 
             c.UpdateIO();
 
-            //Set
-            c.InputPins[0].Active = true;
-            c.InputPins[1].Active = false;
-
+            c.InputPins[0].State = State.High;
+            c.InputPins[1].State = State.Low;
             c.Update();
+            c.WaitIdle();
 
-            if (c.InputPins[0].Active != true)
-            {
-                TUtils.WriteFail("InPin[0] not true!");
+            if (TUtils.AssertPinState(c.InputPins[0], State.High))
                 return TestResult.Failure;
-            }
 
-            if (norgate0.InputPins[0].Active != true)
-            {
-                TUtils.WriteFail("OutPin[0] not true!");
+            if (TUtils.AssertPinState(c.InputPins[1], State.Low))
                 return TestResult.Failure;
-            }
 
-            if (norgate1.InputPins[0].Active != true)
-            {
-                TUtils.WriteFail("OutPin[0] not true!");
+            if (TUtils.AssertPinState(norgate0.InputPins[0], State.High))
                 return TestResult.Failure;
-            }
 
+            if (TUtils.AssertPinState(norgate1.InputPins[0], State.Low))
+                return TestResult.Failure;
 
+            if (TUtils.AssertPinState(c.OutputPins[0], State.High))
+                return TestResult.Failure;
 
+            c.InputPins[0].State = State.Low;
+            c.Update();
+            c.WaitIdle();
 
+            if (TUtils.AssertPinState(c.OutputPins[0], State.High))
+                return TestResult.Failure;
 
+            c.InputPins[1].State = State.High;
+            c.Update();
+            c.WaitIdle();
+            c.InputPins[1].State = State.Low;
+            c.Update();
+            c.WaitIdle();
+
+            if (TUtils.AssertPinState(c.OutputPins[0], State.Low))
+                return TestResult.Failure;
 
             TUtils.WriteSucces("OK");
             return TestResult.Success;

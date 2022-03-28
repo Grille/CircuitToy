@@ -13,15 +13,14 @@ public class InputPin : IOPin
     public InputPin(Node owner) : base(owner) { }
     public InputPin(Node owner, float x, float y) : base(owner, x, y) { }
 
-    public override bool Active {
+    public override State State {
         get {
-            return _active;
+            return _state;
         }
         set {
-            if (_active != value)
+            if (_state != value)
             {
-                _active = value;
-                Owner.Update();
+                _state = value;
             }
         }
     }

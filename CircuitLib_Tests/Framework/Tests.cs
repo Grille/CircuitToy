@@ -45,9 +45,9 @@ class Tests
         }
     }
 
-    public static void RunCascade(bool expectet)
+    public static void RunCascade(State reset, State expectet)
     {
-        TUtils.Write($"Cascade [Exit -> Net -> Entry] to ({expectet}): ");
+        TUtils.Write($"Cascade [Exit -> Net -> Entry] ({reset}) to ({expectet}): ");
         Tests.Run(() => {
             var circuit = new Circuit();
             var exit = new OutputPin(circuit);
@@ -57,24 +57,25 @@ class Tests
             network.Add(exit);
             network.Add(entry);
 
-            exit.Active = network.Active = entry.Active = !expectet;
+            exit.State = network.State = entry.State = reset;
 
-            if (exit.Active == expectet || network.Active == expectet || entry.Active == expectet)
+            if (exit.State != reset || network.State != reset || entry.State != reset)
             {
-                TUtils.WriteFail($"Reset Failed [Exit<{exit.Active}> -> Net<{network.Active}> -> Entry<{entry.Active}>]");
+                TUtils.WriteFail($"Reset Failed [Exit<{exit.State}> -> Net<{network.State}> -> Entry<{entry.State}>]");
                 return TestResult.Failure;
             }
 
-            exit.Active = expectet;
+            exit.State = expectet;
+            exit.ConnectedNetwork.Update();
 
-            if (entry.Active == expectet)
+            if (entry.State == expectet)
             {
                 TUtils.WriteSucces("OK");
                 return TestResult.Success;
             }
             else
             {
-                TUtils.WriteFail($"Cascade Failed [Exit<{exit.Active}> -> Net<{network.Active}> -> Entry<{entry.Active}>]");
+                TUtils.WriteFail($"Cascade Failed [Exit<{exit.State}> -> Net<{network.State}> -> Entry<{entry.State}>]");
                 return TestResult.Failure;
             }
         });
@@ -85,8 +86,8 @@ class Tests
         var split = inp.Split("->");
         var instr = split[0];
         var outstr = split[1];
-        var input = TUtils.StrToBoolArray(split[0]);
-        var output = TUtils.StrToBoolArray(split[1]);
+        var input = TUtils.StrToStateArray(split[0]);
+        var output = TUtils.StrToStateArray(split[1]);
 
         TUtils.Write($"Test {typeof(T).Name} [{instr}->{outstr}]: ");
         Run(() => {
@@ -106,7 +107,7 @@ class Tests
 
             for (int i = 0; i < input.Length; i++)
             {
-                node.InputPins[i].Active = input[i];
+                node.InputPins[i].State = input[i];
             }
 
             node.Update();
@@ -114,9 +115,9 @@ class Tests
             bool failed = false;
             for (int i = 0; i < output.Length; i++)
             {
-                if (node.OutputPins[i].Active != output[i])
+                if (node.OutputPins[i].State != output[i])
                 {
-                    TUtils.WriteFail($"Output at [{i}] is {node.OutputPins[i].Active}");
+                    TUtils.WriteFail($"Output at [{i}] is {node.OutputPins[i].State}");
                     failed = true;
                 }
             }
@@ -156,6 +157,7 @@ class Tests
         TUtils.Write($"Test Circuit <{title}>: ");
         Tests.Run(() => {
             var circuit = new Circuit();
+            circuit.Name = "main";
             return test(circuit);
         });
     }

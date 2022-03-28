@@ -60,8 +60,8 @@ internal class Simulation
 
             Circuit.UpdateIO();
 
-            Circuit.InputPins[0].Active = true;
-            Circuit.InputPins[1].Active = true;
+            //Circuit.InputPins[0].Active = true;
+            //Circuit.InputPins[1].Active = true;
         }
 
         
@@ -97,7 +97,7 @@ internal class Simulation
 
             StateLowColor = Color.Black,
             StateHighColor = Color.Blue,
-            StateOffColor = Color.Gray,
+            StateOffColor = Color.DarkGray,
             StateErrorColor = Color.Red,
 
             SelectionColor = Color.DarkSeaGreen,
@@ -160,7 +160,7 @@ internal class Simulation
         Circuit = circuit;
         Interaction.Circuit = circuit;
         Interaction.Selection.Circuit = circuit;
-        //Renderer.Circuit = circuit;
+        Renderer.Circuit = circuit;
 
         Interaction.Clear();
         
