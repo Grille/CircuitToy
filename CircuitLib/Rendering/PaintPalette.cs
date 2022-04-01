@@ -30,9 +30,15 @@ internal class PaintPalette
     public int SelectionOutline;
     public int SelectionOutlineWire;
 
-    public int SelectionHover;
+    public int HoverdOpaque;
+    public int HoverdTransparent;
+    public int HoverdWire;
+    public int HoverdOutline;
+    public int HoverdOutlineWire;
 
     public int Debug;
+    public int DebugText;
+    public int DebugBackTransparent;
 
     public void Setup(IRendererBackend ctx, Theme theme, Camera cam)
     {
@@ -44,7 +50,7 @@ internal class PaintPalette
         SceneGrid = ctx.CreatePaint(theme.SceneGridColor);
 
         NodeBack = ctx.CreatePaint(theme.NodeBackColor);
-        NodeText = ctx.CreateStrPaint(theme.NodeTextColor, 1 * cam.Scale, "consolas", Theme.NodeTextSize * cam.Scale);
+        NodeText = ctx.CreateFontPaint(theme.NodeTextColor, 1 * cam.Scale, "consolas", Theme.NodeTextSize * cam.Scale);
 
         StateLow = ctx.CreatePaint(theme.StateLowColor, scaledWireWidth);
         StateHigh = ctx.CreatePaint(theme.StateHighColor, scaledWireWidth);
@@ -53,36 +59,18 @@ internal class PaintPalette
 
         SelectionOpaque = ctx.CreatePaint(theme.SelectionColor,2);
         SelectionTransparent = ctx.CreatePaint(Color.FromArgb(50, theme.SelectionColor));
-
         SelectionWire = ctx.CreatePaint(theme.SelectionColor, (Theme.WireWidth) * cam.Scale);
         SelectionOutline = ctx.CreatePaint(theme.SelectionColor, (Theme.SelectionOutline * 2) * cam.Scale);
         SelectionOutlineWire = ctx.CreatePaint(theme.SelectionColor, (Theme.WireWidth + Theme.SelectionOutline * 2) * cam.Scale);
-        SelectionHover = ctx.CreatePaint(theme.HoverColor,2);
+
+        HoverdOpaque = ctx.CreatePaint(theme.HoverColor,2);
+        HoverdTransparent = ctx.CreatePaint(Color.FromArgb(50, theme.HoverColor));
+        HoverdWire = ctx.CreatePaint(theme.HoverColor, (Theme.WireWidth) * cam.Scale);
+        HoverdOutline = ctx.CreatePaint(theme.HoverColor, (Theme.SelectionOutline * 2) * cam.Scale);
+        HoverdOutlineWire = ctx.CreatePaint(theme.HoverColor, (Theme.WireWidth + Theme.SelectionOutline * 2) * cam.Scale);
 
         Debug = ctx.CreatePaint(theme.DebugColor);
-    }
-
-    public void Cleanup()
-    {
-        ctx.DestroyPaint(SceneBack);
-        ctx.DestroyPaint(SceneGrid);
-
-        ctx.DestroyPaint(NodeBack);
-        ctx.DestroyPaint(NodeText);
-
-        ctx.DestroyPaint(StateLow);
-        ctx.DestroyPaint(StateHigh);
-        ctx.DestroyPaint(StateOff);
-        ctx.DestroyPaint(StateError);
-
-        ctx.DestroyPaint(SelectionOpaque);
-        ctx.DestroyPaint(SelectionTransparent);
-        ctx.DestroyPaint(SelectionWire);
-        ctx.DestroyPaint(SelectionOutline);
-        ctx.DestroyPaint(SelectionOutlineWire);
-        ctx.DestroyPaint(SelectionHover);
-
-        ctx.DestroyPaint(Debug);
-
+        DebugText = ctx.CreateFontPaint(theme.DebugColor, 1, "consolas", 12);
+        DebugBackTransparent = ctx.CreatePaint(Color.FromArgb(150, 0, 0, 0), 1);
     }
 }

@@ -9,9 +9,17 @@ using System.Numerics;
 
 namespace CircuitLib.Interface;
 
+public enum SelectionMode
+{
+    Set,
+    Add,
+    Sub,
+    Toogle,
+}
+
 public class Selection
 {
-    public Entity HoveredEntity;
+    public List<Entity> HoveredEntities;
     public List<Entity> SelectedEntities;
     private List<Entity> indirectSelection;
 
@@ -19,8 +27,11 @@ public class Selection
 
     public Vector2 Offset;
     public Vector2 SnapOffset {
-        get => new Vector2(MathF.Round(Offset.X), MathF.Round(Offset.Y));
+        get => Offset.Round();
     }
+
+    public SelectionMode SingleMode = SelectionMode.Set;
+    public SelectionMode AreaMode = SelectionMode.Set;
 
     private Vector2 areaStart;
     private Vector2 areaEnd;
@@ -32,7 +43,7 @@ public class Selection
     {
         Circuit = world;
 
-        HoveredEntity = null;
+        HoveredEntities = new List<Entity>();
         SelectedEntities = new List<Entity>();
         indirectSelection = new List<Entity>();
 
@@ -41,100 +52,72 @@ public class Selection
 
     public Entity HoverAt(Vector2 pos)
     {
+        ClearHoverd();
+
         var obj = Circuit.GetAt(pos);
+
         if (obj == null)
+            return null;
+
+        HoveredEntities.Add(obj);
+        obj.IsHovered = true;
+        return obj;
+    }
+
+    public List<Entity> HoverArea(BoundingBox area)
+    {
+        ClearHoverd();
+
+        Circuit.GetFromArea(HoveredEntities, area);
+
+        foreach (var entity in HoveredEntities)
         {
-            if (HoveredEntity != null)
-            {
-                HoveredEntity.IsHovered = false;
-                HoveredEntity = null;
-            }
+            entity.IsHovered = true;
         }
-        else
+
+        return HoveredEntities;
+    }
+
+    public void ClearHoverd()
+    {
+        foreach (var obj in HoveredEntities)
         {
-            if (HoveredEntity != null && HoveredEntity != obj)
-            {
-                HoveredEntity.IsHovered = false;
-            }
-            HoveredEntity = obj;
-            HoveredEntity.IsHovered = true;
+            obj.IsHovered = false;
         }
-        return HoveredEntity;
+        HoveredEntities.Clear();
     }
 
     public void SelectAt(Vector2 pos)
     {
-        Select(Circuit.GetAt(pos));
-    }
-
-    public void ClickAt(Vector2 pos)
-    {
         var obj = Circuit.GetAt(pos);
-        if (obj != null)
-            obj.ClickAction();
-    }
 
-    public void Select(Entity obj)
-    {
         if (obj == null)
             return;
 
-        bool contain = SelectedEntities.Contains(obj);
-        bool selected = obj.IsSelected;
-
-        if (!selected && !contain)
+        switch (SingleMode)
         {
-            obj.IsSelected = true;
-            SelectedEntities.Add(obj);
+            case SelectionMode.Set:
+                ClearSelection();
+                Add(obj);
+                break;
+
+            case SelectionMode.Add:
+                Add(obj);
+                break;
+
+            case SelectionMode.Sub:
+                Remove(obj);
+                break;
+
+            case SelectionMode.Toogle:
+                if (isSelected(obj))
+                    Remove(obj);
+                else
+                    Add(obj);
+                break;
         }
-        else if (selected != contain)
-            throw new InvalidOperationException();
 
         ProcessSeclection();
-    }
-
-    public void Select(List<Entity> entities)
-    {
-        foreach (var entity in entities)
-        {
-            Select(entity);
-        }
-    }
-
-    public void DeselectAt(Vector2 pos)
-    {
-        var obj = Circuit.GetAt(pos);
-        if (obj != null && obj.IsSelected)
-        {
-            obj.IsSelected = false;
-            SelectedEntities.Remove(obj);
-        }
-    }
-
-    public void ToogleAt(Vector2 pos)
-    {
-        var obj = Circuit.GetAt(pos);
-
-        if (obj == null)
-            return;
-
-        bool contain = SelectedEntities.Contains(obj);
-        bool selected = obj.IsSelected;
-
-        if (contain != selected)
-            throw new InvalidOperationException();
-
-        if (!selected)
-        {
-            obj.IsSelected = true;
-            SelectedEntities.Add(obj);
-        }
-        else if (selected)
-        {
-            obj.IsSelected = false;
-            SelectedEntities.Remove(obj);
-        }
-
     }
 
     public void SelectAreaBegin(Vector2 pos)
@@ -156,20 +139,56 @@ public class Selection
         float maxY = MathF.Max(areaStart.Y, areaEnd.Y);
 
         SelectetArea = new BoundingBox(minX, minY, maxX, maxY);
+
+        HoverArea(SelectetArea);
     }
 
     public void SelectAreaEnd()
     {
         IsSelectingArea = false;
-        SelectedEntities.Clear();
 
         var selection = Circuit.GetListFromArea(SelectetArea);
 
-        foreach (var obj in selection)
+        ClearIndirectSelection();
+
+        switch (AreaMode)
         {
-            Select(obj);
+            case SelectionMode.Set:
+                ClearSelection();
+                foreach (var obj in selection)
+                {
+                    Add(obj);
+                }
+                break;
+
+            case SelectionMode.Add:
+                foreach (var obj in selection)
+                {
+                    Add(obj);
+                }
+                break;
+
+            case SelectionMode.Sub:
+                foreach (var obj in selection)
+                {
+                    Remove(obj);
+                }
+                break;
+
+            case SelectionMode.Toogle:
+                foreach (var obj in selection)
+                {
+                    if (isSelected(obj))
+                        Remove(obj);
+                    else
+                        Add(obj);
+                }
+                break;
         }
+
         ProcessSeclection();
+
+        ClearHoverd();
     }
 
     public void ClearSelection()
@@ -205,7 +224,7 @@ public class Selection
         {
             bool apply = true;
 
-            if (indirectSelection.Contains(obj.Owner))
+            if (SelectedEntities.Contains(obj.Owner))
             {
                 apply = false;
             }
@@ -224,36 +243,85 @@ public class Selection
 
     private void ProcessSeclection()
     {
-        indirectSelection.Clear();
+        ClearIndirectSelection();
+
         foreach (var obj in SelectedEntities)
         {
-            if (obj is Wire)
+            switch (obj)
             {
-                var wire = (Wire)obj;
-
-                selectIndirect(wire.StartPin);
-                selectIndirect(wire.EndPin);
+                case Wire:
+                {
+                    var wire = (Wire)obj;
+                    selectIndirect(wire.StartPin);
+                    selectIndirect(wire.EndPin);
+                    break;
+                }
+                case Node: {
+                    var node = (Node)obj;
+                    foreach (var pin in node.InputPins)
+                    {
+                        selectIndirect(pin);
+                    }
+                    foreach (var pin in node.OutputPins)
+                    {
+                        selectIndirect(pin);
+                    }
+                    break;
+                }
             }
         }
 
+    }
+
+    private void ClearIndirectSelection()
+    {
+        foreach (var obj in indirectSelection)
+        {
+            obj.IsSelected = SelectedEntities.Contains(obj);
+        }
+        indirectSelection.Clear();
     }
 
     private void selectIndirect(Entity obj)
     {
         if (!SelectedEntities.Contains(obj) && !indirectSelection.Contains(obj))
         {
+            obj.IsSelected = true;
             indirectSelection.Add(obj);
         }
     }
 
-    public void Copy()
+    public void CopySelection()
     {
-
+    
     }
 
-    public void Paste()
+    internal bool isSelected(Entity obj)
     {
+        bool selected = obj.IsSelected;
+        bool contain = SelectedEntities.Contains(obj);
 
+        if (selected != contain)
+            throw new InvalidOperationException($"{obj} s:{selected} != c:{contain}");
+
+        return selected;
+    }
+    internal void Add(Entity obj)
+    {
+        if (isSelected(obj))
+            return;
+
+        obj.IsSelected = true;
+        SelectedEntities.Add(obj);
+    }
+
+    internal void Remove(Entity obj)
+    {
+        if (!isSelected(obj))
+            return;
+
+        obj.IsSelected = false;
+        SelectedEntities.Remove(obj);
     }
 }
 

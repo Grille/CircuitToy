@@ -9,7 +9,7 @@ using CircuitLib.Math;
 
 namespace CircuitLib;
 
-public abstract class Node : Entity
+public abstract class Node : AsyncUpdatableEntity
 {
     public new Circuit Owner {
         get {
@@ -25,16 +25,15 @@ public abstract class Node : Entity
     public InputPin[] InputPins;
     public OutputPin[] OutputPins;
 
-    protected State[] OutputStateCmpBuffer;
+    internal protected State[] InputNextStateBuffer;
+    internal protected State[] InputStateBuffer;
+    internal protected State[] OutputStateBuffer;
 
     public BoundingBox ChipBounds;
 
     private Vector2 _size;
 
-    private Task updateTask;
-    private bool semaphoreStateChanged = false;
-    private bool semaphoreTaskRunning = false;
-    private bool semaphoreStop = false;
+    int statsOutSignalCount = 0;
 
     public Vector2 Size {
         get { return _size; }
@@ -67,47 +66,28 @@ public abstract class Node : Entity
         }
     }
 
-    public void Update()
+    public void SendOutputSignal(int outid)
     {
-
-        semaphoreStateChanged = true;
-
-        if (semaphoreTaskRunning || semaphoreStop)
-            return;
-
-        runUpdateTask();
+        if (OutputPins[outid].State != OutputStateBuffer[outid])
+        {
+            OutputPins[outid].State = OutputStateBuffer[outid];
+            OutputPins[outid].ConnectedNetwork?.Update();
+            statsOutSignalCount++;
+        }
+    }
+    public void SendOutputSignal()
+    {
+        for (int i = 0; i < OutputPins.Length; i++)
+        {
+            SendOutputSignal(i);
+        }
     }
 
-    private void runUpdateTask()
+    protected void PullInputValues()
     {
-        updateTask = Task.Run(() => {
-            semaphoreTaskRunning = true;
-            semaphoreStateChanged = false;
-
-            for (int i = 0; i < OutputPins.Length; i++)
-            {
-                OutputStateCmpBuffer[i] = OutputPins[i].State;
-            }
-
-            OnUpdate();
-
-            for (int i = 0; i < OutputPins.Length; i++)
-            {
-                if (OutputPins[i].State != OutputStateCmpBuffer[i])
-                {
-                    OutputPins[i].ConnectedNetwork?.Update();
-                }
-            }
-
-            if (semaphoreStateChanged && !semaphoreStop)
-                runUpdateTask();
-            else
-                semaphoreTaskRunning = false;
-
-        });
+        for (int i = 0; i < InputPins.Length; i++)
+            InputStateBuffer[i] = InputPins[i].State;
     }
-
-    protected abstract void OnUpdate();
 
     public override void Destroy()
     {
@@ -273,7 +253,7 @@ public abstract class Node : Entity
 
     public virtual void Reset(State state = State.Off)
     {
-        ForceIdel();
+        ForceIdle();
 
         if (InputPins != null)
         foreach (var pin in InputPins)
@@ -288,26 +268,6 @@ public abstract class Node : Entity
         }
     }
 
-    public virtual void ForceIdel()
-    {
-        semaphoreStop = true;
-        semaphoreStateChanged = false;
-        if (updateTask != null)
-            updateTask.Wait();
-        semaphoreStop = false;
-    }
-
-    public override void WaitIdle()
-    {
-        if (updateTask != null)
-        {
-            while (semaphoreTaskRunning || semaphoreStateChanged)
-            {
-                updateTask?.Wait();
-            }
-        }
-    }
-
     protected void InitPins(Vector2[] inputs, Vector2[] outputs)
     {
         int inCount = inputs.Length;
@@ -316,15 +276,42 @@ public abstract class Node : Entity
         InputPins = new InputPin[inCount];
         OutputPins = new OutputPin[outCount];
 
-        OutputStateCmpBuffer = new State[outCount];
+        InputStateBuffer = new State[inCount];
+        InputNextStateBuffer = new State[inCount];
+        OutputStateBuffer = new State[outCount];
 
         for (int i = 0; i < inCount; i++)
+        {
             InputPins[i] = new InputPin(this, inputs[i]);
+        }
 
         for (int i = 0; i < outCount; i++)
+        {
             OutputPins[i] = new OutputPin(this, outputs[i]);
+        }
+
 
         CalcBoundings();
+    }
+
+    public override string GetDebugStr()
+    {
+        var sb = new StringBuilder();
+
+
+        sb.AppendLine($"Node::{GetType().Name}");
+        sb.AppendLine($"Task.Exists: {UpdateTask != null}");
+        sb.AppendLine($"Semaphores:");
+        sb.AppendLine($" - UpdateState: {UpdateState}");
+        sb.AppendLine($"Stats:");
+        sb.AppendLine($" - UpdateCount: {StatsUpdatesCount}");
+        sb.AppendLine($"    - Discarded: {StatsUpdatesDiscardCount}");
+        sb.AppendLine($"    - Queued:    {StatsUpdatesQueuedCount}");
+        sb.AppendLine($"    - Run:       {StatsUpdatesRunCount}");
+        sb.AppendLine($" - OutSignalCount: {statsOutSignalCount}");
+        sb.AppendLine($"");
+
+        return sb.ToString();
     }
 
 }

@@ -101,9 +101,9 @@ internal class Simulation
             StateOffColor = Color.FromArgb(150,150,150),
             StateErrorColor = Color.Red,
 
-            SelectionColor = Color.DarkSeaGreen,
-            HoverColor = Color.Lime,
-            DebugColor = Color.Magenta,
+            SelectionColor = Color.Green,
+            HoverColor = Color.LimeGreen,
+            DebugColor = Color.Lime,
         };
 
 

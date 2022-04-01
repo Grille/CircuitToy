@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
 using System.Numerics;
+using CircuitLib.Math;
 
 namespace CircuitLib;
 
@@ -45,6 +46,17 @@ public class NetPin : Pin
     {
         Owner?.Remove(this);
         base.Destroy();
+    }
+
+    public override void CalcBoundings()
+    {
+        Bounds = new BoundingBox(Position, 0.5f);
+        base.CalcBoundings();
+    }
+
+    public override string GetDebugStr()
+    {
+        return Owner.GetDebugStr();
     }
 }
 

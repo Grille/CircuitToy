@@ -7,6 +7,7 @@ using System.Numerics;
 
 using CircuitLib.Math;
 using CircuitLib.Interface;
+using System.Diagnostics;
 
 namespace CircuitLib.Rendering;
 
@@ -48,6 +49,9 @@ public class Renderer
 
     public void Render()
     {
+        var sw = new Stopwatch();
+        sw.Start();
+
         var begin = camera.ScreenToWorldSpace(new Vector2(0, 0));
         var end = camera.ScreenToWorldSpace(new Vector2(camera.ScreenSize.Width, camera.ScreenSize.Height));
 
@@ -59,18 +63,9 @@ public class Renderer
 
         DrawGrid();
 
-
-        if (selection.IsSelectingArea)
-        {
-            var pos = camera.WorldToScreenSpace(selection.SelectetArea.Begin);
-            var size = selection.SelectetArea.Size * camera.Scale;
-
-            ctx.FillRectangle(palette.SelectionTransparent, pos, size);
-            ctx.DrawRectangle(palette.SelectionOpaque, pos, size);
-        }
-
-
+        DrawHoverd();
         DrawSelection();
+
 
         foreach (var net in circuit.Networks)
         {
@@ -82,24 +77,44 @@ public class Renderer
             DrawNode(node);
         }
 
-
-
-        if (selection.HoveredEntity != null)
+        if (selection.IsSelectingArea)
         {
-            var entity = selection.HoveredEntity;
-            var bounds = entity.Bounds;
+            var pos = camera.WorldToScreenSpace(selection.SelectetArea.Begin);
+            var size = selection.SelectetArea.Size * camera.Scale;
 
-            var pos = camera.WorldToScreenSpace(bounds.Begin);
-            var size = bounds.Size * camera.Scale;
-
-
-            ctx.DrawRectangle(palette.SelectionHover, pos, size);
+            ctx.FillRectangle(palette.SelectionTransparent, pos, size);
+            ctx.DrawRectangle(palette.SelectionOpaque, pos, size);
         }
 
+        if (selection.HoveredEntities.Count == 1)
+        {
+            var entity = selection.HoveredEntities[0];
+            var str = entity.GetDebugStr();
+            var size = ctx.MeasureText(palette.DebugText, str);
+            var pos = editor.ScreenMousePos + new Vector2(10, 0);
+            ctx.FillRectangle(palette.DebugBackTransparent, pos, size);
+            ctx.DrawText(palette.DebugText, entity.GetDebugStr(), pos);
+        }
+
+        {
+            var pos = new Vector2(10, 10);
+            var sb = new StringBuilder();
+            sb.AppendLine($"Delta: {sw.Elapsed.TotalMilliseconds}ms");
+            string info = sb.ToString();
+
+
+            var size = ctx.MeasureText(palette.DebugText, info);
+            ctx.FillRectangle(palette.DebugBackTransparent, pos, size);
+            ctx.DrawText(palette.DebugText, info, pos);
+        }
+
+        if (editor.State == EditorState.Wireing)
+        {
+            DrawWireSilhouette(editor.WorldMouseDownPos.Round(), editor.WorldMousePos.Round(), palette.SelectionWire);
+        }
+
+        ctx.Cleanup();
     }
-
-
-
 
     public void DrawNetwork(Network network)
     {
@@ -112,15 +127,27 @@ public class Renderer
 
         foreach (var wire in network.Wires)
         {
-            var pos0 = camera.WorldToScreenSpace(wire.StartPin.Position);
-            var pos1 = camera.WorldToScreenSpace(wire.EndPin.Position);
+            var worldPos0 = wire.StartPin.Position;
+            if (wire.StartPin.IsSelected)
+                worldPos0 += selection.SnapOffset;
+
+            var worldPos1 = wire.EndPin.Position;
+            if (wire.EndPin.IsSelected)
+                worldPos1 += selection.SnapOffset;
+
+            var pos0 = camera.WorldToScreenSpace(worldPos0);
+            var pos1 = camera.WorldToScreenSpace(worldPos1);
 
             ctx.DrawLine(paint, pos0, pos1);
         }
 
         foreach (var pin in network.GuardPins)
         {
-            var pos = camera.WorldToScreenSpace(pin.Position);
+            var worldPos = pin.Position;
+            if (pin.IsSelected)
+                worldPos += selection.SnapOffset;
+
+            var pos = camera.WorldToScreenSpace(worldPos);
 
             float rad = pin.ConnectedWires.Count == 2 ?
                 Theme.NetPinInlineRadius * camera.Scale :
@@ -133,12 +160,13 @@ public class Renderer
 
     public void DrawNode(Node node)
     {
-        if (!node.IsVisible || (node.IsSelected && editor.IsMoving))
-            return;
+        var offset = Vector2.Zero;
+        if (node.IsSelected)
+            offset += selection.SnapOffset;
 
         foreach (var pin in node.InputPins)
         {
-            var pos = camera.WorldToScreenSpace(pin.Position);
+            var pos = camera.WorldToScreenSpace(pin.Position + offset);
             var rad = Theme.IoPinRadius * camera.Scale;
 
             int paint = pin.State switch {
@@ -153,7 +181,7 @@ public class Renderer
 
         foreach (var pin in node.OutputPins)
         {
-            var pos = camera.WorldToScreenSpace(pin.Position);
+            var pos = camera.WorldToScreenSpace(pin.Position + offset);
             var rad = Theme.IoPinRadius * camera.Scale;
 
             int paint = pin.State switch {
@@ -166,7 +194,7 @@ public class Renderer
             ctx.FillCircle(paint, pos, rad);
         }
 
-        var screenPos = camera.WorldToScreenSpace(node.Position);
+        var screenPos = camera.WorldToScreenSpace(node.Position + offset);
         var screenSize = node.Size * camera.Scale;
         var scrennHalfSize = screenSize * 0.5f;
         var drawPos = screenPos - scrennHalfSize;
@@ -179,7 +207,7 @@ public class Renderer
     {
         float scaledGridSize = gridSize * camera.Scale;
 
-        if (scaledGridSize < 5)
+        if (scaledGridSize < 20)
             return;
 
         var clientSize = camera.ScreenSize;
@@ -207,83 +235,126 @@ public class Renderer
     public void DrawGrid()
     {
         DrawGrid(1, palette.SceneGrid);
-        DrawGrid(10, palette.SceneGrid);
-        DrawGrid(100, palette.SceneGrid);
+        //DrawGrid(10, palette.SceneGrid);
+        //DrawGrid(100, palette.SceneGrid);
+    }
+
+    public void DrawNodeSilhouette(Node node, int fillPaint, int outlinePaint)
+    {
+        var offset = Vector2.Zero;
+        if (node.IsSelected)
+            offset = selection.SnapOffset;
+
+        foreach (var pin in node.InputPins)
+        {
+            DrawPinSilhouette(pin, fillPaint);
+        }
+        foreach (var pin in node.OutputPins)
+        {
+            DrawPinSilhouette(pin, fillPaint);
+        }
+
+        var screenPos = camera.WorldToScreenSpace(node.Position + offset);
+        var screenSize = node.Size * camera.Scale;
+        var scrennHalfSize = screenSize * 0.5f;
+        var drawPos = screenPos - scrennHalfSize;
+
+        ctx.DrawRectangle(outlinePaint, drawPos, screenSize);
+    }
+
+    public void DrawPinSilhouette(Pin pin, int fillPaint)
+    {
+        var offset = Vector2.Zero;
+        if (pin.IsSelected)
+            offset = selection.SnapOffset;
+
+        var pos = camera.WorldToScreenSpace(pin.Position + offset);
+        float rad = 0f;
+
+        if (pin is NetPin)
+        {
+            if (pin.ConnectedWires.Count == 2)
+            {
+                rad = (Theme.NetPinInlineRadius + Theme.SelectionOutline) * camera.Scale;
+            }
+            else
+            {
+                rad = (Theme.NetPinJointRadius + Theme.SelectionOutline) * camera.Scale;
+            }
+        }
+        else if (pin is IOPin)
+        {
+            rad = (Theme.IoPinRadius + Theme.SelectionOutline) * camera.Scale;
+        }
+
+        ctx.FillCircle(fillPaint, pos, rad);
+    }
+
+    public void DrawWireSilhouette(Vector2 worldPos0, Vector2 worldPos1, int wirePaint)
+    {
+        var pos0 = camera.WorldToScreenSpace(worldPos0);
+        var pos1 = camera.WorldToScreenSpace(worldPos1);
+
+        ctx.DrawLine(wirePaint, pos0, pos1);
+    }
+    public void DrawWireSilhouette(Wire wire, int wirePaint)
+    {
+        var worldPos0 = wire.StartPin.Position;
+        if (wire.StartPin.IsSelected)
+            worldPos0 += selection.SnapOffset;
+
+        var worldPos1 = wire.EndPin.Position;
+        if (wire.EndPin.IsSelected)
+            worldPos1 += selection.SnapOffset;
+
+        var pos0 = camera.WorldToScreenSpace(worldPos0);
+        var pos1 = camera.WorldToScreenSpace(worldPos1);
+
+        ctx.DrawLine(wirePaint, pos0, pos1);
+    }
+
+
+    public void DrawSilhouette(Entity entity, int fillPaint, int outlinePaint, int wirePaint)
+    {
+        if (entity is Node)
+        {
+            var node = (Node)entity;
+
+            DrawNodeSilhouette(node,fillPaint,outlinePaint);
+            return;
+        }
+        if (entity is Pin)
+        {
+            var pin = (Pin)entity;
+
+            DrawPinSilhouette(pin,fillPaint);
+            return;
+        }
+        if (entity is Wire)
+        {
+            var wire = (Wire)entity;
+
+            DrawWireSilhouette(wire,wirePaint);
+            return;
+        }
+    }
+
+    public void DrawSilhouetteList(IList<Entity> entitys, int fillPaint, int outlinePaint, int wirePaint)
+    {
+        foreach (var entity in entitys)
+        {
+            DrawSilhouette(entity, fillPaint, outlinePaint, wirePaint);
+        }
     }
 
     public void DrawSelection()
     {
-        var outlineOffset = new Vector2(Theme.SelectionOutline, Theme.SelectionOutline);
+        DrawSilhouetteList(selection.SelectedEntities, palette.SelectionOpaque, palette.SelectionOutline, palette.SelectionOutlineWire);
+    }
 
-        foreach (var entity in selection.SelectedEntities)
-        {
-            if (entity is Node)
-            {
-                var node = (Node)entity;
+    public void DrawHoverd()
+    {
 
-                foreach (var pin in node.InputPins)
-                {
-                    drawSelectedPin(pin);
-                }
-
-                foreach (var pin in node.OutputPins)
-                {
-                    drawSelectedPin(pin);
-                }
-
-                var screenPos = camera.WorldToScreenSpace(node.Position + selection.SnapOffset);
-                var screenSize = node.Size * camera.Scale;
-                var scrennHalfSize = screenSize * 0.5f;
-                var drawPos = screenPos - scrennHalfSize;
-
-                ctx.DrawRectangle(palette.SelectionOutline, drawPos, screenSize);
-                ctx.FillRectangle(palette.SelectionOpaque, drawPos, screenSize);
-                //ctx.DrawText(palette.NodeText, node.DisplayName, drawPos, screenSize);
-            }
-            if (entity is NetPin)
-            {
-                var pin = (NetPin)entity;
-
-                drawSelectedPin(pin);
-            }
-        }
-
-        void drawSelectedPin(Pin pin)
-        {
-            var pos = camera.WorldToScreenSpace(pin.Position + selection.SnapOffset);
-            float rad = 0f;
-
-            if (pin is NetPin)
-            {
-                if (pin.ConnectedWires.Count == 2)
-                {
-                    rad = (Theme.NetPinInlineRadius + Theme.SelectionOutline) * camera.Scale;
-                }
-                else
-                {
-                    rad = (Theme.NetPinJointRadius + Theme.SelectionOutline) * camera.Scale;
-                }
-            }
-            else if (pin is IOPin)
-            {
-                rad = (Theme.IoPinRadius + Theme.SelectionOutline) * camera.Scale;
-            }
-
-            ctx.FillCircle(palette.SelectionOpaque, pos, rad);
-
-            foreach (var wire in pin.ConnectedWires)
-            {
-                var pin2 = wire.GetOtherPin(pin);
-
-                Vector2 pos2;
-
-                if (selection.SelectedEntities.Contains(pin2))
-                    pos2 = camera.WorldToScreenSpace(pin2.Position + selection.SnapOffset);
-                else
-                    pos2 = camera.WorldToScreenSpace(pin2.Position);
-
-                ctx.DrawLine(palette.SelectionWire, pos, pos2);
-            }
-        };
+        DrawSilhouetteList(selection.HoveredEntities, palette.HoverdOpaque, palette.HoverdOutline, palette.HoverdOutlineWire);
     }
 }

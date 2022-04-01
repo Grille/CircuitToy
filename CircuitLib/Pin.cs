@@ -124,7 +124,6 @@ public abstract class Pin : Entity
 
     public override void CalcBoundings()
     {
-        Bounds = new BoundingBox(_pos, 0.35f);
         Owner.CalcBoundings();
         foreach (var wire in ConnectedWires)
         {
@@ -132,9 +131,9 @@ public abstract class Pin : Entity
         }
     }
 
-    public override void WaitIdle()
+    public override string GetDebugStr()
     {
-        throw new NotImplementedException();
+        return "";
     }
 }
 

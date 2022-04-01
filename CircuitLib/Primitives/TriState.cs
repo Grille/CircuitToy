@@ -8,28 +8,32 @@ using System.Numerics;
 
 namespace CircuitLib.Primitives;
 
-public class BufferGate : Node
+public class TriState : Node
 {
-    public BufferGate()
+    public TriState()
     {
-        DisplayName = "Buffer";
+        DisplayName = "Tri-State";
 
         InitPins(
             new Vector2[] {
-                new (-2,-0),
+                new (-4,+0),
+                new (0,-2),
             },
             new Vector2[] {
-                new (+2,+0)
+                new (+4,+0)
             }
         );
 
-        Size = new Vector2(4, 2);
+        Size = new Vector2(8, 4);
     }
 
     protected override void OnUpdate()
     {
         PullInputValues();
-        OutputStateBuffer[0] = InputStateBuffer[0];
+        if (InputStateBuffer[1] == State.High)
+            OutputStateBuffer[0] = InputStateBuffer[0];
+        else
+            OutputStateBuffer[0] = State.Off;
         SendOutputSignal(0);
     }
 }

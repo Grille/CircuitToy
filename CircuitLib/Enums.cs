@@ -13,3 +13,24 @@ public enum State
     Off,
     Error,
 }
+
+public enum NodeTaskState
+{
+    Idle,
+    Start,
+    Refresh,
+    Running,
+}
+
+public enum UpdateTaskState
+{
+    Idle,
+    Waiting,
+    Running,
+}
+
+public enum UpdateTaskSignal
+{
+    None,
+    Stop,
+}

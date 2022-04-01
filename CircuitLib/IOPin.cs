@@ -85,6 +85,7 @@ public abstract class IOPin : Pin
 
     public override void CalcBoundings()
     {
+        Bounds = new BoundingBox(Position, 0.7f);
         base.CalcBoundings();
         ConnectedNetwork?.CalcBoundings();
     }

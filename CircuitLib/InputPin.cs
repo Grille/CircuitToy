@@ -26,5 +26,28 @@ public class InputPin : IOPin
             }
         }
     }
+
+    public override void ClickAction()
+    {
+        State = State switch {
+            State.Low => State.High,
+            _ => State.Low,
+        };
+        Owner.Update();
+    }
+
+    public override string GetDebugStr()
+    {
+        var sb = new StringBuilder();
+
+        int index = Array.IndexOf(Owner.InputPins, this);
+
+        sb.AppendLine($"Pin::{GetType().Name}");
+        sb.AppendLine($"Buffer-Value: {Owner.InputStateBuffer[index]}");
+        if (ConnectedNetwork != null)
+            sb.Append(ConnectedNetwork.GetDebugStr());
+
+        return sb.ToString();
+    }
 }
 

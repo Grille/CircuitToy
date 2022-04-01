@@ -28,14 +28,16 @@ public interface IRendererBackend
 
     public void DrawText(int paint, string text, RectangleF rect);
 
+    public Vector2 MeasureText(int paint, string text);
+
     public int CreatePaint();
 
     public int CreatePaint(Color color);
 
     public int CreatePaint(Color color, float width);
 
-    public int CreateStrPaint(Color color, float width, string font, float size);
+    public int CreateFontPaint(Color color, float width, string font, float size);
 
-    public void DestroyPaint(int id);
+    public void Cleanup();
 
 }

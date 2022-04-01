@@ -7,7 +7,7 @@ using System.Numerics;
 
 namespace CircuitLib.Math;
 
-public class VecPolygon
+public class Vec2Polygon
 {
     public Vector2[] Points;
 }

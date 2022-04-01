@@ -67,6 +67,11 @@ namespace CircuitToy
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.RefreshTimer = new System.Windows.Forms.Timer(this.components);
+            this.bUFToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.triStateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.pullUpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.pullDownToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.canvas)).BeginInit();
@@ -166,7 +171,7 @@ namespace CircuitToy
             this.copyToolStripMenuItem,
             this.pasteToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(145, 70);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(181, 92);
             // 
             // addToolStripMenuItem
             // 
@@ -174,82 +179,87 @@ namespace CircuitToy
             this.iNToolStripMenuItem,
             this.oUTToolStripMenuItem,
             this.toolStripSeparator1,
+            this.bUFToolStripMenuItem,
             this.nOTToolStripMenuItem,
             this.aNDToolStripMenuItem,
             this.oRToolStripMenuItem,
             this.xORToolStripMenuItem,
             this.nANDToolStripMenuItem,
             this.nORToolStripMenuItem,
-            this.xNORToolStripMenuItem});
+            this.xNORToolStripMenuItem,
+            this.toolStripSeparator3,
+            this.triStateToolStripMenuItem,
+            this.pullUpToolStripMenuItem,
+            this.pullDownToolStripMenuItem});
             this.addToolStripMenuItem.Name = "addToolStripMenuItem";
-            this.addToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
+            this.addToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.addToolStripMenuItem.Text = "Add";
             // 
             // iNToolStripMenuItem
             // 
             this.iNToolStripMenuItem.Name = "iNToolStripMenuItem";
-            this.iNToolStripMenuItem.Size = new System.Drawing.Size(108, 22);
+            this.iNToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.iNToolStripMenuItem.Text = "IN";
             this.iNToolStripMenuItem.Click += new System.EventHandler(this.iNToolStripMenuItem_Click);
             // 
             // oUTToolStripMenuItem
             // 
             this.oUTToolStripMenuItem.Name = "oUTToolStripMenuItem";
-            this.oUTToolStripMenuItem.Size = new System.Drawing.Size(108, 22);
+            this.oUTToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.oUTToolStripMenuItem.Text = "OUT";
             this.oUTToolStripMenuItem.Click += new System.EventHandler(this.oUTToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(105, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(177, 6);
             // 
             // nOTToolStripMenuItem
             // 
             this.nOTToolStripMenuItem.Name = "nOTToolStripMenuItem";
-            this.nOTToolStripMenuItem.Size = new System.Drawing.Size(108, 22);
+            this.nOTToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.nOTToolStripMenuItem.Text = "NOT";
             this.nOTToolStripMenuItem.Click += new System.EventHandler(this.nOTToolStripMenuItem_Click);
             // 
             // aNDToolStripMenuItem
             // 
             this.aNDToolStripMenuItem.Name = "aNDToolStripMenuItem";
-            this.aNDToolStripMenuItem.Size = new System.Drawing.Size(108, 22);
+            this.aNDToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.aNDToolStripMenuItem.Text = "AND";
             this.aNDToolStripMenuItem.Click += new System.EventHandler(this.aNDToolStripMenuItem_Click);
             // 
             // oRToolStripMenuItem
             // 
             this.oRToolStripMenuItem.Name = "oRToolStripMenuItem";
-            this.oRToolStripMenuItem.Size = new System.Drawing.Size(108, 22);
+            this.oRToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.oRToolStripMenuItem.Text = "OR";
             this.oRToolStripMenuItem.Click += new System.EventHandler(this.oRToolStripMenuItem_Click);
             // 
             // xORToolStripMenuItem
             // 
             this.xORToolStripMenuItem.Name = "xORToolStripMenuItem";
-            this.xORToolStripMenuItem.Size = new System.Drawing.Size(108, 22);
+            this.xORToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.xORToolStripMenuItem.Text = "XOR";
             this.xORToolStripMenuItem.Click += new System.EventHandler(this.xORToolStripMenuItem_Click);
             // 
             // nANDToolStripMenuItem
             // 
             this.nANDToolStripMenuItem.Name = "nANDToolStripMenuItem";
-            this.nANDToolStripMenuItem.Size = new System.Drawing.Size(108, 22);
+            this.nANDToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.nANDToolStripMenuItem.Text = "NAND";
             this.nANDToolStripMenuItem.Click += new System.EventHandler(this.nANDToolStripMenuItem_Click);
             // 
             // nORToolStripMenuItem
             // 
             this.nORToolStripMenuItem.Name = "nORToolStripMenuItem";
-            this.nORToolStripMenuItem.Size = new System.Drawing.Size(108, 22);
+            this.nORToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.nORToolStripMenuItem.Text = "NOR";
             this.nORToolStripMenuItem.Click += new System.EventHandler(this.nORToolStripMenuItem_Click);
             // 
             // xNORToolStripMenuItem
             // 
             this.xNORToolStripMenuItem.Name = "xNORToolStripMenuItem";
-            this.xNORToolStripMenuItem.Size = new System.Drawing.Size(108, 22);
+            this.xNORToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.xNORToolStripMenuItem.Text = "XNOR";
             this.xNORToolStripMenuItem.Click += new System.EventHandler(this.xNORToolStripMenuItem_Click);
             // 
@@ -257,14 +267,14 @@ namespace CircuitToy
             // 
             this.copyToolStripMenuItem.Name = "copyToolStripMenuItem";
             this.copyToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
-            this.copyToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
+            this.copyToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.copyToolStripMenuItem.Text = "Copy";
             // 
             // pasteToolStripMenuItem
             // 
             this.pasteToolStripMenuItem.Name = "pasteToolStripMenuItem";
             this.pasteToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.V)));
-            this.pasteToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
+            this.pasteToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.pasteToolStripMenuItem.Text = "Paste";
             // 
             // toolStrip1
@@ -384,6 +394,39 @@ namespace CircuitToy
             this.RefreshTimer.Interval = 5;
             this.RefreshTimer.Tick += new System.EventHandler(this.RefreshTimer_Tick);
             // 
+            // bUFToolStripMenuItem
+            // 
+            this.bUFToolStripMenuItem.Name = "bUFToolStripMenuItem";
+            this.bUFToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.bUFToolStripMenuItem.Text = "BUF";
+            this.bUFToolStripMenuItem.Click += new System.EventHandler(this.bUFToolStripMenuItem_Click);
+            // 
+            // triStateToolStripMenuItem
+            // 
+            this.triStateToolStripMenuItem.Name = "triStateToolStripMenuItem";
+            this.triStateToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.triStateToolStripMenuItem.Text = "TriState";
+            this.triStateToolStripMenuItem.Click += new System.EventHandler(this.triStateToolStripMenuItem_Click);
+            // 
+            // pullUpToolStripMenuItem
+            // 
+            this.pullUpToolStripMenuItem.Name = "pullUpToolStripMenuItem";
+            this.pullUpToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.pullUpToolStripMenuItem.Text = "PullUp";
+            this.pullUpToolStripMenuItem.Click += new System.EventHandler(this.pullUpToolStripMenuItem_Click);
+            // 
+            // pullDownToolStripMenuItem
+            // 
+            this.pullDownToolStripMenuItem.Name = "pullDownToolStripMenuItem";
+            this.pullDownToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.pullDownToolStripMenuItem.Text = "PullDown";
+            this.pullDownToolStripMenuItem.Click += new System.EventHandler(this.pullDownToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator3
+            // 
+            this.toolStripSeparator3.Name = "toolStripSeparator3";
+            this.toolStripSeparator3.Size = new System.Drawing.Size(177, 6);
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -455,5 +498,10 @@ namespace CircuitToy
         private Timer RefreshTimer;
         private ToolStripStatusLabel toolStripStatusLabel1;
         private ToolStripButton toolStripButton1;
+        private ToolStripMenuItem bUFToolStripMenuItem;
+        private ToolStripSeparator toolStripSeparator3;
+        private ToolStripMenuItem triStateToolStripMenuItem;
+        private ToolStripMenuItem pullUpToolStripMenuItem;
+        private ToolStripMenuItem pullDownToolStripMenuItem;
     }
 }

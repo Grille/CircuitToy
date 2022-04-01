@@ -11,7 +11,7 @@ namespace CircuitLib.Interface;
 public class Camera
 {
     public float PosX = 0, PosY = 0;
-    public float Scale = 10;
+    public float Scale = 20;
 
     private float width, height;
     private float hWidth, hHeight;
@@ -47,6 +47,8 @@ public class Camera
             Scale *= scrollFactor;
         else
             Scale /= scrollFactor;
+
+        Scale = System.Math.Clamp(Scale, 0.1f, 200f);
 
         var newWorldPos = ScreenToWorldSpace(location);
         PosX += oldWorldPos.X - newWorldPos.X;

@@ -9,10 +9,10 @@ partial class Section
 
         Tests.RunCircuit("AND Circuit", (c) => {
 
-            var input0 = c.CreateNode<Input>(0, 0);
-            var input1 = c.CreateNode<Input>(0, 4);
-            var output = c.CreateNode<Output>(10, 2, "out");
-            var andgate = c.CreateNode<AndGate>(5, 2, "and");
+            var input0 = c.CreateNode<Input>(0, 0, "Inp0");
+            var input1 = c.CreateNode<Input>(0, 4, "Inp1");
+            var output = c.CreateNode<Output>(10, 2, "Out");
+            var andgate = c.CreateNode<AndGate>(5, 2, "AND");
 
             input0.ConnectTo(andgate, 0, 0);
             input1.ConnectTo(andgate, 0, 1);
@@ -20,8 +20,8 @@ partial class Section
 
             var innet0 = input0.OutputPins[0].ConnectedNetwork;
             var innet1 = input1.OutputPins[0].ConnectedNetwork;
-            innet0.Name = "innet0";
-            innet1.Name = "innet1";
+            innet0.Name = "InNet0";
+            innet1.Name = "InNet1";
 
             c.UpdateIO();
 
@@ -45,6 +45,12 @@ partial class Section
                 return TestResult.Failure;
 
             if (TUtils.AssertPinState(c.InputPins[1], State.High))
+                return TestResult.Failure;
+
+            if (TUtils.AssertPinState(input0.OutputPins[0], State.High))
+                return TestResult.Failure;
+
+            if (TUtils.AssertPinState(input1.OutputPins[0], State.High))
                 return TestResult.Failure;
 
             if (TUtils.AssertNetState(innet0, State.High))
@@ -76,13 +82,14 @@ partial class Section
         Tests.RunCircuit("Nested AND Circuit", (c) => {
             var andcirc = new Circuit();
             {
+                andcirc.Name = "AND_Wrapper";
                 var input0 = andcirc.CreateNode<Input>(0, 0);
                 var input1 = andcirc.CreateNode<Input>(0, 4);
                 var output = andcirc.CreateNode<Output>(10, 2);
-                var orgate = andcirc.CreateNode<AndGate>(5, 2);
-                input0.ConnectTo(orgate, 0, 0);
-                input1.ConnectTo(orgate, 0, 1);
-                orgate.ConnectTo(output, 0, 0);
+                var andgate = andcirc.CreateNode<AndGate>(5, 2, "AND");
+                input0.ConnectTo(andgate, 0, 0);
+                input1.ConnectTo(andgate, 0, 1);
+                andgate.ConnectTo(output, 0, 0);
                 andcirc.UpdateIO();
             }
             {
@@ -112,6 +119,9 @@ partial class Section
                 c.InputPins[1].State = State.High;
                 c.Update();
                 c.WaitIdle();
+
+                if (TUtils.AssertPinState(andcirc.OutputPins[0], State.High))
+                    return TestResult.Failure;
 
                 if (TUtils.AssertPinState(c.OutputPins[0], State.High))
                     return TestResult.Failure;

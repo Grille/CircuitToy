@@ -44,5 +44,18 @@ partial class Section
         Tests.RunIOTable<XNorGate>("01->0");
         Tests.RunIOTable<XNorGate>("10->0");
         Tests.RunIOTable<XNorGate>("11->1");
+
+        Tests.RunIOTable<TriState>("00->Z");
+        Tests.RunIOTable<TriState>("01->0");
+        Tests.RunIOTable<TriState>("10->Z");
+        Tests.RunIOTable<TriState>("11->1");
+
+        Tests.RunIOTable<PullDown>("0->0");
+        Tests.RunIOTable<PullDown>("1->1");
+        Tests.RunIOTable<PullDown>("Z->0");
+
+        Tests.RunIOTable<PullUp>("0->0");
+        Tests.RunIOTable<PullUp>("1->1");
+        Tests.RunIOTable<PullUp>("Z->1");
     }
 }

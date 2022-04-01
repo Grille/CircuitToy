@@ -47,18 +47,28 @@ public class Circuit : Node
 
     public T CreateNode<T>() where T : Node, new()
     {
-        return CreateNode<T>(0, 0);
+        return CreateNode<T>(Vector2.Zero);
     }
 
     public T CreateNode<T>(float x, float y) where T : Node, new()
     {
-        return CreateNode<T>(x,y, $"AutID_{autoIdCount++}");
+        return CreateNode<T>(new Vector2(x, y));
     }
 
     public T CreateNode<T>(float x, float y, string name) where T : Node, new()
     {
+        return CreateNode<T>(new Vector2(x, y), name);
+    }
+
+    public T CreateNode<T>(Vector2 pos) where T : Node, new()
+    {
+        return CreateNode<T>(pos, $"AutID_{autoIdCount++}");
+    }
+
+    public T CreateNode<T>(Vector2 pos, string name) where T : Node, new()
+    {
         var node = new T();
-        node.Position = new Vector2(x, y);
+        node.Position = pos;
         node.RoundPosition();
         node.Name = name;
 
@@ -105,30 +115,26 @@ public class Circuit : Node
         InputPins = inputPinList.ToArray();
         OutputPins = outputPinList.ToArray();
 
+        int inCount = InputPins.Length;
+        InputStateBuffer = new State[inCount];
+        InputNextStateBuffer = new State[inCount];
+
         int outCount = OutputPins.Length;
-        OutputStateCmpBuffer = new State[outCount];
+        OutputStateBuffer = new State[outCount];
 
     }
 
     protected override void OnUpdate()
     {
+        PullInputValues();
         for (int i = 0; i < inputs.Count; i++)
         {
-            inputs[i].State = InputPins[i].State;
+            inputs[i].State = InputStateBuffer[i];
         }
         for (int i = 0; i < inputs.Count; i++)
         {
             inputs[i].Update();
         }
-        for (int i = 0; i < outputs.Count; i++)
-        {
-            OutputPins[i].State = outputs[i].State;
-        }
-        for (int i = 0; i < outputs.Count; i++)
-        {
-            OutputPins[i].ConnectedNetwork?.Update();
-        }
-
     }
 
     public override void Destroy()
@@ -207,7 +213,7 @@ public class Circuit : Node
 
     public override void Reset(State state = State.Off)
     {
-        ForceIdel();
+        ForceIdle();
 
         base.Reset(state);
 
@@ -222,13 +228,18 @@ public class Circuit : Node
         }
     }
 
-    public override void ForceIdel()
+    public override void ForceIdle()
     {
-        base.ForceIdel();
+        base.ForceIdle();
 
         foreach (var node in Nodes)
         {
-            node.ForceIdel();
+            node.ForceIdle();
+        }
+
+        foreach (var net in Networks)
+        {
+            net.ForceIdle();
         }
     }
 
@@ -241,6 +252,11 @@ public class Circuit : Node
             foreach (var node in Nodes)
             {
                 node.WaitIdle();
+            }
+
+            foreach (var net in Networks)
+            {
+                net.WaitIdle();
             }
         }
     }

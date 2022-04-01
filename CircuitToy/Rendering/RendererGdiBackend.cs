@@ -78,6 +78,12 @@ internal class RendererGdiBackend : IRendererBackend
         g.DrawString(text, p.Font, p.Brush, rect, format);
     }
 
+    public Vector2 MeasureText(int paint, string text)
+    {
+        var size = g.MeasureString(text, Paints[paint].Font);
+        return new Vector2(size.Width, size.Height);
+    }
+
     public int CreatePaint()
     {
         return CreatePaint(Color.Black, 1);
@@ -100,7 +106,7 @@ internal class RendererGdiBackend : IRendererBackend
         return Paints.IndexOf(paint);
     }
 
-    public int CreateStrPaint(Color color, float width, string font, float size)
+    public int CreateFontPaint(Color color, float width, string font, float size)
     {
         var paint = new GdiPaint();
         paint.Color = color;
@@ -114,13 +120,8 @@ internal class RendererGdiBackend : IRendererBackend
         return Paints.IndexOf(paint);
     }
 
-    public void DestroyPaint(int id)
+    public void Cleanup()
     {
-        var paint = Paints[id];
-        paint.Brush?.Dispose();
-        paint.Pen?.Dispose();
-        paint.Font?.Dispose();
-
-        Paints.Remove(paint);
+        Paints.Clear();
     }
 }

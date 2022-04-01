@@ -28,11 +28,13 @@ public class NotGate : Node
 
     protected override void OnUpdate()
     {
-        OutputPins[0].State = InputPins[0].State switch {
+        PullInputValues();
+        OutputStateBuffer[0] = InputStateBuffer[0] switch {
             State.Low => State.High,
             State.High => State.Low,
             _ => State.Off,
         };
+        SendOutputSignal(0);
     }
 }
 

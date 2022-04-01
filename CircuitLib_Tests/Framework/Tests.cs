@@ -45,9 +45,9 @@ class Tests
         }
     }
 
-    public static void RunCascade(State reset, State expectet)
+    public static void RunCascade(State reset, State send, State expected)
     {
-        TUtils.Write($"Cascade [Exit -> Net -> Entry] ({reset}) to ({expectet}): ");
+        TUtils.Write($"Cascade [Exit -> Net -> Entry] ({reset}) -> ({send}) = {expected}: ");
         Tests.Run(() => {
             var circuit = new Circuit();
             var exit = new OutputPin(circuit);
@@ -65,10 +65,11 @@ class Tests
                 return TestResult.Failure;
             }
 
-            exit.State = expectet;
+            exit.State = send;
             exit.ConnectedNetwork.Update();
+            exit.ConnectedNetwork.WaitIdle();
 
-            if (entry.State == expectet)
+            if (entry.State == expected)
             {
                 TUtils.WriteSucces("OK");
                 return TestResult.Success;

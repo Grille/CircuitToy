@@ -35,7 +35,8 @@ public class Input : Node
 
     protected override void OnUpdate() 
     {
-        OutputPins[0].State = State;
+        OutputStateBuffer[0] = State;
+        SendOutputSignal(0);
     }
 
     public override void ClickAction()

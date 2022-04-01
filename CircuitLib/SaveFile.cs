@@ -171,6 +171,7 @@ namespace CircuitLib
 
         public static Circuit ReadCircuit(BinaryViewReader br)
         {
+            Console.WriteLine("read start");
             var circuit = new Circuit();
 
             var nodes = circuit.Nodes;
@@ -307,6 +308,8 @@ namespace CircuitLib
                     _ => throw new NotImplementedException(),
                 };
             }
+
+            Console.WriteLine("read end");
 
             circuit.UpdateIO();
             return circuit;

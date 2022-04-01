@@ -29,7 +29,8 @@ public class XNorGate : Node
 
     protected override void OnUpdate()
     {
-        OutputPins[0].State = (InputPins[0].State, InputPins[1].State) switch {
+        PullInputValues();
+        OutputStateBuffer[0] = (InputStateBuffer[0], InputStateBuffer[1]) switch {
             (State.Low, State.Low) => State.High,
             (State.Low, State.High) => State.Low,
             (State.High, State.Low) => State.Low,
@@ -40,6 +41,7 @@ public class XNorGate : Node
             (_, State.High) => State.Low,
             (_, _) => State.Off,
         };
+        SendOutputSignal(0);
     }
 }
 

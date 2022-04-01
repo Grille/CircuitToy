@@ -123,6 +123,22 @@ static class TUtils
         return outarray;
     }
 
+    public static string StateArrayToStr(State[] array)
+    {
+        string outstr = "";
+        for (int i = 0; i < array.Length; i++)
+        {
+            outstr += array[i] switch {
+                State.Low => "0",
+                State.High => "1",
+                State.Off => "Z",
+                _ => "E",
+            };
+        }
+
+        return outstr;
+    }
+
     public static bool AssertPinState(IOPin pin, State state, string msg = "")
     {
         string pinType;

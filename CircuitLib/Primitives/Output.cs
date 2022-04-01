@@ -32,7 +32,12 @@ public class Output : Node
 
     protected override void OnUpdate()
     {
-        //Active = InputPins[0].Active;
+        PullInputValues();
+        if (Owner.OutputStateBuffer.Length == 1)
+        {
+            Owner.OutputStateBuffer[0] = State;
+            Owner.SendOutputSignal(0);
+        }
     }
 }
 

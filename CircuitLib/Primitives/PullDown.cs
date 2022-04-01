@@ -8,28 +8,31 @@ using System.Numerics;
 
 namespace CircuitLib.Primitives;
 
-public class BufferGate : Node
+public class PullDown : Node
 {
-    public BufferGate()
+    public PullDown()
     {
-        DisplayName = "Buffer";
+        DisplayName = "P-DOWN";
 
         InitPins(
             new Vector2[] {
-                new (-2,-0),
+                new (-3,-0),
             },
             new Vector2[] {
-                new (+2,+0)
+                new (+3,+0)
             }
         );
 
-        Size = new Vector2(4, 2);
+        Size = new Vector2(6, 2);
     }
 
     protected override void OnUpdate()
     {
         PullInputValues();
-        OutputStateBuffer[0] = InputStateBuffer[0];
+        if (InputStateBuffer[0] == State.Off)
+            OutputStateBuffer[0] = State.Low;
+        else
+            OutputStateBuffer[0] = InputStateBuffer[0];
         SendOutputSignal(0);
     }
 }

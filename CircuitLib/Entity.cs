@@ -23,6 +23,7 @@ public abstract class Entity
     }
     public BoundingBox Bounds;
 
+    public bool IsEnabled = false;
     public bool IsAlive = true;
     public bool IsHovered = false;
     public bool IsVisible = true;
@@ -56,7 +57,7 @@ public abstract class Entity
             entities.Add(this);
     }
 
-    public virtual List<Entity> GetListFromArea(BoundingBox region)
+    public List<Entity> GetListFromArea(BoundingBox region)
     {
         var list = new List<Entity>();
         GetFromArea(list, region);
@@ -73,6 +74,6 @@ public abstract class Entity
         Position =  new Vector2(MathF.Round(Position.X), MathF.Round(Position.Y));
     }
 
-    public abstract void WaitIdle();
+    public abstract string GetDebugStr();
 }
 

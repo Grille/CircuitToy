@@ -9,7 +9,7 @@ using CircuitLib.Math;
 
 namespace CircuitLib;
 
-public class Network : Entity
+public class Network : AsyncUpdatableEntity
 {
     public new Circuit Owner {
         get {
@@ -49,6 +49,7 @@ public class Network : Entity
 
     public void ConnectFromTo(Pin pin0, Pin pin1)
     {
+
         if (pin0 == pin1)
             return;
 
@@ -69,10 +70,12 @@ public class Network : Entity
                 Join(pin.Owner);
         }
         Wires.Add(new Wire(this, pin0, pin1));
+
         Update();
     }
     public void ConnectFromTo(Pin pin0, Vector2 pos1)
     {
+
         var entity = Owner.GetAt(pos1);
         if (entity == null)
         {
@@ -85,6 +88,7 @@ public class Network : Entity
         {
             ConnectFromTo(pin0, (Pin)entity);
         }
+
         Update();
     }
     public void Disconnect(Pin pin0, Pin pin1)
@@ -129,6 +133,7 @@ public class Network : Entity
     //public static Network Ground = new Network();
     public void Add(Pin pin)
     {
+        WaitIdle();
         if (pin is InputPin)
         {
             var inPin = (InputPin)pin;
@@ -140,7 +145,8 @@ public class Network : Entity
             InputPins.Add(inPin);
             Update();
         }
-        else if (pin is OutputPin) {
+        else if (pin is OutputPin)
+        {
             var outPin = (OutputPin)pin;
             if (outPin.ConnectedNetwork != null)
                 throw new InvalidOperationException($"OutputPin already in other Network!");
@@ -165,6 +171,7 @@ public class Network : Entity
             throw new ArgumentException($"Invalid Pin!");
         }
         AllPins.Add(pin);
+
         CalcBoundings();
     }
 
@@ -251,6 +258,8 @@ public class Network : Entity
 
     public override void Destroy()
     {
+        ForceIdle();
+
         enableSpilt = false;
 
         var refPins = new List<Pin>();
@@ -300,6 +309,7 @@ public class Network : Entity
 
     private void removeFromList(Pin pin)
     {
+        WaitIdle();
         if (pin is InputPin)
         {
             var inPin = (InputPin)pin;
@@ -354,49 +364,53 @@ public class Network : Entity
         }
     }
 
-
-    public void Update()
+    protected override void OnUpdate()
     {
         var oldState = State;
+        int outCount = OutputPins.Count;
 
-        State = State.Off;
-
-        int offCount = 0;
-        int lowCount = 0;
-        int highCount = 0;
-        int errorCount = 0;
-
-        for (int i = 0; i < OutputPins.Count; i++)
+        if (outCount == 1)
         {
-            switch (OutputPins[i].State)
+            State = OutputPins[0].State;
+        }
+        else { 
+            State = State.Off;
+
+            int offCount = 0;
+            int lowCount = 0;
+            int highCount = 0;
+            int errorCount = 0;
+
+            for (int i = 0; i < outCount; i++)
             {
-                case State.Off: offCount++; break;
-                case State.Low: lowCount++; break;
-                case State.High: highCount++; break;
-                case State.Error: errorCount++; break;
+                switch (OutputPins[i].State)
+                {
+                    case State.Off: offCount++; break;
+                    case State.Low: lowCount++; break;
+                    case State.High: highCount++; break;
+                    case State.Error: errorCount++; break;
+                }
             }
+
+            if (lowCount + highCount > 1)
+                State = State.Error;
+            else if (lowCount == 1)
+                State = State.Low;
+            else if (highCount == 1)
+                State = State.High;
+            else if (errorCount > 0)
+                State = State.Error;
         }
 
-
-        if (lowCount + highCount > 1)
-            State = State.Error;
-        else if (lowCount == 1)
-            State = State.Low;
-        else if (highCount == 1)
-            State = State.High;
-        else if (errorCount > 0)
-            State = State.Error;
-
         if (State == State.Error)
+            return;
+
+        if (State == oldState)
             return;
 
         foreach (var pin in InputPins)
         {
             pin.State = State;
-        }
-
-        foreach (var pin in InputPins)
-        {
             pin.Owner.Update();
         }
     }
@@ -451,9 +465,21 @@ public class Network : Entity
         State = state;
     }
 
-    public override void WaitIdle()
+    public override string GetDebugStr()
     {
+        var sb = new StringBuilder();
 
+        sb.AppendLine($"Network::{GetType().Name}");
+        sb.AppendLine($"Task.Exists: {UpdateTask != null}");
+        sb.AppendLine($"Semaphores:");
+        sb.AppendLine($" - UpdateState: {UpdateState}");
+        sb.AppendLine($"Stats:");
+        sb.AppendLine($" - UpdateCount: {StatsUpdatesCount}");
+        sb.AppendLine($"    - Discarded: {StatsUpdatesDiscardCount}");
+        sb.AppendLine($"    - Queued:    {StatsUpdatesQueuedCount}");
+        sb.AppendLine($"    - Run:       {StatsUpdatesRunCount}");
+
+        return sb.ToString();
     }
 }
 

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
 using System.Numerics;
+using CircuitLib.Math;
 
 namespace CircuitLib.Interface;
 
@@ -15,14 +16,16 @@ public enum ToolMode
     OnOff,
 }
 
+public enum EditorState
+{
+    None,
+    Selecting,
+    Moving,
+    Wireing,
+}
+
 public class EditorInterface
 {
-    public enum State
-    {
-        None,
-        Selecting,
-        Moving,
-    }
 
 
     public Circuit Circuit;
@@ -30,17 +33,28 @@ public class EditorInterface
     public Selection Selection;
 
     public ToolMode Mode = ToolMode.SelectAndMove;
+    public EditorState State = EditorState.None;
 
-    private State state = State.None;
     private bool isClick = false;
 
     public bool IsShiftKeyDown = false;
+    public bool IsCtrlKeyDown = false;
     public bool IsAltKeyDown = false;
 
     public Vector2 ScreenMousePos = Vector2.Zero;
     public Vector2 WorldMousePos = Vector2.Zero;
     public Vector2 WorldMouseDownPos = Vector2.Zero;
     public Vector2 WorldMouseUpPos = Vector2.Zero;
+
+    private int mouseMoveCounter = 0;
+
+    public Entity DownEntity {
+        private set; get; 
+    }
+
+    public Entity UpEntity {
+        private set; get;
+    }
 
     public EditorInterface(Circuit circuit, Camera camera)
     {
@@ -51,39 +65,74 @@ public class EditorInterface
 
     public bool IsMoving {
         get {
-            return state == State.Moving;
+            return State == EditorState.Moving;
         }
     }
 
     public void MouseDown(Vector2 location, bool left)
     {
         WorldMouseDownPos = WorldMousePos;
-
         isClick = true;
-        var obj = Circuit.GetAt(WorldMousePos);
+        State = EditorState.None;
+        mouseMoveCounter = 0;
+
+        DownEntity = Circuit.GetAt(WorldMousePos);
+
 
         if (Mode == ToolMode.SelectAndMove)
         {
+            switch (IsShiftKeyDown, IsCtrlKeyDown)
+            {
+                case (false, false):
+                    Selection.SingleMode = SelectionMode.Set;
+                    Selection.AreaMode = SelectionMode.Set;
+                    break;
+
+                case (false, true):
+                    Selection.SingleMode = SelectionMode.Toogle;
+                    Selection.AreaMode = SelectionMode.Sub;
+                    break;
+
+                case (true, false):
+                    Selection.SingleMode = SelectionMode.Toogle;
+                    Selection.AreaMode = SelectionMode.Add;
+                    break;
+
+                case (true, true):
+                    Selection.SingleMode = SelectionMode.Toogle;
+                    Selection.AreaMode = SelectionMode.Toogle;
+                    break;
+            }
+
             if (left)
             {
-                if (obj == null)
+                //Console.WriteLine($"{Selection.SingleMode} {DownEntity.IsSelected}");
+                if (DownEntity == null)
                 {
-                    //state = State.Selecting;
-
-                    if (!IsShiftKeyDown)
-                        Selection.ClearSelection();
                     Selection.SelectAreaBegin(WorldMousePos);
-
                     isClick = false;
+                    State = EditorState.Selecting;
                 }
-                else if (!obj.IsSelected)
+                else if (Selection.SingleMode == SelectionMode.Set && DownEntity.IsSelected)
                 {
-                    if (!IsShiftKeyDown)
-                        Selection.ClearSelection();
-
+                    Console.WriteLine("grap");
+                    isClick = false;
+                    State = EditorState.Moving;
+                }
+                else
+                {
+                    Console.WriteLine("select");
                     Selection.SelectAt(WorldMousePos);
                     isClick = false;
+                    State = EditorState.Moving;
                 }
+            }
+        }
+        else if (Mode == ToolMode.AddWire)
+        {
+            if (left)
+            {
+                State = EditorState.Wireing;
             }
         }
     }
@@ -92,6 +141,10 @@ public class EditorInterface
     {
         ScreenMousePos = location;
         WorldMousePos = Camera.ScreenToWorldSpace(location);
+        mouseMoveCounter++;
+        bool firstMove = mouseMoveCounter == 1;
+
+        bool doHover = true;
 
         if (left)
             isClick = false;
@@ -100,21 +153,24 @@ public class EditorInterface
         {
             if (left)
             {
-                
 
+                Console.WriteLine(State);
 
-                if (Selection.IsSelectingArea)
+                if (State == EditorState.Selecting)
                 {
                     Selection.SelectAreaMove(WorldMousePos);
+                    doHover = false;
                 }
-                else if (Mode == ToolMode.SelectAndMove)
+                else if (State == EditorState.Moving)
                 {
                     Selection.Offset = new Vector2(WorldMousePos.X - WorldMouseDownPos.X, WorldMousePos.Y - WorldMouseDownPos.Y);
                 }
 
             }
         } 
-        Selection.HoverAt(WorldMousePos);
+
+        if (doHover)
+            Selection.HoverAt(WorldMousePos);
     }
 
     public void MouseUp(Vector2 location, bool left)
@@ -127,83 +183,50 @@ public class EditorInterface
         {
             case ToolMode.SelectAndMove:
             {
-                if (isClick)
+                switch (State)
                 {
-                    if (left)
-                    {
-                        if (obj != null && obj.IsSelected)
-                        {
-                            if (!IsShiftKeyDown)
-                                Selection.ClearSelection();
-
-                            Selection.ToogleAt(WorldMousePos);
-                        }
-                    }
-                }
-                else
-                {
-                    if (Selection.IsSelectingArea)
-                    {
+                    case EditorState.Selecting:
                         Selection.SelectAreaEnd();
-                        //Selection.Select(Selection.SelectedEntities);
-                    }
-                    else
-                    {
+                        break;
+
+                    case EditorState.Moving:
                         Selection.ApplyOffset();
-                    }
+                        break;
                 }
+
                 break;
             }
             case ToolMode.AddWire:
             {
                 if (!isClick)
                 {
-                    var downObj = Circuit.GetAt(WorldMouseDownPos);
-                    var upObj = obj;
+                    if (State == EditorState.Wireing)
+                    {
+                        if (pinPosValid(WorldMouseDownPos) && pinPosValid(WorldMouseUpPos))
+                        {
+                            var pin0 = getPin(WorldMouseDownPos);
+                            var pin1 = getPin(WorldMouseUpPos);
 
-                    Pin pin0 = null;
-                    Pin pin1 = null;
-
-                    if (downObj == null)
-                    {
-                        pin0 = Circuit.CreateNet().CreatePin(MathF.Round(WorldMouseDownPos.X), MathF.Round(WorldMouseDownPos.Y));
+                            pin0.ConnectTo(pin1);
+                        }
                     }
-                    if (downObj is Pin)
-                    {
-                        pin0 = (Pin)downObj;
-                    }
-                    else if (downObj is Wire)
-                    {
-                        pin0 = ((Wire)downObj).InsertPinAt(WorldMouseDownPos);
-                    }
-
-                    if (upObj == null)
-                    {
-                        pin1 = Circuit.CreateNet().CreatePin(MathF.Round(WorldMouseUpPos.X), MathF.Round(WorldMouseUpPos.Y));
-                    }
-                    if (upObj is Pin)
-                    {
-                        pin1 = (Pin)upObj;
-                    }
-                    else if (upObj is Wire)
-                    {
-                        pin1 = ((Wire)upObj).InsertPinAt(WorldMouseUpPos);
-                    }
-
-                    pin0.ConnectTo(pin1);
                 }
                 break;
             }
             case ToolMode.OnOff:
             {
-                var downObj = Circuit.GetAt(WorldMouseDownPos);
+                var downObj = Circuit.GetAt(WorldMouseUpPos);
 
-                if (downObj != null)
-                    downObj.ClickAction();
+                if (left)
+                    if (downObj != null)
+                        downObj.ClickAction();
 
                 break;
             }    
         }
+
+        State = EditorState.None;
+
     }
 
     public void KeyDown(int keycode)
@@ -214,6 +237,30 @@ public class EditorInterface
     public void Clear()
     {
         Selection.ClearSelection();
+    }
+
+    bool pinPosValid(Vector2 pos)
+    {
+        var obj = Circuit.GetAt(pos);
+
+        return obj switch {
+            null => true,
+            Pin => true,
+            Wire => true,
+            _ => false,
+        };
+    }
+
+    Pin getPin(Vector2 pos)
+    {
+        var obj = Circuit.GetAt(pos);
+
+        return obj switch {
+            null => Circuit.CreateNet().CreatePin(pos.Round()),
+            Pin => (Pin)obj,
+            Wire => ((Wire)obj).InsertPinAt(pos),
+            _ => null,
+        };
     }
 }
 
