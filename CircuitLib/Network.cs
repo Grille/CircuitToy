@@ -28,8 +28,8 @@ public class Network : AsyncUpdatableEntity
 
     private bool enableSpilt = true;
     public override Vector2 Position {
-        get { return Owner.Position; }
-        set { Owner.Position = value; }
+        get { return Vector2.Zero; }
+        set {  }
     }
 
     private State _active = State.Off;

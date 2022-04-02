@@ -66,15 +66,17 @@ public class Renderer
         DrawHoverd();
         DrawSelection();
 
-
-        foreach (var net in circuit.Networks)
+        if (circuit != null)
         {
-            DrawNetwork(net);
-        }
+            foreach (var net in circuit.Networks)
+            {
+                DrawNetwork(net);
+            }
 
-        foreach (var node in circuit.Nodes)
-        {
-            DrawNode(node);
+            foreach (var node in circuit.Nodes)
+            {
+                DrawNode(node);
+            }
         }
 
         if (selection.IsSelectingArea)

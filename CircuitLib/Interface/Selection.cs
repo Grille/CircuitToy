@@ -23,7 +23,7 @@ public class Selection
     public List<Entity> SelectedEntities;
     private List<Entity> indirectSelection;
 
-    public Entity Circuit;
+    public Circuit Circuit;
 
     public Vector2 Offset;
     public Vector2 SnapOffset {
@@ -39,7 +39,7 @@ public class Selection
     public BoundingBox SelectetArea;
     public bool IsSelectingArea = false;
 
-    public Selection(Entity world)
+    public Selection(Circuit world)
     {
         Circuit = world;
 

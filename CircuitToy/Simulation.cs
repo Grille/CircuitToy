@@ -11,11 +11,13 @@ using CircuitLib;
 using CircuitLib.Primitives;
 using CircuitLib.Interface;
 using CircuitLib.Rendering;
+using CircuitLib.Serialization;
 
 namespace CircuitToy;
 
 internal class Simulation
 {
+    public Form Form;
     public Circuit Circuit;
     public Camera Camera;
     public RendererGdiBackend RendererBackend;
@@ -26,8 +28,9 @@ internal class Simulation
 
     string path = "newcircuit.lcp";
 
-    public Simulation(Control target)
+    public Simulation(Form form, Control target)
     {
+        Form = form;
         Target = target;
 
         var andcirc = new Circuit();
@@ -152,7 +155,10 @@ internal class Simulation
     public void Load(string path)
     {
         this.path = path;
-        useCircuit(SaveFile.Load(path));
+        var result = SaveFile.Load(path);
+        useCircuit(result.Circuit);
+        if (result.State != SaveFileState.OK)
+            MessageBox.Show(Form, result.State.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
     }
 
     private void useCircuit(Circuit circuit)

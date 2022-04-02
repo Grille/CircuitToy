@@ -11,6 +11,7 @@ partial class Programm
         Section.S02Network();
         Section.S03NetworkInteraction();
         Section.S04Circuits();
+        Section.S05Serialization();
 
         TUtils.WriteResults();
     }

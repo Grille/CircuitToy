@@ -14,7 +14,7 @@ public partial class MainWindow : Form
         InitializeComponent();
         DoubleBuffered = true;
 
-        sim = new Simulation(canvas);
+        sim = new Simulation(this, canvas);
         canvas.ContextMenuStrip = contextMenuStrip1;
 
         var node = treeView1.Nodes.Add("primitives");
@@ -46,12 +46,7 @@ public partial class MainWindow : Form
 
         if (e.KeyCode.HasFlag(Keys.Delete))
         {
-            foreach (var obj in sim.Interaction.Selection.SelectedEntities)
-            {
-                Console.WriteLine(obj.ToString());
-                obj.Destroy();
-            }
-            sim.Interaction.Selection.ClearSelection();
+            sim.Interaction.DestroySelection();
         }
 
     }

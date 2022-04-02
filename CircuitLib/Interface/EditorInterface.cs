@@ -234,6 +234,32 @@ public class EditorInterface
 
     }
 
+    public void DestroySelection()
+    {
+        foreach (var obj in Selection.SelectedEntities)
+        {
+            Console.WriteLine(obj.ToString());
+            obj.Destroy();
+        }
+        Selection.ClearSelection();
+    }
+
+    public void CopySelection()
+    {
+    
+    }
+
+    public void CutSelection()
+    {
+        CopySelection();
+        DestroySelection();
+    }
+
+    public void Paste(Vector2 pos)
+    {
+
+    }
+
     public void Clear()
     {
         Selection.ClearSelection();
