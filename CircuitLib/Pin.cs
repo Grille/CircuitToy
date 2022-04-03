@@ -16,6 +16,8 @@ public abstract class Pin : Entity
     private Vector2 _pos;
     private Vector2 _rPos;
 
+    public float Radius;
+
     protected internal Vector2 _position {
         set {
             _pos = value;

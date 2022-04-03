@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
 using CircuitLib.Math;
-
+using GGL.IO;
 namespace CircuitLib;
 
 public abstract class Node : AsyncUpdatableEntity
@@ -124,7 +124,7 @@ public abstract class Node : AsyncUpdatableEntity
         }
         else
         {
-            var net = Owner.CreateNet();
+            var net = Owner.Networks.Create();
             net.Add(outPin);
             net.ConnectFromTo(outPin, inPin);
         }
@@ -294,12 +294,25 @@ public abstract class Node : AsyncUpdatableEntity
         CalcBoundings();
     }
 
+    protected virtual void OnRender()
+    {
+    }
+
+    protected virtual void OnSave(BinaryViewWriter bw)
+    {
+    }
+
+    protected virtual void OnLoad(BinaryViewReader br)
+    {
+    }
+
     public override string GetDebugStr()
     {
         var sb = new StringBuilder();
 
 
         sb.AppendLine($"Node::{GetType().Name}");
+        sb.AppendLine($"Pos: {Position}");
         sb.AppendLine($"Task.Exists: {UpdateTask != null}");
         sb.AppendLine($"Semaphores:");
         sb.AppendLine($" - UpdateState: {UpdateState}");

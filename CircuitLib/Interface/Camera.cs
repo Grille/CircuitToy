@@ -28,13 +28,13 @@ public class Camera
         }
     }
 
-    public Size ScreenSize
+    public Vector2 ScreenSize
     {
-        get => new Size((int)width, (int)height);
+        get => new Vector2(width, height);
         set
         {
-            width = value.Width;
-            height = value.Height;
+            width = value.X;
+            height = value.Y;
             hWidth = width / 2;
             hHeight = height / 2;
         }

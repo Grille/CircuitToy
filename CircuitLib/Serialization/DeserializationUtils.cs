@@ -12,14 +12,38 @@ using GGL.IO;
 
 namespace CircuitLib.Serialization;
 
-public static class CircuitDeserialization
+public static class DeserializationUtils
 {
 
-    public static void ReadEntities(BinaryViewWriter bw, IList<Entity> entities)
+    public static List<Entity> ReadSectionToCircuit(BinaryViewReader br, Circuit circuit)
     {
+        var nodes = new List<Node>();
+        var pins = new List<NetPin>();
+        var result = new List<Entity>();
 
+        var types = ReadNodeTypes(br);
+        int nodeCount = br.ReadInt32();
+        for (int i = 0; i < nodeCount; i++)
+        {
+            var node = ReadNode(br, types);
+            circuit.Nodes.Add(node);
+            nodes.Add(node);
+            result.Add(node);
+        }
+
+        var pinCount = br.ReadInt32();
+        for (int i = 0; i < pinCount; i++)
+        {
+            var pos = br.Read<Vector2>();
+            var pin = circuit.Networks.Create().CreatePin(pos);
+            pins.Add(pin);
+            result.Add(pin);
+        }
+
+        ReadWiresIndices(br, nodes, pins);
+
+        return result;
     }
-
 
     public static List<Type> ReadNodeTypes(BinaryViewReader br)
     {
@@ -44,14 +68,14 @@ public static class CircuitDeserialization
         for (int i = 0; i < nodeCount; i++)
         {
             var node = ReadNode(br, types);
-            circuit.AddNode(node);
+            circuit.Nodes.Add(node);
         }
 
         int netCount = br.ReadInt32();
         for (int i = 0; i < netCount; i++)
         {
             var net = ReadNetwork(br, nodes);
-            circuit.AddNet(net);
+            circuit.Networks.Add(net);
         }
 
         circuit.UpdateIO();
@@ -89,6 +113,13 @@ public static class CircuitDeserialization
             net.Add(nodes[index0].OutputPins[index1]);
         }
 
+        ReadWiresIndices(br, nodes, net.GuardPins);
+
+        return net;
+    }
+
+    public static void ReadWiresIndices(BinaryViewReader br, IList<Node> nodes, IList<NetPin> netPins)
+    {
         int wireCount = br.ReadInt32();
         for (int i = 0; i < wireCount; i++)
         {
@@ -103,15 +134,14 @@ public static class CircuitDeserialization
             byte type = br.ReadByte();
 
             return type switch {
-                0 => net.GuardPins[br.ReadInt32()],
+                0 => netPins[br.ReadInt32()],
                 1 => nodes[br.ReadInt32()].InputPins[br.ReadInt32()],
                 2 => nodes[br.ReadInt32()].OutputPins[br.ReadInt32()],
                 _ => throw new InvalidDataException($"Invalid Wire connection [{type}]"),
             };
         }
-
-        return net;
     }
+
     public static Node ReadNode(BinaryViewReader br)
     {
         var types = ReadNodeTypes(br);

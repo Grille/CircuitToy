@@ -291,11 +291,6 @@ public class Selection
         }
     }
 
-    public void CopySelection()
-    {
-    
-    }
-
     internal bool isSelected(Entity obj)
     {
         bool selected = obj.IsSelected;

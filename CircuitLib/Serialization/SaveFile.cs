@@ -45,7 +45,7 @@ public class SaveFile
         bw.WriteString(".lcp", LengthPrefix.Byte, CharSizePrefix.Byte);
 
         bw.BeginDeflateSection();
-        CircuitSerialization.WriteNode(bw, circuit);
+        SerializatioUtils.WriteNode(bw, circuit);
         bw.EndDeflateSection();
 
         bw.Dispose();
@@ -64,7 +64,7 @@ public class SaveFile
         string file = br.ReadString(LengthPrefix.Byte, CharSizePrefix.Byte);
 
         br.BeginDeflateSection();
-        var circuit = (Circuit)CircuitDeserialization.ReadNode(br);
+        var circuit = (Circuit)DeserializationUtils.ReadNode(br);
         br.EndDeflateSection();
 
         br.Dispose();

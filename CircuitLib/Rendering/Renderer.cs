@@ -25,6 +25,8 @@ public class Renderer
     Circuit circuit;
     PaintPalette palette;
 
+    public int StatsEntityDrawCount;
+
     public Circuit Circuit {
         get {
             return circuit;
@@ -34,26 +36,28 @@ public class Renderer
         }
     }
 
-    public Renderer(IRendererBackend renderBackend, Camera camera, Theme theme, EditorInterface @interface, Circuit circuit)
+    public Renderer(IRendererBackend renderBackend, Camera camera, Theme theme, EditorInterface editor, Circuit circuit)
     {
         ctx = renderBackend;
 
         this.camera = camera;
         this.theme = theme;
-        this.editor = @interface;
-        this.selection = editor.Selection;
+        this.editor = editor;
         this.circuit = circuit;
+        selection = this.editor.Selection;
 
         palette = new PaintPalette();
     }
 
     public void Render()
     {
+        StatsEntityDrawCount = 0;
+
         var sw = new Stopwatch();
         sw.Start();
 
-        var begin = camera.ScreenToWorldSpace(new Vector2(0, 0));
-        var end = camera.ScreenToWorldSpace(new Vector2(camera.ScreenSize.Width, camera.ScreenSize.Height));
+        var begin = camera.ScreenToWorldSpace(Vector2.Zero);
+        var end = camera.ScreenToWorldSpace(camera.ScreenSize);
 
         ViewPort = new BoundingBox(begin, end);
 
@@ -70,12 +74,18 @@ public class Renderer
         {
             foreach (var net in circuit.Networks)
             {
-                DrawNetwork(net);
+                if (ViewPort.IsColliding(net.Bounds))
+                {
+                    DrawNetwork(net);
+                }
             }
 
             foreach (var node in circuit.Nodes)
             {
-                DrawNode(node);
+                if (ViewPort.IsColliding(node.Bounds))
+                {
+                    DrawNode(node);
+                }
             }
         }
 
@@ -102,6 +112,7 @@ public class Renderer
             var pos = new Vector2(10, 10);
             var sb = new StringBuilder();
             sb.AppendLine($"Delta: {sw.Elapsed.TotalMilliseconds}ms");
+            sb.AppendLine($"EntityCount: {StatsEntityDrawCount}");
             string info = sb.ToString();
 
 
@@ -141,6 +152,8 @@ public class Renderer
             var pos1 = camera.WorldToScreenSpace(worldPos1);
 
             ctx.DrawLine(paint, pos0, pos1);
+
+            StatsEntityDrawCount++;
         }
 
         foreach (var pin in network.GuardPins)
@@ -157,7 +170,10 @@ public class Renderer
 
             ctx.FillCircle(paint, pos, rad);
 
+            StatsEntityDrawCount++;
         }
+
+        StatsEntityDrawCount++;
     }
 
     public void DrawNode(Node node)
@@ -179,6 +195,8 @@ public class Renderer
             };
 
             ctx.FillCircle(paint, pos, rad);
+
+            StatsEntityDrawCount++;
         }
 
         foreach (var pin in node.OutputPins)
@@ -194,6 +212,8 @@ public class Renderer
             };
 
             ctx.FillCircle(paint, pos, rad);
+
+            StatsEntityDrawCount++;
         }
 
         var screenPos = camera.WorldToScreenSpace(node.Position + offset);
@@ -203,6 +223,8 @@ public class Renderer
 
         ctx.FillRectangle(palette.NodeBack, drawPos, screenSize);
         ctx.DrawText(palette.NodeText, node.DisplayName, drawPos, screenSize);
+
+        StatsEntityDrawCount++;
     }
 
     public void DrawGrid(float gridSize, int paint)
@@ -218,19 +240,19 @@ public class Renderer
         float offsetX = distToNull.X % scaledGridSize;
         float offsetY = distToNull.Y % scaledGridSize;
 
-        int countX = (int)(clientSize.Width / scaledGridSize);
-        int countY = (int)(clientSize.Height / scaledGridSize);
+        int countX = (int)(clientSize.X / scaledGridSize);
+        int countY = (int)(clientSize.Y / scaledGridSize);
 
         for (int ix = 0; ix <= countX; ix++)
         {
             int posX = (int)((ix * scaledGridSize) + offsetX);
-            ctx.DrawLine(paint, new(posX, 0), new(posX, clientSize.Height));
+            ctx.DrawLine(paint, new(posX, 0), new(posX, clientSize.Y));
         }
 
         for (int iy = 0; iy <= countY; iy++)
         {
             int posY = (int)((iy * scaledGridSize) + offsetY);
-            ctx.DrawLine(paint, new(0, posY), new(clientSize.Width, posY));
+            ctx.DrawLine(paint, new(0, posY), new(clientSize.X, posY));
         }
     }
 

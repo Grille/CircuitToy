@@ -12,76 +12,23 @@ namespace CircuitLib;
 
 public class Circuit : Node
 {
-    public List<Node> Nodes;
-    public List<Network> Networks;
+    public CircuitNodeList Nodes;
+    public CircuitNetList Networks;
 
     private List<Input> inputs;
     private List<Output> outputs;
-
-    private int autoIdCount = 0;
 
     public bool UseAsync = true;
 
     public Circuit()
     {
-        Nodes = new List<Node>();
-        Networks = new List<Network>();
+        Nodes = new CircuitNodeList(this);
+        Networks = new CircuitNetList(this);
 
         inputs = new List<Input>();
         outputs = new List<Output>();
 
         InitPins(new Vector2[0], new Vector2[0]);
-    }
-
-    public void AddNode(Node node)
-    {
-        node.Owner = this;
-        Nodes.Add(node);
-    }
-
-    public void AddNet(Network net)
-    {
-        net.Owner = this;
-        Networks.Add(net);
-    }
-
-    public T CreateNode<T>() where T : Node, new()
-    {
-        return CreateNode<T>(Vector2.Zero);
-    }
-
-    public T CreateNode<T>(float x, float y) where T : Node, new()
-    {
-        return CreateNode<T>(new Vector2(x, y));
-    }
-
-    public T CreateNode<T>(float x, float y, string name) where T : Node, new()
-    {
-        return CreateNode<T>(new Vector2(x, y), name);
-    }
-
-    public T CreateNode<T>(Vector2 pos) where T : Node, new()
-    {
-        return CreateNode<T>(pos, $"AutID_{autoIdCount++}");
-    }
-
-    public T CreateNode<T>(Vector2 pos, string name) where T : Node, new()
-    {
-        var node = new T();
-        node.Position = pos;
-        node.RoundPosition();
-        node.Name = name;
-
-        AddNode(node);
-        return node;
-    }
-
-    public Network CreateNet()
-    {
-        var net = new Network();
-        AddNet(net);
-        net.Name += $"AutID_{autoIdCount++}";
-        return net;
     }
 
     public void UpdateIO()

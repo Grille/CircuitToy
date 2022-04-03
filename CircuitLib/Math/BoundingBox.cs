@@ -39,6 +39,10 @@ public struct BoundingBox
         }
     }
 
+    public Vector2 Center {
+        get => (Begin + End) / 2;
+    }
+
     public BoundingBox()
     {
         BeginX = 0.0f;

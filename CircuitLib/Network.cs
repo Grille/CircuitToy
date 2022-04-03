@@ -243,7 +243,7 @@ public class Network : AsyncUpdatableEntity
 
         if (disconnectetPins.Count > 0)
         {
-            var net = Owner.CreateNet();
+            var net = Owner.Networks.Create();
             foreach (var pin in disconnectetPins)
             {
                 net.Add(pin);

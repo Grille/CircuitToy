@@ -35,10 +35,10 @@ internal class Simulation
 
         var andcirc = new Circuit();
         {
-            var input0 = andcirc.CreateNode<Input>(0, 0);
-            var input1 = andcirc.CreateNode<Input>(0, 4);
-            var output = andcirc.CreateNode<Output>(10, 2);
-            var orgate = andcirc.CreateNode<AndGate>(5, 2);
+            var input0 = andcirc.Nodes.Create<Input>(0, 0);
+            var input1 = andcirc.Nodes.Create<Input>(0, 4);
+            var output = andcirc.Nodes.Create<Output>(10, 2);
+            var orgate = andcirc.Nodes.Create<AndGate>(5, 2);
             input0.ConnectTo(orgate, 0, 0);
             input1.ConnectTo(orgate, 0, 1);
             orgate.ConnectTo(output, 0, 0);
@@ -51,11 +51,11 @@ internal class Simulation
 
         Circuit = new Circuit();
         {
-            var input0 = Circuit.CreateNode<Input>(0, 0);
-            var input1 = Circuit.CreateNode<Input>(0, 4);
-            var output = Circuit.CreateNode<Output>(10, 2);
+            var input0 = Circuit.Nodes.Create<Input>(0, 0);
+            var input1 = Circuit.Nodes.Create<Input>(0, 4);
+            var output = Circuit.Nodes.Create<Output>(10, 2);
             var orgate = andcirc;
-            Circuit.AddNode(orgate);
+            Circuit.Nodes.Add(orgate);
 
             input0.ConnectTo(orgate, 0, 0);
             input1.ConnectTo(orgate, 0, 1);
@@ -71,12 +71,12 @@ internal class Simulation
         {
             var c = new Circuit();
 
-            var input0set = c.CreateNode<Input>(0, 0);
-            var input1reset = c.CreateNode<Input>(0, 4);
-            var output = c.CreateNode<Output>(10, 2);
+            var input0set = c.Nodes.Create<Input>(0, 0);
+            var input1reset = c.Nodes.Create<Input>(0, 4);
+            var output = c.Nodes.Create<Output>(10, 2);
 
-            var norgate0 = c.CreateNode<NOrGate>(5, -5);
-            var norgate1 = c.CreateNode<NOrGate>(5, 5);
+            var norgate0 = c.Nodes.Create<NOrGate>(5, -5);
+            var norgate1 = c.Nodes.Create<NOrGate>(5, 5);
 
 
             input0set.ConnectTo(norgate0, 0, 0);
@@ -133,8 +133,7 @@ internal class Simulation
     {
         RendererBackend.UseGraphics(g);
 
-
-        Camera.ScreenSize = Target.ClientSize;
+        Camera.ScreenSize = new Vector2(Target.ClientSize.Width, Target.ClientSize.Height);
 
         Renderer.Render();
     }
@@ -175,7 +174,7 @@ internal class Simulation
 
     private void Target_KeyDown(object sender, KeyEventArgs e)
     {
-        throw new NotImplementedException();
+
     }
 
     private void Target_MouseWheel(object sender, MouseEventArgs e)

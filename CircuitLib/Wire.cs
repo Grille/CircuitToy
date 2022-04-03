@@ -84,7 +84,7 @@ public class Wire : Entity
 
     public Pin InsertPinAt(Vector2 pos0)
     {
-        var pin = Owner.CreatePin(MathF.Round(pos0.X), MathF.Round(pos0.Y));
+        var pin = Owner.CreatePin(pos0.Round());
         StartPin.ConnectTo(pin);
         EndPin.ConnectTo(pin);
         Destroy();

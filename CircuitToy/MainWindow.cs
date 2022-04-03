@@ -61,36 +61,64 @@ public partial class MainWindow : Form
 
         if (e.KeyCode.HasFlag(Keys.Alt))
             sim.Interaction.IsAltKeyDown = false;
+
+        if (canvas.Focused)
+        {
+            if (e.KeyCode == Keys.X && e.Modifiers == Keys.Control)
+            {
+                var result = sim.Interaction.CutSelection();
+                var data = new DataObject();
+                data.SetData(result);
+                Clipboard.SetDataObject(data, true);
+            }
+
+            if (e.KeyCode == Keys.C && e.Modifiers == Keys.Control)
+            {
+                var result = sim.Interaction.CopySelection();
+                var data = new DataObject();
+                data.SetData(result);
+                Clipboard.SetDataObject(data, true);
+            }
+
+            if (e.KeyCode == Keys.V && e.Modifiers == Keys.Control)
+            {
+                var data = Clipboard.GetDataObject() as DataObject;
+                if (data == null || !data.GetDataPresent(typeof(byte[])))
+                    return;
+                var buffer = data.GetData(typeof(byte[])) as byte[];
+                sim.Interaction.Paste(sim.Interaction.WorldMousePos, buffer);
+            }
+        }
     }
 
     private void iNToolStripMenuItem_Click(object sender, EventArgs e)
     {
-        sim.Circuit.CreateNode<Input>(sim.Interaction.WorldMousePos);
+        sim.Circuit.Nodes.Create<Input>(sim.Interaction.WorldMousePos);
     }
 
     private void oUTToolStripMenuItem_Click(object sender, EventArgs e)
     {
-        sim.Circuit.CreateNode<Output>(sim.Interaction.WorldMousePos);
+        sim.Circuit.Nodes.Create<Output>(sim.Interaction.WorldMousePos);
     }
 
     private void oRToolStripMenuItem_Click(object sender, EventArgs e)
     {
-        sim.Circuit.CreateNode<OrGate>(sim.Interaction.WorldMousePos);
+        sim.Circuit.Nodes.Create<OrGate>(sim.Interaction.WorldMousePos);
     }
 
     private void aNDToolStripMenuItem_Click(object sender, EventArgs e)
     {
-        sim.Circuit.CreateNode<AndGate>(sim.Interaction.WorldMousePos);
+        sim.Circuit.Nodes.Create<AndGate>(sim.Interaction.WorldMousePos);
     }
 
     private void nOTToolStripMenuItem_Click(object sender, EventArgs e)
     {
-        sim.Circuit.CreateNode<NotGate>(sim.Interaction.WorldMousePos);
+        sim.Circuit.Nodes.Create<NotGate>(sim.Interaction.WorldMousePos);
     }
 
     private void xORToolStripMenuItem_Click(object sender, EventArgs e)
     {
-        sim.Circuit.CreateNode<XorGate>(sim.Interaction.WorldMousePos);
+        sim.Circuit.Nodes.Create<XorGate>(sim.Interaction.WorldMousePos);
     }
 
     private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -156,17 +184,17 @@ public partial class MainWindow : Form
 
     private void nANDToolStripMenuItem_Click(object sender, EventArgs e)
     {
-        sim.Circuit.CreateNode<NAndGate>(sim.Interaction.WorldMousePos);
+        sim.Circuit.Nodes.Create<NAndGate>(sim.Interaction.WorldMousePos);
     }
 
     private void nORToolStripMenuItem_Click(object sender, EventArgs e)
     {
-        sim.Circuit.CreateNode<NOrGate>(sim.Interaction.WorldMousePos);
+        sim.Circuit.Nodes.Create<NOrGate>(sim.Interaction.WorldMousePos);
     }
 
     private void xNORToolStripMenuItem_Click(object sender, EventArgs e)
     {
-        sim.Circuit.CreateNode<XNorGate>(sim.Interaction.WorldMousePos);
+        sim.Circuit.Nodes.Create<XNorGate>(sim.Interaction.WorldMousePos);
     }
 
     private void MainWindow_Load(object sender, EventArgs e)
@@ -191,22 +219,27 @@ public partial class MainWindow : Form
 
     private void bUFToolStripMenuItem_Click(object sender, EventArgs e)
     {
-        sim.Circuit.CreateNode<BufferGate>(sim.Interaction.WorldMousePos);
+        sim.Circuit.Nodes.Create<BufferGate>(sim.Interaction.WorldMousePos);
     }
 
     private void triStateToolStripMenuItem_Click(object sender, EventArgs e)
     {
-        sim.Circuit.CreateNode<TriState>(sim.Interaction.WorldMousePos);
+        sim.Circuit.Nodes.Create<TriState>(sim.Interaction.WorldMousePos);
     }
 
     private void pullUpToolStripMenuItem_Click(object sender, EventArgs e)
     {
-        sim.Circuit.CreateNode<PullUp>(sim.Interaction.WorldMousePos);
+        sim.Circuit.Nodes.Create<PullUp>(sim.Interaction.WorldMousePos);
     }
 
     private void pullDownToolStripMenuItem_Click(object sender, EventArgs e)
     {
-        sim.Circuit.CreateNode<PullDown>(sim.Interaction.WorldMousePos);
+        sim.Circuit.Nodes.Create<PullDown>(sim.Interaction.WorldMousePos);
+    }
+
+    private void canvas_MouseEnter(object sender, EventArgs e)
+    {
+        canvas.Focus();
     }
 }
 

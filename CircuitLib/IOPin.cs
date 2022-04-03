@@ -12,6 +12,7 @@ namespace CircuitLib;
 
 public abstract class IOPin : Pin
 {
+    
     public IOPin() : base() { }
     public IOPin(Node owner) : base(owner) { }
     public IOPin(Node owner, float x, float y) : base(owner, x, y) { }
@@ -65,7 +66,7 @@ public abstract class IOPin : Pin
     {
         if (ConnectedNetwork == null)
         {
-            var net = Owner.Owner.CreateNet();
+            var net = Owner.Owner.Networks.Create();
             net.Add(this);
         }
 
@@ -76,7 +77,7 @@ public abstract class IOPin : Pin
     {
         if (ConnectedNetwork == null)
         {
-            var net = Owner.Owner.CreateNet();
+            var net = Owner.Owner.Networks.Create();
             net.Add(this);
         }
 

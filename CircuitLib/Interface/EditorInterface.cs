@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 using System.Drawing;
 using System.Numerics;
 using CircuitLib.Math;
+using CircuitLib.Serialization;
+using System.IO;
+using GGL.IO;
 
 namespace CircuitLib.Interface;
 
@@ -47,6 +50,7 @@ public class EditorInterface
     public Vector2 WorldMouseUpPos = Vector2.Zero;
 
     private int mouseMoveCounter = 0;
+    private byte[] internalClipboard;
 
     public Entity DownEntity {
         private set; get; 
@@ -244,20 +248,45 @@ public class EditorInterface
         Selection.ClearSelection();
     }
 
-    public void CopySelection()
+    public byte[] CopySelection()
     {
-    
+        using var stream = new MemoryStream();
+        using var bw = new BinaryViewWriter(stream);
+
+        SerializatioUtils.WriteCircuitSection(bw, Selection.SelectedEntities);
+
+        var bytes = stream.ToArray();
+
+        internalClipboard = bytes;
+        return bytes;
     }
 
-    public void CutSelection()
+    public byte[] CutSelection()
     {
-        CopySelection();
+        var result = CopySelection();
         DestroySelection();
+        return result;
+    }
+
+    public void Paste(Vector2 pos, byte[] buffer)
+    {
+        using var stream = new MemoryStream(buffer);
+        using var br = new BinaryViewReader(stream);
+
+        var selection = DeserializationUtils.ReadSectionToCircuit(br, Circuit);
+
+        Selection.ClearSelection();
+
+        foreach (var obj in selection)
+        {
+            Selection.Add(obj);
+            obj.Position += pos.Round();
+        }
     }
 
     public void Paste(Vector2 pos)
     {
-
+        Paste(pos, internalClipboard);
     }
 
     public void Clear()
@@ -282,7 +311,7 @@ public class EditorInterface
         var obj = Circuit.GetAt(pos);
 
         return obj switch {
-            null => Circuit.CreateNet().CreatePin(pos.Round()),
+            null => Circuit.Networks.Create().CreatePin(pos.Round()),
             Pin => (Pin)obj,
             Wire => ((Wire)obj).InsertPinAt(pos),
             _ => null,
