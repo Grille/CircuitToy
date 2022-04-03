@@ -9,7 +9,7 @@ using CircuitLib.Math;
 
 namespace CircuitLib;
 
-public class Network : AsyncUpdatableEntity
+public class Network : Entity
 {
     public new Circuit Owner {
         get {
@@ -133,7 +133,6 @@ public class Network : AsyncUpdatableEntity
     //public static Network Ground = new Network();
     public void Add(Pin pin)
     {
-        WaitIdle();
         if (pin is InputPin)
         {
             var inPin = (InputPin)pin;
@@ -258,7 +257,6 @@ public class Network : AsyncUpdatableEntity
 
     public override void Destroy()
     {
-        ForceIdle();
 
         enableSpilt = false;
 
@@ -309,7 +307,6 @@ public class Network : AsyncUpdatableEntity
 
     private void removeFromList(Pin pin)
     {
-        WaitIdle();
         if (pin is InputPin)
         {
             var inPin = (InputPin)pin;
@@ -364,7 +361,7 @@ public class Network : AsyncUpdatableEntity
         }
     }
 
-    protected override void OnUpdate()
+    public void Update()
     {
         var oldState = State;
         int outCount = OutputPins.Count;
@@ -469,15 +466,8 @@ public class Network : AsyncUpdatableEntity
     {
         var sb = new StringBuilder();
 
-        sb.AppendLine($"Network::{GetType().Name}");
-        sb.AppendLine($"Task.Exists: {UpdateTask != null}");
-        sb.AppendLine($"Semaphores:");
-        sb.AppendLine($" - UpdateState: {UpdateState}");
-        sb.AppendLine($"Stats:");
-        sb.AppendLine($" - UpdateCount: {StatsUpdatesCount}");
-        sb.AppendLine($"    - Discarded: {StatsUpdatesDiscardCount}");
-        sb.AppendLine($"    - Queued:    {StatsUpdatesQueuedCount}");
-        sb.AppendLine($"    - Run:       {StatsUpdatesRunCount}");
+        sb.AppendLine($"Network::{GetType().Name} ID[{ID}] N:{Name}");
+
 
         return sb.ToString();
     }

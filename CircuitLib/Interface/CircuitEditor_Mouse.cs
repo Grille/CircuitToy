@@ -3,76 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Drawing;
 using System.Numerics;
-using CircuitLib.Math;
-using CircuitLib.Serialization;
-using System.IO;
-using GGL.IO;
 
 namespace CircuitLib.Interface;
 
-public enum ToolMode
+public partial class CircuitEditor
 {
-    SelectAndMove,
-    AddWire,
-    OnOff,
-}
-
-public enum EditorState
-{
-    None,
-    Selecting,
-    Moving,
-    Wireing,
-}
-
-public class EditorInterface
-{
-
-
-    public Circuit Circuit;
-    public Camera Camera;
-    public Selection Selection;
-
-    public ToolMode Mode = ToolMode.SelectAndMove;
-    public EditorState State = EditorState.None;
-
-    private bool isClick = false;
-
-    public bool IsShiftKeyDown = false;
-    public bool IsCtrlKeyDown = false;
-    public bool IsAltKeyDown = false;
-
-    public Vector2 ScreenMousePos = Vector2.Zero;
-    public Vector2 WorldMousePos = Vector2.Zero;
-    public Vector2 WorldMouseDownPos = Vector2.Zero;
-    public Vector2 WorldMouseUpPos = Vector2.Zero;
-
-    private int mouseMoveCounter = 0;
-    private byte[] internalClipboard;
-
-    public Entity DownEntity {
-        private set; get; 
-    }
-
-    public Entity UpEntity {
-        private set; get;
-    }
-
-    public EditorInterface(Circuit circuit, Camera camera)
-    {
-        Circuit = circuit;
-        Camera = camera;
-        Selection = new Selection(circuit);  
-    }
-
-    public bool IsMoving {
-        get {
-            return State == EditorState.Moving;
-        }
-    }
-
     public void MouseDown(Vector2 location, bool left)
     {
         WorldMouseDownPos = WorldMousePos;
@@ -119,13 +55,11 @@ public class EditorInterface
                 }
                 else if (Selection.SingleMode == SelectionMode.Set && DownEntity.IsSelected)
                 {
-                    Console.WriteLine("grap");
                     isClick = false;
                     State = EditorState.Moving;
                 }
                 else
                 {
-                    Console.WriteLine("select");
                     Selection.SelectAt(WorldMousePos);
                     isClick = false;
                     State = EditorState.Moving;
@@ -157,9 +91,6 @@ public class EditorInterface
         {
             if (left)
             {
-
-                Console.WriteLine(State);
-
                 if (State == EditorState.Selecting)
                 {
                     Selection.SelectAreaMove(WorldMousePos);
@@ -171,7 +102,7 @@ public class EditorInterface
                 }
 
             }
-        } 
+        }
 
         if (doHover)
             Selection.HoverAt(WorldMousePos);
@@ -194,7 +125,7 @@ public class EditorInterface
                         break;
 
                     case EditorState.Moving:
-                        Selection.ApplyOffset();
+                        PushAction(new ActionApplyOffset());
                         break;
                 }
 
@@ -208,6 +139,8 @@ public class EditorInterface
                     {
                         if (pinPosValid(WorldMouseDownPos) && pinPosValid(WorldMouseUpPos))
                         {
+                            BackupAction();
+
                             var pin0 = getPin(WorldMouseDownPos);
                             var pin1 = getPin(WorldMouseUpPos);
 
@@ -226,96 +159,10 @@ public class EditorInterface
                         downObj.ClickAction();
 
                 break;
-            }    
+            }
         }
 
         State = EditorState.None;
 
     }
-
-    public void KeyDown(int keycode)
-    {
-
-    }
-
-    public void DestroySelection()
-    {
-        foreach (var obj in Selection.SelectedEntities)
-        {
-            Console.WriteLine(obj.ToString());
-            obj.Destroy();
-        }
-        Selection.ClearSelection();
-    }
-
-    public byte[] CopySelection()
-    {
-        using var stream = new MemoryStream();
-        using var bw = new BinaryViewWriter(stream);
-
-        SerializatioUtils.WriteCircuitSection(bw, Selection.SelectedEntities);
-
-        var bytes = stream.ToArray();
-
-        internalClipboard = bytes;
-        return bytes;
-    }
-
-    public byte[] CutSelection()
-    {
-        var result = CopySelection();
-        DestroySelection();
-        return result;
-    }
-
-    public void Paste(Vector2 pos, byte[] buffer)
-    {
-        using var stream = new MemoryStream(buffer);
-        using var br = new BinaryViewReader(stream);
-
-        var selection = DeserializationUtils.ReadSectionToCircuit(br, Circuit);
-
-        Selection.ClearSelection();
-
-        foreach (var obj in selection)
-        {
-            Selection.Add(obj);
-            obj.Position += pos.Round();
-        }
-    }
-
-    public void Paste(Vector2 pos)
-    {
-        Paste(pos, internalClipboard);
-    }
-
-    public void Clear()
-    {
-        Selection.ClearSelection();
-    }
-
-    bool pinPosValid(Vector2 pos)
-    {
-        var obj = Circuit.GetAt(pos);
-
-        return obj switch {
-            null => true,
-            Pin => true,
-            Wire => true,
-            _ => false,
-        };
-    }
-
-    Pin getPin(Vector2 pos)
-    {
-        var obj = Circuit.GetAt(pos);
-
-        return obj switch {
-            null => Circuit.Networks.Create().CreatePin(pos.Round()),
-            Pin => (Pin)obj,
-            Wire => ((Wire)obj).InsertPinAt(pos),
-            _ => null,
-        };
-    }
 }
-

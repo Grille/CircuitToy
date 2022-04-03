@@ -56,7 +56,13 @@ public class NetPin : Pin
 
     public override string GetDebugStr()
     {
-        return Owner.GetDebugStr();
+        var sb = new StringBuilder();
+
+        sb.AppendLine($"Pin::{GetType().Name} ID[{ID}] N:{Name}");
+        if (Owner != null)
+            sb.Append(Owner.GetDebugStr());
+
+        return sb.ToString();
     }
 }
 

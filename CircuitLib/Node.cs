@@ -33,7 +33,8 @@ public abstract class Node : AsyncUpdatableEntity
 
     private Vector2 _size;
 
-    int statsOutSignalCount = 0;
+    int statsOutSignalSendCount = 0;
+    int statsOutSignalDiscardedCout = 0;
 
     public Vector2 Size {
         get { return _size; }
@@ -72,7 +73,11 @@ public abstract class Node : AsyncUpdatableEntity
         {
             OutputPins[outid].State = OutputStateBuffer[outid];
             OutputPins[outid].ConnectedNetwork?.Update();
-            statsOutSignalCount++;
+            statsOutSignalSendCount++;
+        }
+        else
+        {
+            statsOutSignalDiscardedCout++;
         }
     }
     public void SendOutputSignal()
@@ -311,7 +316,7 @@ public abstract class Node : AsyncUpdatableEntity
         var sb = new StringBuilder();
 
 
-        sb.AppendLine($"Node::{GetType().Name}");
+        sb.AppendLine($"Node::{GetType().Name} ID[{ID}] N:{Name} D:{DisplayName}");
         sb.AppendLine($"Pos: {Position}");
         sb.AppendLine($"Task.Exists: {UpdateTask != null}");
         sb.AppendLine($"Semaphores:");
@@ -321,7 +326,9 @@ public abstract class Node : AsyncUpdatableEntity
         sb.AppendLine($"    - Discarded: {StatsUpdatesDiscardCount}");
         sb.AppendLine($"    - Queued:    {StatsUpdatesQueuedCount}");
         sb.AppendLine($"    - Run:       {StatsUpdatesRunCount}");
-        sb.AppendLine($" - OutSignalCount: {statsOutSignalCount}");
+        sb.AppendLine($" - OutSignalCount: {statsOutSignalSendCount + statsOutSignalDiscardedCout}");
+        sb.AppendLine($"    - Discarded: {statsOutSignalDiscardedCout}");
+        sb.AppendLine($"    - Send:      {statsOutSignalSendCount}");
         sb.AppendLine($"");
 
         return sb.ToString();

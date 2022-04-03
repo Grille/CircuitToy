@@ -8,6 +8,7 @@ namespace CircuitLib;
 
 public abstract class AsyncUpdatableEntity : Entity
 {
+    protected Task WaitTask = null;
     protected Task UpdateTask = null;
     protected UpdateTaskState UpdateState = UpdateTaskState.Idle;
 
@@ -31,7 +32,7 @@ public abstract class AsyncUpdatableEntity : Entity
             {
                 StatsUpdatesQueuedCount++;
                 UpdateState = UpdateTaskState.Waiting;
-                Task.Run(() => {
+                WaitTask = Task.Run(() => {
                     UpdateTask?.Wait();
                     UpdateState = UpdateTaskState.Running;
                     runUpdateTask();

@@ -29,7 +29,9 @@ public abstract class Entity
     public bool IsVisible = true;
     public bool IsSelected = false;
 
-    public int ID = -1;
+    private static int globalID = 0;
+    public int ID = globalID += 1;
+
     public string Name = "";
     public string Description = "";
 

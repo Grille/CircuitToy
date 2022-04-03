@@ -15,7 +15,7 @@ namespace CircuitLib.Serialization;
 public static class DeserializationUtils
 {
 
-    public static List<Entity> ReadSectionToCircuit(BinaryViewReader br, Circuit circuit)
+    public static List<Entity> ReadClipboardToCircuit(BinaryViewReader br, Circuit circuit)
     {
         var nodes = new List<Node>();
         var pins = new List<NetPin>();

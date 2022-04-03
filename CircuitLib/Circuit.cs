@@ -183,11 +183,6 @@ public class Circuit : Node
         {
             node.ForceIdle();
         }
-
-        foreach (var net in Networks)
-        {
-            net.ForceIdle();
-        }
     }
 
     public override void WaitIdle()
@@ -199,11 +194,6 @@ public class Circuit : Node
             foreach (var node in Nodes)
             {
                 node.WaitIdle();
-            }
-
-            foreach (var net in Networks)
-            {
-                net.WaitIdle();
             }
         }
     }

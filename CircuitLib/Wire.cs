@@ -116,7 +116,7 @@ public class Wire : Entity
     {
         var sb = new StringBuilder();
 
-        sb.AppendLine($"Wire::{Name}");
+        sb.AppendLine($"Wire::{GetType().Name} ID[{ID}] N:{Name}");
         if (Owner != null)
             sb.Append(Owner.GetDebugStr());
 

@@ -13,7 +13,7 @@ namespace CircuitLib.Serialization;
 
 public static class SerializatioUtils
 {
-    public static void WriteCircuitSection(BinaryViewWriter bw, IList<Entity> entities)
+    public static void WriteClipboard(BinaryViewWriter bw, IList<Entity> entities)
     {
         var nodes = new List<Node>();
         var pins = new List<Pin>();

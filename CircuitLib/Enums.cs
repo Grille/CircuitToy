@@ -12,14 +12,7 @@ public enum State
     High,
     Off,
     Error,
-}
-
-public enum NodeTaskState
-{
-    Idle,
-    Start,
-    Refresh,
-    Running,
+    Invalid,
 }
 
 public enum UpdateTaskState

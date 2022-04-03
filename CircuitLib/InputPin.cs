@@ -42,7 +42,7 @@ public class InputPin : IOPin
 
         int index = Array.IndexOf(Owner.InputPins, this);
 
-        sb.AppendLine($"Pin::{GetType().Name}");
+        sb.AppendLine($"Pin::{GetType().Name} ID[{ID}] N:{Name}");
         sb.AppendLine($"Buffer-Value: {Owner.InputStateBuffer[index]}");
         if (ConnectedNetwork != null)
             sb.Append(ConnectedNetwork.GetDebugStr());

@@ -202,7 +202,6 @@ public class Selection
 
     public void ApplyOffset()
     {
-        Console.WriteLine("Apply");
         foreach (var obj in SelectedEntities)
         {
             bool apply = true;
@@ -214,7 +213,6 @@ public class Selection
 
             if (apply)
             {
-                Console.WriteLine($"+ x{Offset.X},y{Offset.Y}");
                 obj.Position = new Vector2(obj.Position.X + Offset.X, obj.Position.Y + Offset.Y);
                 obj.RoundPosition();
             }
@@ -231,7 +229,6 @@ public class Selection
 
             if (apply)
             {
-                Console.WriteLine($"+ x{Offset.X},y{Offset.Y}");
                 obj.Position = new Vector2(obj.Position.X + Offset.X, obj.Position.Y + Offset.Y);
                 obj.RoundPosition();
             }
@@ -241,7 +238,7 @@ public class Selection
         Offset = Vector2.Zero;
     }
 
-    private void ProcessSeclection()
+    public void ProcessSeclection()
     {
         ClearIndirectSelection();
 

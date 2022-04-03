@@ -19,7 +19,7 @@ public class Renderer
 
     Camera camera;
     Theme theme;
-    EditorInterface editor;
+    CircuitEditor editor;
     Selection selection;
 
     Circuit circuit;
@@ -36,14 +36,14 @@ public class Renderer
         }
     }
 
-    public Renderer(IRendererBackend renderBackend, Camera camera, Theme theme, EditorInterface editor, Circuit circuit)
+    public Renderer(IRendererBackend renderBackend, Theme theme, CircuitEditor editor)
     {
         ctx = renderBackend;
 
-        this.camera = camera;
+        camera = editor.Camera;
         this.theme = theme;
         this.editor = editor;
-        this.circuit = circuit;
+        circuit = editor.Circuit;
         selection = this.editor.Selection;
 
         palette = new PaintPalette();

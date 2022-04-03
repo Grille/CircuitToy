@@ -23,7 +23,7 @@ internal class Simulation
     public RendererGdiBackend RendererBackend;
     public Renderer Renderer;
     public Control Target;
-    public EditorInterface Interaction;
+    public CircuitEditor Editor;
     public Theme Theme;
 
     string path = "newcircuit.lcp";
@@ -112,11 +112,11 @@ internal class Simulation
 
 
         Camera = new Camera();
-        Interaction = new EditorInterface(Circuit, Camera);
+        Editor = new CircuitEditor(Circuit, Camera);
 
 
         RendererBackend = new RendererGdiBackend();
-        Renderer = new Renderer(RendererBackend, Camera, Theme, Interaction, Circuit);
+        Renderer = new Renderer(RendererBackend, Theme, Editor);
 
         //Renderer.DebugMode = false;
         //Renderer.Start();
@@ -164,11 +164,11 @@ internal class Simulation
     {
         Circuit?.Destroy();
         Circuit = circuit;
-        Interaction.Circuit = circuit;
-        Interaction.Selection.Circuit = circuit;
+        Editor.Circuit = circuit;
+        Editor.Selection.Circuit = circuit;
         Renderer.Circuit = circuit;
 
-        Interaction.Clear();
+        Editor.Clear();
         
     }
 
@@ -185,16 +185,16 @@ internal class Simulation
     private void Target_MouseMove(object sender, MouseEventArgs e)
     {
         Camera.MouseMoveEvent((Vector2)(PointF)e.Location, e.Button.HasFlag(MouseButtons.Middle));
-        Interaction.MouseMove((Vector2)(PointF)e.Location, e.Button.HasFlag(MouseButtons.Left));
+        Editor.MouseMove((Vector2)(PointF)e.Location, e.Button.HasFlag(MouseButtons.Left));
     }
 
     private void Target_MouseDown(object sender, MouseEventArgs e)
     {
-        Interaction.MouseDown((Vector2)(PointF)e.Location, e.Button.HasFlag(MouseButtons.Left));
+        Editor.MouseDown((Vector2)(PointF)e.Location, e.Button.HasFlag(MouseButtons.Left));
     }
 
     private void Target_MouseUp(object sender, MouseEventArgs e)
     {
-        Interaction.MouseUp((Vector2)(PointF)e.Location, e.Button.HasFlag(MouseButtons.Left));
+        Editor.MouseUp((Vector2)(PointF)e.Location, e.Button.HasFlag(MouseButtons.Left));
     }
 }

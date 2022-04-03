@@ -12,6 +12,7 @@ public partial class MainWindow : Form
     public MainWindow()
     {
         InitializeComponent();
+        KeyPreview = true;
         DoubleBuffered = true;
 
         sim = new Simulation(this, canvas);
@@ -33,92 +34,116 @@ public partial class MainWindow : Form
         treeView1.Nodes.Add("std");
     }
 
+    protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+    {
+        if (canvas.Focused)
+        {
+            if (keyData == (Keys.Control | Keys.C))
+            {
+                Console.WriteLine("copy");
+                var result = sim.Editor.CopySelection();
+                var data = new DataObject();
+                data.SetData(result);
+                Clipboard.SetDataObject(data, true);
+
+                return true;
+            }
+
+            if (keyData == (Keys.Control | Keys.X))
+            {
+                var result = sim.Editor.CutSelection();
+                var data = new DataObject();
+                data.SetData(result);
+                Clipboard.SetDataObject(data, true);
+
+                return true;
+            }
+
+            if (keyData == (Keys.Control | Keys.V))
+            {
+                var data = Clipboard.GetDataObject() as DataObject;
+                if (data == null || !data.GetDataPresent(typeof(byte[])))
+                    return false;
+                var buffer = data.GetData(typeof(byte[])) as byte[];
+                sim.Editor.Paste(buffer);
+
+                return true;
+            }
+
+            if (keyData == (Keys.Control | Keys.Z))
+            {
+                sim.Editor.Undo();
+
+                return true;
+            }
+
+            if (keyData == (Keys.Control | Keys.Y))
+            {
+                sim.Editor.Redo();
+
+                return true;
+            }
+        }
+        return base.ProcessCmdKey(ref msg, keyData);
+    }
+
     private void MainWindow_KeyDown(object sender, KeyEventArgs e)
     {
         if (e.KeyCode.HasFlag(Keys.ShiftKey))
-            sim.Interaction.IsShiftKeyDown = true;
+            sim.Editor.IsShiftKeyDown = true;
 
         if (e.KeyCode.HasFlag(Keys.ControlKey))
-            sim.Interaction.IsCtrlKeyDown = true;
+            sim.Editor.IsCtrlKeyDown = true;
 
         if (e.KeyCode.HasFlag(Keys.Alt))
-            sim.Interaction.IsAltKeyDown = true;
+            sim.Editor.IsAltKeyDown = true;
 
         if (e.KeyCode.HasFlag(Keys.Delete))
         {
-            sim.Interaction.DestroySelection();
+            sim.Editor.DestroySelection();
         }
-
     }
 
     private void MainWindow_KeyUp(object sender, KeyEventArgs e)
     {
         if (e.KeyCode.HasFlag(Keys.ShiftKey))
-            sim.Interaction.IsShiftKeyDown = false;
+            sim.Editor.IsShiftKeyDown = false;
 
         if (e.KeyCode.HasFlag(Keys.ControlKey))
-            sim.Interaction.IsCtrlKeyDown = false;
+            sim.Editor.IsCtrlKeyDown = false;
 
         if (e.KeyCode.HasFlag(Keys.Alt))
-            sim.Interaction.IsAltKeyDown = false;
-
-        if (canvas.Focused)
-        {
-            if (e.KeyCode == Keys.X && e.Modifiers == Keys.Control)
-            {
-                var result = sim.Interaction.CutSelection();
-                var data = new DataObject();
-                data.SetData(result);
-                Clipboard.SetDataObject(data, true);
-            }
-
-            if (e.KeyCode == Keys.C && e.Modifiers == Keys.Control)
-            {
-                var result = sim.Interaction.CopySelection();
-                var data = new DataObject();
-                data.SetData(result);
-                Clipboard.SetDataObject(data, true);
-            }
-
-            if (e.KeyCode == Keys.V && e.Modifiers == Keys.Control)
-            {
-                var data = Clipboard.GetDataObject() as DataObject;
-                if (data == null || !data.GetDataPresent(typeof(byte[])))
-                    return;
-                var buffer = data.GetData(typeof(byte[])) as byte[];
-                sim.Interaction.Paste(sim.Interaction.WorldMousePos, buffer);
-            }
-        }
+            sim.Editor.IsAltKeyDown = false;
     }
 
     private void iNToolStripMenuItem_Click(object sender, EventArgs e)
     {
-        sim.Circuit.Nodes.Create<Input>(sim.Interaction.WorldMousePos);
+        sim.Editor.CreateNode<Input>();
     }
 
     private void oUTToolStripMenuItem_Click(object sender, EventArgs e)
     {
-        sim.Circuit.Nodes.Create<Output>(sim.Interaction.WorldMousePos);
+        sim.Editor.CreateNode<Output>();
     }
 
     private void oRToolStripMenuItem_Click(object sender, EventArgs e)
     {
-        sim.Circuit.Nodes.Create<OrGate>(sim.Interaction.WorldMousePos);
+        sim.Editor.CreateNode<OrGate>();
     }
 
     private void aNDToolStripMenuItem_Click(object sender, EventArgs e)
     {
-        sim.Circuit.Nodes.Create<AndGate>(sim.Interaction.WorldMousePos);
+        sim.Editor.CreateNode<AndGate>();
     }
 
     private void nOTToolStripMenuItem_Click(object sender, EventArgs e)
     {
-        sim.Circuit.Nodes.Create<NotGate>(sim.Interaction.WorldMousePos);
+        sim.Editor.CreateNode<NotGate>();
     }
 
     private void xORToolStripMenuItem_Click(object sender, EventArgs e)
     {
-        sim.Circuit.Nodes.Create<XorGate>(sim.Interaction.WorldMousePos);
+        sim.Editor.CreateNode<XorGate>();
     }
 
     private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -163,7 +188,7 @@ public partial class MainWindow : Form
         toolStripBtnMove.Checked = true;
         toolStripBtnWire.Checked = false;
         toolStripBtnOnoff.Checked = false;
-        sim.Interaction.Mode = ToolMode.SelectAndMove;
+        sim.Editor.Mode = ToolMode.SelectAndMove;
     }
 
     private void toolStripBtnWire_Click(object sender, EventArgs e)
@@ -171,7 +196,7 @@ public partial class MainWindow : Form
         toolStripBtnMove.Checked = false;
         toolStripBtnWire.Checked = true;
         toolStripBtnOnoff.Checked = false;
-        sim.Interaction.Mode = ToolMode.AddWire;
+        sim.Editor.Mode = ToolMode.AddWire;
     }
 
     private void toolStripBtnOnoff_Click(object sender, EventArgs e)
@@ -179,22 +204,22 @@ public partial class MainWindow : Form
         toolStripBtnMove.Checked = false;
         toolStripBtnWire.Checked = false;
         toolStripBtnOnoff.Checked = true;
-        sim.Interaction.Mode = ToolMode.OnOff;
+        sim.Editor.Mode = ToolMode.OnOff;
     }
 
     private void nANDToolStripMenuItem_Click(object sender, EventArgs e)
     {
-        sim.Circuit.Nodes.Create<NAndGate>(sim.Interaction.WorldMousePos);
+        sim.Editor.CreateNode<NAndGate>();
     }
 
     private void nORToolStripMenuItem_Click(object sender, EventArgs e)
     {
-        sim.Circuit.Nodes.Create<NOrGate>(sim.Interaction.WorldMousePos);
+        sim.Editor.CreateNode<NOrGate>();
     }
 
     private void xNORToolStripMenuItem_Click(object sender, EventArgs e)
     {
-        sim.Circuit.Nodes.Create<XNorGate>(sim.Interaction.WorldMousePos);
+        sim.Editor.CreateNode<XNorGate>();
     }
 
     private void MainWindow_Load(object sender, EventArgs e)
@@ -219,27 +244,32 @@ public partial class MainWindow : Form
 
     private void bUFToolStripMenuItem_Click(object sender, EventArgs e)
     {
-        sim.Circuit.Nodes.Create<BufferGate>(sim.Interaction.WorldMousePos);
+        sim.Editor.CreateNode<BufferGate>();
     }
 
     private void triStateToolStripMenuItem_Click(object sender, EventArgs e)
     {
-        sim.Circuit.Nodes.Create<TriState>(sim.Interaction.WorldMousePos);
+        sim.Editor.CreateNode<TriState>();
     }
 
     private void pullUpToolStripMenuItem_Click(object sender, EventArgs e)
     {
-        sim.Circuit.Nodes.Create<PullUp>(sim.Interaction.WorldMousePos);
+        sim.Editor.CreateNode<PullUp>();
     }
 
     private void pullDownToolStripMenuItem_Click(object sender, EventArgs e)
     {
-        sim.Circuit.Nodes.Create<PullDown>(sim.Interaction.WorldMousePos);
+        sim.Editor.CreateNode<PullDown>();
     }
 
     private void canvas_MouseEnter(object sender, EventArgs e)
     {
         canvas.Focus();
+    }
+
+    private void MainWindow_KeyPress(object sender, KeyPressEventArgs e)
+    {
+
     }
 }
 
