@@ -20,6 +20,7 @@ public record class Theme
     public Color SceneGridColor;
 
     public Color NodeBackColor;
+    public Color NodeBorderColor;
     public Color NodeTextColor;
 
     public Color StateLowColor;

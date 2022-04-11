@@ -9,7 +9,7 @@ using CircuitLib.Math;
 
 namespace CircuitLib;
 
-public class Network : Entity
+public partial class Network : AsyncUpdatableEntity
 {
     public new Circuit Owner {
         get {
@@ -20,13 +20,12 @@ public class Network : Entity
         }
     }
 
-    public List<InputPin> InputPins = new List<InputPin>();
-    public List<OutputPin> OutputPins = new List<OutputPin>();
-    public List<NetPin> GuardPins = new List<NetPin>();
-    public List<Pin> AllPins = new List<Pin>();
-    public List<Wire> Wires = new List<Wire>();
+    public PinList Pins;
+    public WireList Wires;
 
-    private bool enableSpilt = true;
+    internal protected State[] InputStateBuffer;
+    private int editScope = 0;
+
     public override Vector2 Position {
         get { return Vector2.Zero; }
         set {  }
@@ -40,15 +39,13 @@ public class Network : Entity
 
     public Network()
     {
-    }
-
-    public Network(List<Pin> pins)
-    {
-
+        Pins = new PinList(this);
+        Wires = new WireList(this);
     }
 
     public void ConnectFromTo(Pin pin0, Pin pin1)
     {
+        BeginEdit();
 
         if (pin0 == pin1)
             return;
@@ -57,30 +54,30 @@ public class Network : Entity
         {
             var pin = (IOPin)pin1;
             if (pin.ConnectedNetwork == null)
-                Add(pin);
+                Pins.Add(pin);
             else if (pin.ConnectedNetwork != this)
                 Join(pin.ConnectedNetwork);
         }
-        else if (pin1 is NetPin)
+        else if (pin1 is WirePin)
         {
-            var pin = (NetPin)pin1;
+            var pin = (WirePin)pin1;
             if (pin.Owner == null)
-                Add(pin);
+                Pins.Add(pin);
             else if (pin.Owner != this)
                 Join(pin.Owner);
         }
         Wires.Add(new Wire(this, pin0, pin1));
 
-        Update();
+        EndEdit();
     }
     public void ConnectFromTo(Pin pin0, Vector2 pos1)
     {
-
+        BeginEdit();
         var entity = Owner.GetAt(pos1);
         if (entity == null)
         {
-            var rpos1 = new Vector2(MathF.Round(pos1.X), MathF.Round(pos1.Y));
-            var pin1 = CreatePin();
+            var rpos1 = pos1.Round();
+            var pin1 = Pins.Create();
             pin1.Position = rpos1;
             Wires.Add(new Wire(this, pin0, pin1));
         }
@@ -89,10 +86,12 @@ public class Network : Entity
             ConnectFromTo(pin0, (Pin)entity);
         }
 
-        Update();
+        EndEdit();
     }
     public void Disconnect(Pin pin0, Pin pin1)
     {
+        BeginEdit();
+
         bool found = false;
         for (int i = 0;i<pin0.ConnectedWires.Count;i++)
         {
@@ -106,91 +105,27 @@ public class Network : Entity
         if (!found)
             throw new InvalidOperationException("Pin not connectet");
 
-        //Split();
-    }
-
-    public NetPin CreatePin(Vector2 pos)
-    {
-        return CreatePin(pos.X, pos.Y);
-    }
-
-    public NetPin CreatePin(float x, float y)
-    {
-        var pin = new NetPin(this, x, y);
-        pin.CalcBoundings();
-        GuardPins.Add(pin);
-        AllPins.Add(pin);
-        return pin;
-    }
-    public NetPin CreatePin()
-    {
-        var pin = new NetPin(this);
-        pin.CalcBoundings();
-        GuardPins.Add(pin);
-        AllPins.Add(pin);
-        return pin;
-    }
-    //public static Network Ground = new Network();
-    public void Add(Pin pin)
-    {
-        if (pin is InputPin)
-        {
-            var inPin = (InputPin)pin;
-            if (inPin.ConnectedNetwork != null)
-                throw new InvalidOperationException($"InputPin already in other Network!");
-            if (InputPins.Contains(inPin))
-                throw new InvalidOperationException($"InputPin already in this Network!");
-            inPin.ConnectedNetwork = this;
-            InputPins.Add(inPin);
-            Update();
-        }
-        else if (pin is OutputPin)
-        {
-            var outPin = (OutputPin)pin;
-            if (outPin.ConnectedNetwork != null)
-                throw new InvalidOperationException($"OutputPin already in other Network!");
-            if (OutputPins.Contains(outPin))
-                throw new InvalidOperationException($"OutputPin already in this Network!");
-            outPin.ConnectedNetwork = this;
-            OutputPins.Add(outPin);
-            Update();
-        }
-        else if (pin is NetPin)
-        {
-            var netPin = (NetPin)pin;
-            if (netPin.Owner != null)
-                throw new InvalidOperationException($"Pin already has Owner!");
-            if (GuardPins.Contains(netPin))
-                throw new InvalidOperationException($"Pin already in this Network!");
-            netPin.Owner = this;
-            GuardPins.Add(netPin);
-        }
-        else
-        {
-            throw new ArgumentException($"Invalid Pin!");
-        }
-        AllPins.Add(pin);
-
-        CalcBoundings();
+        EndEdit();
     }
 
     public void Join(Network network)
     {
-        network.enableSpilt = false;
+        BeginEdit();
+        network.BeginEdit();
 
         if (network == this)
             throw new InvalidOperationException("Is same Network");
 
         var refPins = new List<Pin>();
-        foreach (var pin in network.AllPins)
+        foreach (var pin in network.Pins)
         {
             refPins.Add(pin);
         }
 
         foreach (var pin in refPins)
         {
-            network.removeFromList(pin);
-            Add(pin);
+            network.Pins.Remove(pin);
+            Pins.Add(pin);
         }
 
         var refWires = new List<Wire>();
@@ -206,27 +141,27 @@ public class Network : Entity
             wire.Owner = this;
         }
 
-
+        EndEdit();
+        network.EndEdit();
 
         network.Destroy();
-        CalcBoundings();
     }
 
     private void split()
     {
-        enableSpilt = false;
-
-        if (AllPins.Count == 0)
+        if (Pins.Count == 0)
         {
             Destroy();
             return;
         }
 
-        var connectetPins = AllPins[0].GetConnectedPins();
+        editScope++;
+
+        var connectetPins = Pins[0].GetConnectedPins();
         var disconnectetPins = new List<Pin>();
 
         var refPins = new List<Pin>();
-        foreach (var pin in AllPins)
+        foreach (var pin in Pins)
         {
             refPins.Add(pin);
         }
@@ -236,7 +171,7 @@ public class Network : Entity
             if (!connectetPins.Contains(pin))
             {
                 disconnectetPins.Add(pin);
-                removeFromList(pin);
+                Pins.Remove(pin);
             }
         }
 
@@ -245,30 +180,27 @@ public class Network : Entity
             var net = Owner.Networks.Create();
             foreach (var pin in disconnectetPins)
             {
-                net.Add(pin);
+                net.Pins.Add(pin);
             }
             net.overtakeWires();
             net.split();
         }
-        Update();
-
-        enableSpilt = true;
+        editScope--;
     }
 
     public override void Destroy()
     {
-
-        enableSpilt = false;
+        editScope++;
 
         var refPins = new List<Pin>();
-        foreach (var pin in AllPins)
+        foreach (var pin in Pins)
         {
             refPins.Add(pin);
         }
 
         foreach (var pin in refPins)
         {
-            removeFromList(pin);
+            Pins.Remove(pin);
         }
 
         var refWires = new List<Wire>();
@@ -280,95 +212,42 @@ public class Network : Entity
         foreach (var wire in refWires)
         {
             Wires.Remove(wire);
-            wire.Owner = this;
         }
+
+        editScope--;
 
         Owner.Networks.Remove(this);
         base.Destroy();
     }
 
-
-    public void Remove(Pin pin)
-    {
-        removeFromList(pin);
-        pin.DestroyConnections();
-        if (enableSpilt)
-            split();
-        CalcBoundings();
-    }
-
-    public void Remove(Wire wire)
-    {
-        removeFromList(wire);
-        if (enableSpilt)
-            split();
-        CalcBoundings();
-    }
-
-    private void removeFromList(Pin pin)
-    {
-        if (pin is InputPin)
-        {
-            var inPin = (InputPin)pin;
-            if (!InputPins.Contains(inPin))
-                throw new InvalidOperationException($"InputPin not in this Network!");
-            inPin.ConnectedNetwork = null;
-            InputPins.Remove(inPin);
-        }
-        else if (pin is OutputPin)
-        {
-            var outPin = (OutputPin)pin;
-            if (!OutputPins.Contains(outPin))
-                throw new InvalidOperationException($"OutputPin not in this Network!");
-            outPin.ConnectedNetwork = null;
-            OutputPins.Remove(outPin);
-        }
-        else if (pin is NetPin)
-        {
-            var netPin = (NetPin)pin;
-            if (!GuardPins.Contains(netPin))
-                throw new InvalidOperationException($"Pin not in this Network!");
-            netPin.Owner = null;
-            GuardPins.Remove(netPin);
-        }
-        else
-        {
-            throw new ArgumentException($"Invalid Pin!");
-        }
-        AllPins.Remove(pin);
-        CalcBoundings();
-    }
-
-    private void removeFromList(Wire wire)
-    {
-        Wires.Remove(wire);
-        wire.Owner = null;
-    }
-
     private void overtakeWires()
     {
-        foreach (Pin pin in AllPins)
+        foreach (Pin pin in Pins)
         {
             foreach (Wire wire in pin.ConnectedWires)
             {
                 if (wire.Owner != this)
                 {
-                    wire.Owner.removeFromList(wire);
+                    wire.Owner.Wires.Remove(wire);
                     Wires.Add(wire);
-                    wire.Owner = this;
                 }
             }
         }
     }
 
-    public void Update()
+    protected void PullInputValues()
+    {
+        
+    }
+    protected override void OnUpdate()
     {
         var oldState = State;
-        int outCount = OutputPins.Count;
+        int inCount = Pins.InputPins.Count;
+        int outCount = Pins.OutputPins.Count;
 
         if (outCount == 1)
         {
-            State = OutputPins[0].State;
+            State = Pins.OutputPins[0].State;
         }
         else { 
             State = State.Off;
@@ -376,13 +255,13 @@ public class Network : Entity
             int offCount = 0;
             int lowCount = 0;
             int highCount = 0;
-            int errorCount = 0;
+            int errorCount = 0; 
 
             for (int i = 0; i < outCount; i++)
             {
-                switch (OutputPins[i].State)
+                switch (Pins.OutputPins[i].State)
                 {
-                    case State.Off: offCount++; break;
+                    case State.Off: offCount++; break; 
                     case State.Low: lowCount++; break;
                     case State.High: highCount++; break;
                     case State.Error: errorCount++; break;
@@ -405,28 +284,37 @@ public class Network : Entity
         if (State == oldState)
             return;
 
-        foreach (var pin in InputPins)
+        for (int i = 0; i < inCount; i++)
         {
+            var pin = Pins.InputPins[i];
             pin.State = State;
+        }
+
+        for (int i = 0; i < inCount; i++)
+        {
+            var pin = Pins.InputPins[i];
             pin.Owner.Update();
         }
     }
 
     public override void CalcBoundings()
     {
-        if (AllPins.Count > 0)
+        if (Pins.Count > 0)
         {
-            Bounds = AllPins[0].Bounds;
-            for (int i = 1; i < AllPins.Count; i++)
+            Bounds = Pins[0].Bounds;
+            for (int i = 1; i < Pins.Count; i++)
             {
-                Bounds.ExtendWith(AllPins[i].Bounds);
+                Bounds.ExtendWith(Pins[i].Bounds);
             }
         }
     }
 
     public override Entity GetAt(Vector2 pos)
     {
-        foreach (var pin in AllPins)
+        if (!Bounds.IsInside(pos))
+            return null;
+
+        foreach (var pin in Pins)
         {
             var obj = pin.GetAt(pos);
             if (obj != null)
@@ -447,7 +335,10 @@ public class Network : Entity
 
     public override void GetFromArea(List<Entity> entities, BoundingBox region)
     {
-        foreach (var pin in AllPins)
+        if (!Bounds.IsColliding(region))
+            return;
+
+        foreach (var pin in Pins)
         {
             pin.GetFromArea(entities, region);
         }
@@ -455,6 +346,29 @@ public class Network : Entity
         {
             wire.GetFromArea(entities, region);
         }
+    }
+
+    public void Cleanup()
+    {
+        if (editScope > 0)
+            return;
+
+        split();
+        CalcBoundings();
+        Update();
+    }
+
+    public void BeginEdit()
+    {
+        editScope++;
+        WaitIdle();
+    }
+
+    public void EndEdit()
+    {
+        editScope--;
+        Cleanup();
+        
     }
 
     public void Reset(State state = State.Off)
@@ -467,6 +381,14 @@ public class Network : Entity
         var sb = new StringBuilder();
 
         sb.AppendLine($"Network::{GetType().Name} ID[{ID}] N:{Name}");
+        sb.AppendLine($"Task.Exists: {UpdateTask != null}");
+        sb.AppendLine($"Semaphores:");
+        sb.AppendLine($" - UpdateState: {UpdateState}");
+        sb.AppendLine($"Stats:");
+        sb.AppendLine($" - UpdateCount: {StatsUpdatesCount}");
+        sb.AppendLine($"    - Discarded: {StatsUpdatesDiscardCount}");
+        sb.AppendLine($"    - Queued:    {StatsUpdatesQueuedCount}");
+        sb.AppendLine($"    - Run:       {StatsUpdatesRunCount}");
 
 
         return sb.ToString();

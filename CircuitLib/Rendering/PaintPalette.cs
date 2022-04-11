@@ -17,6 +17,7 @@ internal class PaintPalette
     public int SceneGrid;
 
     public int NodeBack;
+    public int NodeBorder;
     public int NodeText;
 
     public int StateLow;
@@ -50,6 +51,7 @@ internal class PaintPalette
         SceneGrid = ctx.CreatePaint(theme.SceneGridColor);
 
         NodeBack = ctx.CreatePaint(theme.NodeBackColor);
+        NodeBorder = ctx.CreatePaint(theme.NodeBorderColor, Theme.WireWidth * cam.Scale);
         NodeText = ctx.CreateFontPaint(theme.NodeTextColor, 1 * cam.Scale, "consolas", Theme.NodeTextSize * cam.Scale);
 
         StateLow = ctx.CreatePaint(theme.StateLowColor, scaledWireWidth);

@@ -1,4 +1,6 @@
-﻿namespace CircuitLib_Tests;
+﻿using System.Collections.Generic;
+
+namespace CircuitLib_Tests;
 
 static class TUtils
 {
@@ -34,6 +36,7 @@ static class TUtils
     public static void WriteFail(string msg)
     {
         Write(msg, ConsoleColor.Magenta);
+        throw new NotImplementedException();
     }
     public static void WriteError(string msg)
     {
@@ -160,6 +163,26 @@ static class TUtils
         if (net.State != state)
         {
             WriteFail($"{msg}{net.Name} is {net.State}, expected {state}");
+            return true;
+        }
+        return false;
+    }
+
+    public static bool AssertListCount<T>(IList<T> list, int count, string msg = "")
+    {
+        if (list.Count != count)
+        {
+            WriteFail($"{msg}{typeof(T).Name} count is {list.Count}, expected {count}");
+            return true;
+        }
+        return false;
+    }
+
+    public static bool AssertValue<T>(T value0, T value1, string msg)
+    {
+        if (!value0.Equals(value1))
+        {
+            WriteFail($"{msg} is {value0}, expected {value1}");
             return true;
         }
         return false;

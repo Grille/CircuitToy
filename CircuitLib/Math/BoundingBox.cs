@@ -59,12 +59,12 @@ public struct BoundingBox
         EndY = pos.Y + radius;
     }
 
-    public BoundingBox(Vector2 begin, Vector2 end)
+    public BoundingBox(Vector2 begin, Vector2 end, float margin = 0)
     {
-        BeginX = begin.X;
-        BeginY = begin.Y;
-        EndX = end.X;
-        EndY = end.Y;
+        BeginX = MathF.Min(begin.X, end.X) - margin;
+        BeginY =  MathF.Min(begin.Y, end.Y) - margin;
+        EndX = MathF.Max(begin.X, end.X) + margin;
+        EndY = MathF.Max(begin.Y, end.Y) + margin;
     }
 
     public BoundingBox(float beginX, float beginY, float endX, float endY)
@@ -83,12 +83,25 @@ public struct BoundingBox
         EndY = MathF.Max(EndY, bounds.EndY);
     }
 
-    public void ExtendWidth(Vector2 pos)
+    public void ExtendWith(Vector2 pos)
     {
         BeginX = MathF.Min(BeginX, pos.X);
         BeginY = MathF.Min(BeginY, pos.Y);
         EndX = MathF.Max(EndX, pos.X);
         EndY = MathF.Max(EndY, pos.Y);
+    }
+
+    public void ExtendWith(Vector2 pos, float margin)
+    {
+        ExtendWith(new BoundingBox(pos, margin));
+    }
+
+    public void AddMargin(float margin)
+    {
+        BeginX -= margin;
+        BeginY -= margin;
+        EndX += margin;
+        EndY += margin;
     }
 
     public float getWidth()
@@ -113,10 +126,17 @@ public struct BoundingBox
     }
 
     public static explicit operator RectangleF(BoundingBox b)
+        => new RectangleF(b.BeginX, b.BeginY, b.getWidth(), b.getHeight());
+
+    public static implicit operator Vec2Rectangle(BoundingBox b)
+        => new Vec2Rectangle(b.Begin, b.Size);
+
+    public override string ToString()
     {
-        return new RectangleF(b.BeginX, b.BeginY, b.getWidth(), b.getHeight());
+        return $"<{BeginX},{BeginY}><{EndX},{EndY}>";
     }
 
-   
+
+
 }
 

@@ -9,11 +9,11 @@ using CircuitLib.Math;
 
 namespace CircuitLib;
 
-public class NetPin : Pin
+public class WirePin : Pin
 {
-    public NetPin(Network owner) : base(owner) { }
-    public NetPin(Network owner, float x, float y) : base(owner, x, y) { }
-    public NetPin(Node owner, Vector2 pos) : base(owner, pos) { }
+    public WirePin(Network owner) : base(owner) { }
+    public WirePin(Network owner, float x, float y) : base(owner, x, y) { }
+    public WirePin(Node owner, Vector2 pos) : base(owner, pos) { }
 
     public new Network Owner {
         get {
@@ -40,12 +40,6 @@ public class NetPin : Pin
     public override void ConnectTo(Vector2 pos)
     {
         Owner.ConnectFromTo(this, pos);
-    }
-
-    public override void Destroy()
-    {
-        Owner?.Remove(this);
-        base.Destroy();
     }
 
     public override void CalcBoundings()

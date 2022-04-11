@@ -20,6 +20,17 @@ public abstract class Node : AsyncUpdatableEntity
         }
     }
 
+    public bool IsFlippedX {
+        get; set;
+    }
+    public bool IsFlippedY {
+        get; set;
+    }
+
+    public float Rotation {
+        get; set;
+    }
+
     public string DisplayName;
 
     public InputPin[] InputPins;
@@ -38,7 +49,7 @@ public abstract class Node : AsyncUpdatableEntity
 
     public Vector2 Size {
         get { return _size; }
-        set { 
+        set {
             _size = value;
             CalcBoundings();
         }
@@ -130,19 +141,14 @@ public abstract class Node : AsyncUpdatableEntity
         else
         {
             var net = Owner.Networks.Create();
-            net.Add(outPin);
+            net.Pins.Add(outPin);
             net.ConnectFromTo(outPin, inPin);
         }
     }
 
     public override void CalcBoundings()
     {
-        var bounds = new BoundingBox(
-            _pos.X - _size.X / 2 -0.1f,
-            _pos.Y - _size.Y / 2 -0.1f,
-            _pos.X + _size.X / 2 + 0.1f,
-            _pos.Y + _size.Y / 2 + 0.1f
-        );
+        var bounds = new BoundingBox(_pos - _size / 2, _pos + _size / 2, 0.1f);
 
         ChipBounds = bounds;
 
@@ -166,6 +172,9 @@ public abstract class Node : AsyncUpdatableEntity
 
     public override Entity GetAt(Vector2 pos)
     {
+        if (!Bounds.IsInside(pos))
+            return null;
+
         if (Bounds.IsInside(pos))
         {
             foreach (var pin in OutputPins)
@@ -192,6 +201,9 @@ public abstract class Node : AsyncUpdatableEntity
 
     public override void GetFromArea(List<Entity> entities, BoundingBox region)
     {
+        if (!Bounds.IsColliding(region))
+            return;
+
         if (Bounds.IsColliding(region))
         {
             foreach (var pin in OutputPins)

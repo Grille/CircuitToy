@@ -156,7 +156,7 @@ public class Renderer
             StatsEntityDrawCount++;
         }
 
-        foreach (var pin in network.GuardPins)
+        foreach (var pin in network.Pins.NetPins)
         {
             var worldPos = pin.Position;
             if (pin.IsSelected)
@@ -222,6 +222,7 @@ public class Renderer
         var drawPos = screenPos - scrennHalfSize;
 
         ctx.FillRectangle(palette.NodeBack, drawPos, screenSize);
+        ctx.DrawRectangle(palette.NodeBorder, drawPos, screenSize);
         ctx.DrawText(palette.NodeText, node.DisplayName, drawPos, screenSize);
 
         StatsEntityDrawCount++;
@@ -295,7 +296,7 @@ public class Renderer
         var pos = camera.WorldToScreenSpace(pin.Position + offset);
         float rad = 0f;
 
-        if (pin is NetPin)
+        if (pin is WirePin)
         {
             if (pin.ConnectedWires.Count == 2)
             {

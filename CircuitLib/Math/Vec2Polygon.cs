@@ -7,8 +7,10 @@ using System.Numerics;
 
 namespace CircuitLib.Math;
 
-public class Vec2Polygon
+public class Vec2Polygon : Vec2Path
 {
-    public Vector2[] Points;
+    public Vec2Polygon(IList<Vector2> points) : base(points)
+    {
+    }
 }
 

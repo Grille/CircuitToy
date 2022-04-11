@@ -130,16 +130,7 @@ public class Selection
 
     public void SelectAreaMove(Vector2 pos)
     {
-        areaEnd = pos;
-
-        float minX = MathF.Min(areaStart.X, areaEnd.X);
-        float maxX = MathF.Max(areaStart.X, areaEnd.X);
-
-        float minY = MathF.Min(areaStart.Y, areaEnd.Y);
-        float maxY = MathF.Max(areaStart.Y, areaEnd.Y);
-
-        SelectetArea = new BoundingBox(minX, minY, maxX, maxY);
-
+        SelectetArea = new BoundingBox(areaStart, pos);
         HoverArea(SelectetArea);
     }
 

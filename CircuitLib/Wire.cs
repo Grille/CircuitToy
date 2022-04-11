@@ -47,21 +47,19 @@ public class Wire : Entity
     public override void CalcBoundings()
     {
         const float margin = 0.2f;
-        Bounds = new BoundingBox(
-            MathF.Min(StartPin.Position.X, EndPin.Position.X) - margin,
-            MathF.Min(StartPin.Position.Y, EndPin.Position.Y) - margin,
-            MathF.Max(StartPin.Position.X, EndPin.Position.X) + margin,
-            MathF.Max(StartPin.Position.Y, EndPin.Position.Y) + margin
-        );
+        Bounds = new BoundingBox(StartPin.Position, EndPin.Position, margin);
     }
 
     public override void Destroy()
     {
+        base.Destroy();
+
         StartPin.ConnectedWires.Remove(this);
         EndPin.ConnectedWires.Remove(this);
         if (EndPin.Owner == this)
             EndPin.Destroy();
-        Owner.Remove(this);
+
+        Owner?.Wires.Remove(this);
     }
 
     public override Entity GetAt(Vector2 pos0)
@@ -84,7 +82,7 @@ public class Wire : Entity
 
     public Pin InsertPinAt(Vector2 pos0)
     {
-        var pin = Owner.CreatePin(pos0.Round());
+        var pin = Owner.Pins.Create(pos0.Round());
         StartPin.ConnectTo(pin);
         EndPin.ConnectTo(pin);
         Destroy();

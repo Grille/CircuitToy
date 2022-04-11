@@ -33,6 +33,9 @@ internal class Simulation
         Form = form;
         Target = target;
 
+        var reg = new Registry();
+        reg.InitStd();
+
         var andcirc = new Circuit();
         {
             var input0 = andcirc.Nodes.Create<Input>(0, 0);
@@ -96,12 +99,49 @@ internal class Simulation
             SceneBackColor = Color.White,
             SceneGridColor = Color.WhiteSmoke,
 
+            NodeBorderColor = Color.DarkGray,
             NodeBackColor = Color.LightGray,
             NodeTextColor = Color.Black,
 
             StateLowColor = Color.Black,
             StateHighColor = Color.Blue,
             StateOffColor = Color.FromArgb(150,150,150),
+            StateErrorColor = Color.Red,
+
+            SelectionColor = Color.Green,
+            HoverColor = Color.LimeGreen,
+            DebugColor = Color.Lime,
+        };
+
+        Theme = new Theme() {
+            SceneBackColor = Color.FromArgb(0, 0, 0),
+            SceneGridColor = Color.FromArgb(20, 20, 20),
+
+            NodeBorderColor = Color.FromArgb(10, 30, 30),
+            NodeBackColor = Color.FromArgb(20, 50, 50),
+            NodeTextColor = Color.LightGray,
+
+            StateLowColor = Color.DarkGray,
+            StateHighColor = Color.DarkCyan,
+            StateOffColor = Color.FromArgb(60, 80, 80),
+            StateErrorColor = Color.DarkMagenta,
+
+            SelectionColor = Color.Green,
+            HoverColor = Color.LimeGreen,
+            DebugColor = Color.Lime,
+        };
+
+        var _Theme = new Theme() {
+            SceneBackColor = Color.FromArgb(0, 0, 0),
+            SceneGridColor = Color.FromArgb(20, 20, 20),
+
+            NodeBorderColor = Color.FromArgb(80, 80, 80),
+            NodeBackColor = Color.FromArgb(0, 0, 0),
+            NodeTextColor = Color.LightGray,
+
+            StateLowColor = Color.DarkGray,
+            StateHighColor = Color.Lime,
+            StateOffColor = Color.FromArgb(80, 80, 80),
             StateErrorColor = Color.Red,
 
             SelectionColor = Color.Green,

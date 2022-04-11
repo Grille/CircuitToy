@@ -10,10 +10,10 @@ using GGL;
 
 namespace CircuitLib;
 
-public class Circuit : Node
+public partial class Circuit : Node
 {
-    public CircuitNodeList Nodes;
-    public CircuitNetList Networks;
+    public NodeList Nodes;
+    public NetList Networks;
 
     private List<Input> inputs;
     private List<Output> outputs;
@@ -22,8 +22,8 @@ public class Circuit : Node
 
     public Circuit()
     {
-        Nodes = new CircuitNodeList(this);
-        Networks = new CircuitNetList(this);
+        Nodes = new NodeList(this);
+        Networks = new NetList(this);
 
         inputs = new List<Input>();
         outputs = new List<Output>();
@@ -183,6 +183,10 @@ public class Circuit : Node
         {
             node.ForceIdle();
         }
+        foreach (var net in Networks)
+        {
+            net.WaitIdle();
+        }
     }
 
     public override void WaitIdle()
@@ -194,6 +198,10 @@ public class Circuit : Node
             foreach (var node in Nodes)
             {
                 node.WaitIdle();
+            }
+            foreach (var net in Networks)
+            {
+                net.WaitIdle();
             }
         }
     }

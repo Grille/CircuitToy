@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace CircuitLib;
 
@@ -11,18 +12,31 @@ public abstract class AsyncUpdatableEntity : Entity
     protected Task WaitTask = null;
     protected Task UpdateTask = null;
     protected UpdateTaskState UpdateState = UpdateTaskState.Idle;
+    private object UpdateStateLocker = new object();
+    private object UpdateInputLocker = new object();
 
     protected int StatsUpdatesCount;
     protected int StatsUpdatesRunCount;
     protected int StatsUpdatesQueuedCount;
     protected int StatsUpdatesDiscardCount;
 
+    public void LockInputEnter()
+    {
+        Monitor.Enter(UpdateInputLocker);
+    }
+
+    public void LockInputExit()
+    {
+        Monitor.Exit(UpdateInputLocker);
+    }
 
     public void Update()
     {
-        lock (this)
+        StatsUpdatesCount++;
+        bool runTask = false;
+        bool runWait = false;
+        lock (UpdateStateLocker)
         {
-            StatsUpdatesCount++;
             if (UpdateState == UpdateTaskState.Waiting)
             {
                 StatsUpdatesDiscardCount++;
@@ -32,18 +46,27 @@ public abstract class AsyncUpdatableEntity : Entity
             {
                 StatsUpdatesQueuedCount++;
                 UpdateState = UpdateTaskState.Waiting;
-                WaitTask = Task.Run(() => {
-                    UpdateTask?.Wait();
-                    UpdateState = UpdateTaskState.Running;
-                    runUpdateTask();
-                });
+                runWait = true;
+
             }
             if (UpdateState == UpdateTaskState.Idle)
             {
                 StatsUpdatesRunCount++;
                 UpdateState = UpdateTaskState.Running;
-                runUpdateTask();
+                runTask = true;
             }
+        }
+        if (runTask)
+        {
+            runUpdateTask();
+        }
+        if (runWait)
+        {
+            WaitTask = Task.Run(() => {
+                UpdateTask?.Wait();
+                UpdateState = UpdateTaskState.Running;
+                runUpdateTask();
+            });
         }
     }
 
@@ -52,7 +75,7 @@ public abstract class AsyncUpdatableEntity : Entity
         UpdateTask = Task.Run(() => {
             OnUpdate();
 
-            lock (this)
+            lock (UpdateStateLocker)
             {
                 if (UpdateState == UpdateTaskState.Running)
                     UpdateState = UpdateTaskState.Idle;

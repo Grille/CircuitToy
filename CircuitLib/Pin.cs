@@ -18,6 +18,8 @@ public abstract class Pin : Entity
 
     public float Radius;
 
+    public Network ConnectedNetwork;
+
     protected internal Vector2 _position {
         set {
             _pos = value;
@@ -64,6 +66,7 @@ public abstract class Pin : Entity
     public override void Destroy()
     {
         DestroyConnections();
+        ConnectedNetwork?.Pins.Remove(this);
         base.Destroy();
     }
 

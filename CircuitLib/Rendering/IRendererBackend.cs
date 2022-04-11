@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using System.Drawing;
 using System.Numerics;
 
+using CircuitLib.Math;
+
 namespace CircuitLib.Rendering;
 
 public interface IRendererBackend
@@ -27,6 +29,12 @@ public interface IRendererBackend
     public void DrawText(int paint, string text, Vector2 position, Vector2 size);
 
     public void DrawText(int paint, string text, RectangleF rect);
+
+    public void DrawPolygon(int paint, Vec2Polygon polygon);
+
+    public void FillPolygon(int paint, Vec2Polygon polygon);
+
+    public void DrawPath(int paint, Vec2Path polygon);
 
     public Vector2 MeasureText(int paint, string text);
 

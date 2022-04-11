@@ -8,8 +8,9 @@ namespace CircuitLib_Tests;
 
 class Tests
 {
-    public static void Run(Func<TestResult> test)
+    public static void Run(string msg, Func<TestResult> test)
     {
+        TUtils.Write(msg);
         TestResult result;
         if (TUtils.CatchExeptions)
         {
@@ -47,15 +48,19 @@ class Tests
 
     public static void RunCascade(State reset, State send, State expected)
     {
-        TUtils.Write($"Cascade [Exit -> Net -> Entry] ({reset}) -> ({send}) = {expected}: ");
-        Tests.Run(() => {
+        string name = $"Cascade [Exit -> Net -> Entry] ({reset}) -> ({send}) = {expected}: ";
+        Run(name, () => {
             var circuit = new Circuit();
             var exit = new OutputPin(circuit);
             var entry = new InputPin(circuit);
             var network = new Network();
+            network.Owner = circuit;
 
-            network.Add(exit);
-            network.Add(entry);
+            network.BeginEdit();
+            network.Pins.Add(exit);
+            network.Pins.Add(entry);
+            network.ConnectFromTo(exit, entry);
+            network.EndEdit();
 
             exit.State = network.State = entry.State = reset;
 
@@ -90,8 +95,8 @@ class Tests
         var input = TUtils.StrToStateArray(split[0]);
         var output = TUtils.StrToStateArray(split[1]);
 
-        TUtils.Write($"Test {typeof(T).Name} [{instr}->{outstr}]: ");
-        Run(() => {
+        string name = $"Test {typeof(T).Name} [{instr}->{outstr}]: ";
+        Run(name, () => {
             var node = new T();
 
             if (input.Length != node.InputPins.Length)
@@ -139,10 +144,10 @@ class Tests
 
     public static void RunNetwork(string title, Func<Network, TestResult> test)
     {
-        TUtils.Write($"Test Network <{title}>: ");
-        Run(() => {
+        string name = $"Test Network <{title}>: ";
+        Run(name, () => {
             var circuit = new Circuit();
-            var net = circuit.CreateNet();
+            var net = circuit.Networks.Create();
             return test(net);
         });
     }
@@ -156,8 +161,8 @@ class Tests
 
     public static void RunCircuit(string title, Func<Circuit, TestResult> test)
     {
-        TUtils.Write($"Test Circuit <{title}>: ");
-        Tests.Run(() => {
+        string name = $"Test Circuit <{title}>: ";
+        Run(name, () => {
             var circuit = new Circuit();
             circuit.Name = "main";
             return test(circuit);

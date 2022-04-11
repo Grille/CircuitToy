@@ -60,14 +60,12 @@ public abstract class IOPin : Pin
         }
     }
 
-    public Network ConnectedNetwork;
-
     public override void ConnectTo(Pin pin)
     {
         if (ConnectedNetwork == null)
         {
             var net = Owner.Owner.Networks.Create();
-            net.Add(this);
+            net.Pins.Add(this);
         }
 
         ConnectedNetwork.ConnectFromTo(this, pin);
@@ -78,7 +76,7 @@ public abstract class IOPin : Pin
         if (ConnectedNetwork == null)
         {
             var net = Owner.Owner.Networks.Create();
-            net.Add(this);
+            net.Pins.Add(this);
         }
 
         ConnectedNetwork.ConnectFromTo(this, pos);
@@ -89,12 +87,6 @@ public abstract class IOPin : Pin
         Bounds = new BoundingBox(Position, 0.7f);
         base.CalcBoundings();
         ConnectedNetwork?.CalcBoundings();
-    }
-
-    public override void Destroy()
-    {
-        ConnectedNetwork?.Remove(this);
-        base.Destroy();
     }
 
     public void UpdatePosition()

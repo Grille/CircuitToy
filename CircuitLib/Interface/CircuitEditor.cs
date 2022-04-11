@@ -130,9 +130,9 @@ public partial class CircuitEditor
                 var pin = (IOPin)obj;
                 pin.ConnectedNetwork.Reset(CircuitLib.State.Off);
             }
-            if (obj is NetPin)
+            if (obj is WirePin)
             {
-                var pin = (NetPin)obj;
+                var pin = (WirePin)obj;
                 pin.Owner.Reset(CircuitLib.State.Off);
             }
             if (obj is Node)
@@ -230,7 +230,7 @@ public partial class CircuitEditor
         var obj = Circuit.GetAt(pos);
 
         return obj switch {
-            null => Circuit.Networks.Create().CreatePin(pos.Round()),
+            null => Circuit.Networks.Create().Pins.Create(pos.Round()),
             Pin => (Pin)obj,
             Wire => ((Wire)obj).InsertPinAt(pos),
             _ => null,

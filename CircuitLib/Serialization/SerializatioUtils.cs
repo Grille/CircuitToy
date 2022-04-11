@@ -17,7 +17,7 @@ public static class SerializatioUtils
     {
         var nodes = new List<Node>();
         var pins = new List<Pin>();
-        var netPins = new List<NetPin>();
+        var netPins = new List<WirePin>();
         var wires = new List<Wire>();
 
         Vector2 center = Vector2.Zero;
@@ -35,9 +35,9 @@ public static class SerializatioUtils
                 pins.Add((Pin)entity);
             }
 
-            if (entity is NetPin)
+            if (entity is WirePin)
             {
-                netPins.Add((NetPin)entity);
+                netPins.Add((WirePin)entity);
                 center += entity.Position;
             }
 
@@ -99,28 +99,28 @@ public static class SerializatioUtils
         bw.WriteString(network.Name);
         bw.WriteString(network.Description);
 
-        bw.WriteInt32(network.GuardPins.Count);
-        foreach (var pin in network.GuardPins)
+        bw.WriteInt32(network.Pins.NetPins.Count);
+        foreach (var pin in network.Pins.NetPins)
         {
             bw.Write(pin.Position);
         }
 
-        bw.WriteInt32(network.InputPins.Count);
-        foreach (var pin in network.InputPins)
+        bw.WriteInt32(network.Pins.InputPins.Count);
+        foreach (var pin in network.Pins.InputPins)
         {
             bw.WriteInt32(nodes.IndexOf(pin.Owner));
             bw.WriteInt32(Array.IndexOf(pin.Owner.InputPins, pin));
         }
 
-        bw.WriteInt32(network.OutputPins.Count);
-        foreach (var pin in network.OutputPins)
+        bw.WriteInt32(network.Pins.OutputPins.Count);
+        foreach (var pin in network.Pins.OutputPins)
         {
             bw.WriteInt32(nodes.IndexOf(pin.Owner));
             bw.WriteInt32(Array.IndexOf(pin.Owner.OutputPins, pin));
         }
 
         var wires = new List<Wire>();
-        foreach (var pin in network.AllPins)
+        foreach (var pin in network.Pins)
         {
             foreach (var wire in pin.ConnectedWires)
             {
@@ -131,11 +131,11 @@ public static class SerializatioUtils
             }
         }
 
-        WriteWiresIndices(bw, wires, nodes, network.GuardPins);
+        WriteWiresIndices(bw, wires, nodes, network.Pins.NetPins);
 
     }
 
-    public static void WriteWiresIndices(BinaryViewWriter bw, IList<Wire> wires, IList<Node> nodes, IList<NetPin> netPins)
+    public static void WriteWiresIndices(BinaryViewWriter bw, IList<Wire> wires, IList<Node> nodes, IList<WirePin> netPins)
     {
         bw.WriteInt32(wires.Count);
         foreach (var wire in wires)
@@ -148,8 +148,8 @@ public static class SerializatioUtils
         {
             switch (pin)
             {
-                case NetPin:
-                    var nPin = (NetPin)pin;
+                case WirePin:
+                    var nPin = (WirePin)pin;
                     bw.WriteByte(0);
                     bw.WriteInt32(netPins.IndexOf(nPin));
                     break;

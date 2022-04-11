@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Drawing;
 
 using CircuitLib.Rendering;
+using CircuitLib.Math;
 
 namespace CircuitToy;
 
@@ -55,6 +56,28 @@ internal class RendererGdiBackend : IRendererBackend
         g.FillEllipse(Paints[paint].Brush, position.X - radius, position.Y - radius, radius * 2, radius * 2);
     }
 
+    public void DrawPolygon(int paint, Vec2Polygon polygon)
+    {
+        var points = new PointF[polygon.Points.Length];
+        for (int i = 0; i < polygon.Points.Length; i++)
+            points[i] = (PointF)polygon.Points[i];
+        g.DrawPolygon(Paints[paint].Pen, points);
+    }
+
+    public void FillPolygon(int paint, Vec2Polygon polygon)
+    {
+        var points = new PointF[polygon.Points.Length];
+        for (int i = 0; i < polygon.Points.Length; i++)
+            points[i] = (PointF)polygon.Points[i];
+        g.FillPolygon(Paints[paint].Brush, points);
+    }
+
+    public void DrawPath(int paint, Vec2Path polygon)
+    {
+        for (int i = 0; i < polygon.Points.Length - 1; i++)
+            DrawLine(paint, polygon.Points[0], polygon.Points[1]);
+    }
+
     public void DrawText(int paint, string text, Vector2 position)
     {
         var p = Paints[paint];
@@ -77,6 +100,7 @@ internal class RendererGdiBackend : IRendererBackend
 
         g.DrawString(text, p.Font, p.Brush, rect, format);
     }
+
 
     public Vector2 MeasureText(int paint, string text)
     {

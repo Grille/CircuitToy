@@ -18,7 +18,7 @@ public static class DeserializationUtils
     public static List<Entity> ReadClipboardToCircuit(BinaryViewReader br, Circuit circuit)
     {
         var nodes = new List<Node>();
-        var pins = new List<NetPin>();
+        var pins = new List<WirePin>();
         var result = new List<Entity>();
 
         var types = ReadNodeTypes(br);
@@ -35,7 +35,7 @@ public static class DeserializationUtils
         for (int i = 0; i < pinCount; i++)
         {
             var pos = br.Read<Vector2>();
-            var pin = circuit.Networks.Create().CreatePin(pos);
+            var pin = circuit.Networks.Create().Pins.Create(pos);
             pins.Add(pin);
             result.Add(pin);
         }
@@ -84,6 +84,7 @@ public static class DeserializationUtils
     public static Network ReadNetwork(BinaryViewReader br, IList<Node> nodes)
     {
         var net = new Network();
+        net.BeginEdit();
 
         net.Name = br.ReadString();
         net.Description = br.ReadString();
@@ -92,7 +93,7 @@ public static class DeserializationUtils
         for (int j = 0; j < pinCount; j++)
         {
             var pos = br.Read<Vector2>();
-            net.CreatePin(pos.X, pos.Y);
+            net.Pins.Create(pos);
         }
 
         int inPinCount = br.ReadInt32();
@@ -101,7 +102,7 @@ public static class DeserializationUtils
             int index0 = br.ReadInt32();
             int index1 = br.ReadInt32();
 
-            net.Add(nodes[index0].InputPins[index1]);
+            net.Pins.Add(nodes[index0].InputPins[index1]);
         }
 
         int outPinCount = br.ReadInt32();
@@ -110,15 +111,17 @@ public static class DeserializationUtils
             int index0 = br.ReadInt32();
             int index1 = br.ReadInt32();
 
-            net.Add(nodes[index0].OutputPins[index1]);
+            net.Pins.Add(nodes[index0].OutputPins[index1]);
         }
 
-        ReadWiresIndices(br, nodes, net.GuardPins);
+        ReadWiresIndices(br, nodes, net.Pins.NetPins);
+
+        net.EndEdit();
 
         return net;
     }
 
-    public static void ReadWiresIndices(BinaryViewReader br, IList<Node> nodes, IList<NetPin> netPins)
+    public static void ReadWiresIndices(BinaryViewReader br, IList<Node> nodes, IList<WirePin> netPins)
     {
         int wireCount = br.ReadInt32();
         for (int i = 0; i < wireCount; i++)

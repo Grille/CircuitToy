@@ -6,18 +6,20 @@ partial class Section
     {
         TUtils.WriteTitle("TestNetwork...");
         Tests.RunNetwork("create pins", (net) => {
-            var pin0 = net.CreatePin();
-            var pin1 = net.CreatePin();
-            var pin2 = net.CreatePin();
+            net.BeginEdit();
 
-            if (net.AllPins.Count != 3)
+            var pin0 = net.Pins.Create();
+            var pin1 = net.Pins.Create();
+            var pin2 = net.Pins.Create();
+
+            if (net.Pins.Count != 3)
             {
-                TUtils.WriteFail($"AllPin count: {net.AllPins.Count}, expected: 3");
+                TUtils.WriteFail($"AllPin count: {net.Pins.Count}, expected: 3");
                 return TestResult.Failure;
             }
-            if (net.GuardPins.Count != 3)
+            if (net.Pins.NetPins.Count != 3)
             {
-                TUtils.WriteFail($"AllPin count: {net.AllPins.Count}, expected: 3");
+                TUtils.WriteFail($"AllPin count: {net.Pins.Count}, expected: 3");
                 return TestResult.Failure;
             }
 
@@ -25,14 +27,16 @@ partial class Section
             return TestResult.Success;
         });
         Tests.RunNetwork("connect pins", (net) => {
-            var pin0 = net.CreatePin();
-            var pin1 = net.CreatePin();
+            net.BeginEdit();
+
+            var pin0 = net.Pins.Create();
+            var pin1 = net.Pins.Create();
 
             net.ConnectFromTo(pin0, pin1);
 
             if (net.Wires.Count != 1)
             {
-                TUtils.WriteFail($"Wires count: {net.AllPins.Count}, expected: 1");
+                TUtils.WriteFail($"Wires count: {net.Pins.Count}, expected: 1");
                 return TestResult.Failure;
             }
 
@@ -47,20 +51,22 @@ partial class Section
             return TestResult.Success;
         });
         Tests.RunNetwork("connect pin to empty position", (net) => {
-            var pin0 = net.CreatePin();
+            net.BeginEdit();
+
+            var pin0 = net.Pins.Create();
             var point = new Vector2(10, 0);
             net.ConnectFromTo(pin0, point);
 
-            if (net.AllPins.Count != 2)
+            if (net.Pins.Count != 2)
             {
-                TUtils.WriteFail($"AllPin count: {net.AllPins.Count}, expected: 2");
+                TUtils.WriteFail($"AllPin count: {net.Pins.Count}, expected: 2");
                 return TestResult.Failure;
             }
 
-            var pin1 = net.AllPins[1];
+            var pin1 = net.Pins[1];
             if (net.Wires.Count != 1)
             {
-                TUtils.WriteFail($"Wires count: {net.AllPins.Count}, expected: 1");
+                TUtils.WriteFail($"Wires count: {net.Pins.Count}, expected: 1");
                 return TestResult.Failure;
             }
 
@@ -75,22 +81,24 @@ partial class Section
             return TestResult.Success;
         });
         Tests.RunNetwork("connect pin to pin-occupied position", (net) => {
-            var pin0 = net.CreatePin();
-            var pin1 = net.CreatePin();
+            net.BeginEdit();
+
+            var pin0 = net.Pins.Create();
+            var pin1 = net.Pins.Create();
             var point = new Vector2(10, 0);
             pin1.Position = point;
 
             net.ConnectFromTo(pin0, point);
 
-            if (net.AllPins.Count != 2)
+            if (net.Pins.Count != 2)
             {
-                TUtils.WriteFail($"AllPin count: {net.AllPins.Count}, expected: 2");
+                TUtils.WriteFail($"AllPin count: {net.Pins.Count}, expected: 2");
                 return TestResult.Failure;
             }
 
             if (net.Wires.Count != 1)
             {
-                TUtils.WriteFail($"Wires count: {net.AllPins.Count}, expected: 1");
+                TUtils.WriteFail($"Wires count: {net.Pins.Count}, expected: 1");
                 return TestResult.Failure;
             }
 
@@ -105,20 +113,22 @@ partial class Section
             return TestResult.Success;
         });
         Tests.RunNetwork("connect pin to own position", (net) => {
-            var pin0 = net.CreatePin();
+            net.BeginEdit();
+
+            var pin0 = net.Pins.Create();
             var point = new Vector2(0, 0);
 
             net.ConnectFromTo(pin0, point);
 
-            if (net.AllPins.Count != 1)
+            if (net.Pins.Count != 1)
             {
-                TUtils.WriteFail($"AllPin count: {net.AllPins.Count}, expected: 1");
+                TUtils.WriteFail($"AllPin count: {net.Pins.Count}, expected: 1");
                 return TestResult.Failure;
             }
 
             if (net.Wires.Count != 0)
             {
-                TUtils.WriteFail($"Wires count: {net.AllPins.Count}, expected: 0");
+                TUtils.WriteFail($"Wires count: {net.Pins.Count}, expected: 0");
                 return TestResult.Failure;
             }
 
@@ -126,20 +136,22 @@ partial class Section
             return TestResult.Success;
         });
         Tests.RunNetwork("connect pin to own position", (net) => {
-            var pin0 = net.CreatePin();
+            net.BeginEdit();
+
+            var pin0 = net.Pins.Create();
             var point = new Vector2(0, 0);
 
             net.ConnectFromTo(pin0, point);
 
-            if (net.AllPins.Count != 1)
+            if (net.Pins.Count != 1)
             {
-                TUtils.WriteFail($"AllPin count: {net.AllPins.Count}, expected: 1");
+                TUtils.WriteFail($"AllPin count: {net.Pins.Count}, expected: 1");
                 return TestResult.Failure;
             }
 
             if (net.Wires.Count != 0)
             {
-                TUtils.WriteFail($"Wires count: {net.AllPins.Count}, expected: 0");
+                TUtils.WriteFail($"Wires count: {net.Pins.Count}, expected: 0");
                 return TestResult.Failure;
             }
 
