@@ -11,8 +11,6 @@ namespace CircuitLib.Rendering;
 
 internal class PaintPalette
 {
-    IRendererBackend ctx;
-
     public int SceneBack;
     public int SceneGrid;
 
@@ -28,6 +26,7 @@ internal class PaintPalette
     public int SelectionOpaque;
     public int SelectionTransparent;
     public int SelectionWire;
+    public int SelectionErrorWire;
     public int SelectionOutline;
     public int SelectionOutlineWire;
 
@@ -43,8 +42,6 @@ internal class PaintPalette
 
     public void Setup(IRendererBackend ctx, Theme theme, Camera cam)
     {
-        this.ctx = ctx;
-
         float scaledWireWidth = Theme.WireWidth * cam.Scale;
 
         SceneBack = ctx.CreatePaint(theme.SceneBackColor);
@@ -59,16 +56,17 @@ internal class PaintPalette
         StateOff = ctx.CreatePaint(theme.StateOffColor, scaledWireWidth);
         StateError = ctx.CreatePaint(theme.StateErrorColor, scaledWireWidth);
 
-        SelectionOpaque = ctx.CreatePaint(theme.SelectionColor,2);
+        SelectionOpaque = ctx.CreatePaint(theme.SelectionColor, 2);
         SelectionTransparent = ctx.CreatePaint(Color.FromArgb(50, theme.SelectionColor));
-        SelectionWire = ctx.CreatePaint(theme.SelectionColor, (Theme.WireWidth) * cam.Scale);
-        SelectionOutline = ctx.CreatePaint(theme.SelectionColor, (Theme.SelectionOutline * 2) * cam.Scale);
-        SelectionOutlineWire = ctx.CreatePaint(theme.SelectionColor, (Theme.WireWidth + Theme.SelectionOutline * 2) * cam.Scale);
+        SelectionWire = ctx.CreatePaint(theme.SelectionColor, scaledWireWidth);
+        SelectionErrorWire = ctx.CreatePaint(theme.SelectionErrorColor, scaledWireWidth);
+        SelectionOutline = ctx.CreatePaint(theme.SelectionColor, Theme.SelectionOutline * 2 * cam.Scale);
+        SelectionOutlineWire = ctx.CreatePaint(theme.SelectionColor, (Theme.WireWidth + (Theme.SelectionOutline * 2)) * cam.Scale);
 
-        HoverdOpaque = ctx.CreatePaint(theme.HoverColor,2);
+        HoverdOpaque = ctx.CreatePaint(theme.HoverColor, 2);
         HoverdTransparent = ctx.CreatePaint(Color.FromArgb(50, theme.HoverColor));
-        HoverdWire = ctx.CreatePaint(theme.HoverColor, (Theme.WireWidth) * cam.Scale);
-        HoverdOutline = ctx.CreatePaint(theme.HoverColor, (Theme.SelectionOutline * 2) * cam.Scale);
+        HoverdWire = ctx.CreatePaint(theme.HoverColor, Theme.WireWidth * cam.Scale);
+        HoverdOutline = ctx.CreatePaint(theme.HoverColor, Theme.SelectionOutline * 2 * cam.Scale);
         HoverdOutlineWire = ctx.CreatePaint(theme.HoverColor, (Theme.WireWidth + Theme.SelectionOutline * 2) * cam.Scale);
 
         Debug = ctx.CreatePaint(theme.DebugColor);

@@ -105,6 +105,9 @@ public abstract class Node : AsyncUpdatableEntity
             InputStateBuffer[i] = InputPins[i].State;
     }
 
+    /// <summary>
+    /// Destroy owned pins, and unlink from owner.
+    /// </summary>
     public override void Destroy()
     {
         if (InputPins != null)
@@ -237,7 +240,7 @@ public abstract class Node : AsyncUpdatableEntity
             pin.RelativePosition = new Vector2(pin.RelativePosition.X, -pin.RelativePosition.Y);
     }
 
-    public void RotateAdd90Deg()
+    public void Rotate90DegClockwise()
     {
         Size = new Vector2(Size.Y, Size.X);
 
@@ -248,7 +251,7 @@ public abstract class Node : AsyncUpdatableEntity
             pin.RelativePosition = new Vector2(pin.RelativePosition.Y, pin.RelativePosition.X);
     }
 
-    public void RotateSub90Deg()
+    public void Rotate90DegCounterClockwise()
     {
         Size = new Vector2(Size.Y, Size.X);
 
@@ -326,7 +329,6 @@ public abstract class Node : AsyncUpdatableEntity
     public override string GetDebugStr()
     {
         var sb = new StringBuilder();
-
 
         sb.AppendLine($"Node::{GetType().Name} ID[{ID}] N:{Name} D:{DisplayName}");
         sb.AppendLine($"Pos: {Position}");

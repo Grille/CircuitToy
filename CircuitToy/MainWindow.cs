@@ -18,18 +18,41 @@ public partial class MainWindow : Form
         sim = new Simulation(this, canvas);
         canvas.ContextMenuStrip = contextMenuStrip1;
 
-        var node = treeView1.Nodes.Add("primitives");
-        node.Expand();
-        node.Nodes.Add("IN");
-        node.Nodes.Add("OUT");
-        node.Nodes.Add("BUF");
-        node.Nodes.Add("NOT");
-        node.Nodes.Add("AND");
-        node.Nodes.Add("OR");
-        node.Nodes.Add("XOR");
-        node.Nodes.Add("NAND");
-        node.Nodes.Add("NOR");
-        node.Nodes.Add("XNOR");
+        {
+            var node = treeView1.Nodes.Add("IO");
+            node.Expand();
+            var nodes = node.Nodes;
+            nodes.Add("IN");
+            nodes.Add("OUT");
+        }
+        {
+            var node = treeView1.Nodes.Add("Logic Gates");
+            node.Expand();
+            var nodes = node.Nodes;
+            nodes.Add("BUF");
+            nodes.Add("NOT");
+            nodes.Add("AND");
+            nodes.Add("OR");
+            nodes.Add("XOR");
+            nodes.Add("NAND");
+            nodes.Add("NOR");
+            nodes.Add("XNOR");
+        }
+        {
+            var node = treeView1.Nodes.Add("Try-State");
+            node.Expand();
+            var nodes = node.Nodes;
+            nodes.Add("Try-State");
+            nodes.Add("Pull-Up");
+            nodes.Add("Pull-Down");
+        }
+        {
+            var node = treeView1.Nodes.Add("Special");
+            node.Expand();
+            var nodes = node.Nodes;
+            nodes.Add("Delay");
+            nodes.Add("Logger");
+        }
 
         treeView1.Nodes.Add("std");
     }
@@ -268,6 +291,11 @@ public partial class MainWindow : Form
     }
 
     private void MainWindow_KeyPress(object sender, KeyPressEventArgs e)
+    {
+
+    }
+
+    private void darkStatusStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
     {
 
     }

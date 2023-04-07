@@ -35,11 +35,7 @@ public class AndGate : Node
             (State.Low, State.High) => State.Low,
             (State.High, State.Low) => State.Low,
             (State.High, State.High) => State.High,
-            (State.Low, _) => State.Low,
-            (_, State.Low) => State.Low,
-            (State.High, _) => State.Low,
-            (_, State.High) => State.Low,
-            (_, _) => State.Off,
+            (_, _) => State.Error,
         };
         SendOutputSignal(0);
     }

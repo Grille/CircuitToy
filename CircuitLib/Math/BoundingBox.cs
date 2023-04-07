@@ -35,7 +35,7 @@ public struct BoundingBox
 
     public Vector2 Size {
         get {
-            return new Vector2(getWidth(), getHeight());
+            return new Vector2(Width, Height);
         }
     }
 
@@ -104,15 +104,10 @@ public struct BoundingBox
         EndY += margin;
     }
 
-    public float getWidth()
-    {
-        return MathF.Abs(BeginX - EndX);
-    }
-
-    public float getHeight()
-    {
-        return MathF.Abs(BeginY - EndY);
-    }
+    public float Width => MathF.Abs(BeginX - EndX);
+   
+    public float Height => MathF.Abs(BeginY - EndY);
+    
 
     public bool IsInside(Vector2 pos)
     {
@@ -126,7 +121,7 @@ public struct BoundingBox
     }
 
     public static explicit operator RectangleF(BoundingBox b)
-        => new RectangleF(b.BeginX, b.BeginY, b.getWidth(), b.getHeight());
+        => new RectangleF(b.BeginX, b.BeginY, b.Width, b.Height);
 
     public static implicit operator Vec2Rectangle(BoundingBox b)
         => new Vec2Rectangle(b.Begin, b.Size);

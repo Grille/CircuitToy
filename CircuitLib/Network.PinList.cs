@@ -70,6 +70,8 @@ public partial class Network : AsyncUpdatableEntity
                 var inPin = (InputPin)pin;
                 inPin.ConnectedNetwork = null;
                 InputPins.Remove(inPin);
+                inPin.State = owner.Owner.DefualtState;
+                inPin.Owner.Update();
             }
             else if (pin is OutputPin)
             {

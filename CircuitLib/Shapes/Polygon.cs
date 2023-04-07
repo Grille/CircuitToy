@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CircuitLib.Interface;
+namespace CircuitLib.Shapes;
 
-internal class ActionEmpty : EditorAction
+public class Polygon : Path
 {
-    protected override void OnExecute()
+    public Polygon(IList<Vector2> points) : base(points)
     {
-        return;
     }
 }

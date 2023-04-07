@@ -29,10 +29,12 @@ public class PullUp : Node
     protected override void OnUpdate()
     {
         PullInputValues();
-        if (InputStateBuffer[0] == State.Off)
-            OutputStateBuffer[0] = State.High;
-        else
-            OutputStateBuffer[0] = InputStateBuffer[0];
+        OutputStateBuffer[0] = InputStateBuffer[0] switch {
+            State.Low => State.Low,
+            State.High => State.High,
+            State.Off => State.High,
+            _ => State.Error,
+        };
         SendOutputSignal(0);
     }
 }

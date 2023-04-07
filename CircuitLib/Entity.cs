@@ -7,9 +7,13 @@ using System.Drawing;
 using CircuitLib.Math;
 using System.IO;
 using System.Numerics;
+using CircuitLib.Interface;
 
 namespace CircuitLib;
 
+/// <summary>
+/// Object located in World
+/// </summary>
 public abstract class Entity
 {
     private Entity _owner;
@@ -66,7 +70,7 @@ public abstract class Entity
         return list;
     }
 
-    public virtual void ClickAction()
+    public virtual void ClickAction(CircuitEditor inp)
     {
 
     }

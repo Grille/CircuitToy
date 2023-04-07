@@ -86,7 +86,7 @@ namespace CircuitToy
             this.fileToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1377, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(882, 24);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -138,9 +138,9 @@ namespace CircuitToy
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel1});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 784);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 508);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(1377, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(882, 22);
             this.statusStrip1.TabIndex = 3;
             this.statusStrip1.Text = "statusStrip1";
             // 
@@ -159,7 +159,7 @@ namespace CircuitToy
             this.canvas.Location = new System.Drawing.Point(436, 73);
             this.canvas.Margin = new System.Windows.Forms.Padding(0);
             this.canvas.Name = "canvas";
-            this.canvas.Size = new System.Drawing.Size(941, 711);
+            this.canvas.Size = new System.Drawing.Size(446, 435);
             this.canvas.TabIndex = 4;
             this.canvas.TabStop = false;
             this.canvas.Paint += new System.Windows.Forms.PaintEventHandler(this.canvas_Paint);
@@ -322,7 +322,7 @@ namespace CircuitToy
             this.toolStripButton1});
             this.toolStrip1.Location = new System.Drawing.Point(0, 24);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(1377, 25);
+            this.toolStrip1.Size = new System.Drawing.Size(882, 25);
             this.toolStrip1.TabIndex = 5;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -388,7 +388,7 @@ namespace CircuitToy
             this.treeView1.Location = new System.Drawing.Point(0, 73);
             this.treeView1.Margin = new System.Windows.Forms.Padding(0);
             this.treeView1.Name = "treeView1";
-            this.treeView1.Size = new System.Drawing.Size(436, 711);
+            this.treeView1.Size = new System.Drawing.Size(436, 435);
             this.treeView1.TabIndex = 6;
             // 
             // tabControl1
@@ -434,7 +434,7 @@ namespace CircuitToy
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.ClientSize = new System.Drawing.Size(1377, 806);
+            this.ClientSize = new System.Drawing.Size(882, 530);
             this.Controls.Add(this.canvas);
             this.Controls.Add(this.treeView1);
             this.Controls.Add(this.tabControl1);

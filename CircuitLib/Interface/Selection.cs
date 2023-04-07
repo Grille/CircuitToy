@@ -52,8 +52,6 @@ public class Selection
 
     public Entity HoverAt(Vector2 pos)
     {
-        ClearHoverd();
-
         var obj = Circuit.GetAt(pos);
 
         if (obj == null)
@@ -66,8 +64,6 @@ public class Selection
 
     public List<Entity> HoverArea(BoundingBox area)
     {
-        ClearHoverd();
-
         Circuit.GetFromArea(HoveredEntities, area);
 
         foreach (var entity in HoveredEntities)
@@ -117,7 +113,7 @@ public class Selection
                 break;
         }
 
-        ProcessSeclection();
+        ProcessSelection();
     }
 
     public void SelectAreaBegin(Vector2 pos)
@@ -177,7 +173,7 @@ public class Selection
                 break;
         }
 
-        ProcessSeclection();
+        ProcessSelection();
 
         ClearHoverd();
     }
@@ -229,7 +225,7 @@ public class Selection
         Offset = Vector2.Zero;
     }
 
-    public void ProcessSeclection()
+    public void ProcessSelection()
     {
         ClearIndirectSelection();
 

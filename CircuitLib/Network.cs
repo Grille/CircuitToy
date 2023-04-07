@@ -250,7 +250,7 @@ public partial class Network : AsyncUpdatableEntity
             State = Pins.OutputPins[0].State;
         }
         else { 
-            State = State.Off;
+            State = Owner.DefualtState;
 
             int offCount = 0;
             int lowCount = 0;
@@ -276,19 +276,21 @@ public partial class Network : AsyncUpdatableEntity
                 State = State.High;
             else if (errorCount > 0)
                 State = State.Error;
+            else if (offCount > 0)
+                State = State.Off;
         }
 
-        if (State == State.Error)
-            return;
-
-        if (State == oldState)
-            return;
+        //if (State == oldState)
+        //    return;
 
         for (int i = 0; i < inCount; i++)
         {
             var pin = Pins.InputPins[i];
             pin.State = State;
         }
+
+        //if (State == State.Error)
+        //    return;
 
         for (int i = 0; i < inCount; i++)
         {
@@ -389,7 +391,6 @@ public partial class Network : AsyncUpdatableEntity
         sb.AppendLine($"    - Discarded: {StatsUpdatesDiscardCount}");
         sb.AppendLine($"    - Queued:    {StatsUpdatesQueuedCount}");
         sb.AppendLine($"    - Run:       {StatsUpdatesRunCount}");
-
 
         return sb.ToString();
     }

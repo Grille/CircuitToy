@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Numerics;
 
-namespace CircuitLib.Interface;
+namespace CircuitLib.Interface.EditorActions;
 
 internal class ActionApplyOffset : EditorAction
 {

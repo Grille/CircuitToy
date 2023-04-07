@@ -8,17 +8,23 @@ using System.Drawing;
 
 using CircuitLib.Rendering;
 using CircuitLib.Math;
+using System.Runtime.CompilerServices;
 
 namespace CircuitToy;
 
-internal class RendererGdiBackend : IRendererBackend
+internal unsafe class GdiRendererBackend : IRendererBackend
 {
     List<GdiPaint> Paints;
     Graphics g;
 
-    public RendererGdiBackend() 
+    public GdiRendererBackend() 
     {
         Paints = new List<GdiPaint>();
+    }
+
+    public void Translate(Vector2 offset)
+    {
+        g.Transform.Translate(offset.X, offset.Y);
     }
 
     public void UseGraphics(Graphics graphics)
@@ -56,26 +62,22 @@ internal class RendererGdiBackend : IRendererBackend
         g.FillEllipse(Paints[paint].Brush, position.X - radius, position.Y - radius, radius * 2, radius * 2);
     }
 
-    public void DrawPolygon(int paint, Vec2Polygon polygon)
+    public void DrawPolygon(int paint, Vector2[] points)
     {
-        var points = new PointF[polygon.Points.Length];
-        for (int i = 0; i < polygon.Points.Length; i++)
-            points[i] = (PointF)polygon.Points[i];
-        g.DrawPolygon(Paints[paint].Pen, points);
+        PointF[] ptr = Unsafe.As<PointF[]>(points);
+        g.DrawPolygon(Paints[paint].Pen, ptr);
     }
 
-    public void FillPolygon(int paint, Vec2Polygon polygon)
+    public void FillPolygon(int paint, Vector2[] points)
     {
-        var points = new PointF[polygon.Points.Length];
-        for (int i = 0; i < polygon.Points.Length; i++)
-            points[i] = (PointF)polygon.Points[i];
-        g.FillPolygon(Paints[paint].Brush, points);
+        PointF[] ptr = Unsafe.As<PointF[]>(points);
+        g.FillPolygon(Paints[paint].Brush, ptr);
     }
 
-    public void DrawPath(int paint, Vec2Path polygon)
+    public void DrawPath(int paint, Vector2[] points)
     {
-        for (int i = 0; i < polygon.Points.Length - 1; i++)
-            DrawLine(paint, polygon.Points[0], polygon.Points[1]);
+        for (int i = 0; i < points.Length - 1; i++)
+            DrawLine(paint, points[i+0], points[i+1]);
     }
 
     public void DrawText(int paint, string text, Vector2 position)
@@ -135,9 +137,8 @@ internal class RendererGdiBackend : IRendererBackend
         var paint = new GdiPaint();
         paint.Color = color;
         paint.Brush = new SolidBrush(color);
-        paint.Pen = new Pen(color, size);
+        paint.Pen = new Pen(color, width);
         paint.Font = new Font(font, size);
-
 
         Paints.Add(paint);
 

@@ -32,7 +32,7 @@ public class NotGate : Node
         OutputStateBuffer[0] = InputStateBuffer[0] switch {
             State.Low => State.High,
             State.High => State.Low,
-            _ => State.Off,
+            _ => State.Error,
         };
         SendOutputSignal(0);
     }

@@ -35,11 +35,7 @@ public class NAndGate : Node
             (State.Low, State.High) => State.High,
             (State.High, State.Low) => State.High,
             (State.High, State.High) => State.Low,
-            (State.Low, _) => State.High,
-            (_, State.Low) => State.High,
-            (State.High, _) => State.High,
-            (_, State.High) => State.High,
-            (_, _) => State.Off,
+            (_, _) => State.Error,
         };
         SendOutputSignal(0);
     }

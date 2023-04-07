@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
 using System.Numerics;
+using CircuitLib.Interface;
 
 namespace CircuitLib.Primitives;
 
@@ -25,7 +26,7 @@ public class Input : Node
 
         Size = new Vector2(4, 2);
 
-        State = State.Off;
+        State = State.Low;
     }
 
     public State State {
@@ -39,19 +40,21 @@ public class Input : Node
         SendOutputSignal(0);
     }
 
-    public override void ClickAction()
+    public override void ClickAction(CircuitEditor editor)
     {
-        State = OutputPins[0].State;
-
-        if (State == State.Low)
-            State = State.High;
-
-        else if (State == State.High)
-            State = State.Low;
-
+        if (editor.IsShiftKeyDown)
+        {
+            State = State.Off;
+        }
         else
-            State = State.Low;
-
+        {
+            State = OutputPins[0].State switch {
+                State.Low => State.High,
+                State.High => State.Low,
+                _ => State.Low,
+            };
+        }
+        
         Update();
     }
 }

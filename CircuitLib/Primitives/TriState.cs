@@ -16,11 +16,11 @@ public class TriState : Node
 
         InitPins(
             new Vector2[] {
-                new (-4,+0),
-                new (0,-2),
+                new (-4, +0),
+                new (0, -2),
             },
             new Vector2[] {
-                new (+4,+0)
+                new (+4, +0)
             }
         );
 
@@ -30,10 +30,13 @@ public class TriState : Node
     protected override void OnUpdate()
     {
         PullInputValues();
-        if (InputStateBuffer[1] == State.High)
-            OutputStateBuffer[0] = InputStateBuffer[0];
-        else
-            OutputStateBuffer[0] = State.Off;
+        OutputStateBuffer[0] = (InputStateBuffer[0], InputStateBuffer[1]) switch {
+            (State.Low, State.High) => State.Low,
+            (State.High, State.High) => State.High,
+            (State.Low, State.Low) => State.Off,
+            (State.High, State.Low) => State.Off,
+            (_, _) => State.Error,
+        };
         SendOutputSignal(0);
     }
 }

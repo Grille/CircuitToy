@@ -29,10 +29,12 @@ public class PullDown : Node
     protected override void OnUpdate()
     {
         PullInputValues();
-        if (InputStateBuffer[0] == State.Off)
-            OutputStateBuffer[0] = State.Low;
-        else
-            OutputStateBuffer[0] = InputStateBuffer[0];
+        OutputStateBuffer[0] = InputStateBuffer[0] switch {
+            State.Low => State.Low,
+            State.High => State.High,
+            State.Off => State.Low,
+            _ => State.Error,
+        };
         SendOutputSignal(0);
     }
 }

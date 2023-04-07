@@ -8,32 +8,38 @@ namespace CircuitLib_Tests;
 
 class Tests
 {
-    public static void Run(string msg, Func<TestResult> test)
+    public static void Run(string msg, Action test)
     {
         TUtils.Write(msg);
-        TestResult result;
-        if (TUtils.CatchExeptions)
-        {
-            try
-            {
-                result = test();
-            }
-            catch (Exception e)
-            {
-                TUtils.WriteFail($"Error\n");
-                TUtils.WriteError($"{e}");
-                result = TestResult.Error;
+        TestResult result = TestResult.None;
 
-            }
-        }
-        else
+        try
         {
-            result = test();
+            test();
         }
+        catch (SuccsessException e)
+        {
+            TUtils.WriteSuccess(e.Message);
+            result = TestResult.Success;
+        }
+        catch (FailException e)
+        {
+            TUtils.WriteFail(e.Message);
+            result = TestResult.Failure;
+        }
+        catch (Exception e)
+        {
+            TUtils.WriteFail($"Error\n");
+            TUtils.WriteError($"{e}");
+            result = TestResult.Error;
+        }
+
         TUtils.Write("\n");
 
         switch (result)
         {
+            case TestResult.None:
+                throw new InvalidOperationException();
             case TestResult.Success:
                 TUtils.SuccessCount++;
                 break;
@@ -66,8 +72,7 @@ class Tests
 
             if (exit.State != reset || network.State != reset || entry.State != reset)
             {
-                TUtils.WriteFail($"Reset Failed [Exit<{exit.State}> -> Net<{network.State}> -> Entry<{entry.State}>]");
-                return TestResult.Failure;
+                TUtils.Fail($"Reset Failed [Exit<{exit.State}> -> Net<{network.State}> -> Entry<{entry.State}>]");
             }
 
             exit.State = send;
@@ -76,13 +81,11 @@ class Tests
 
             if (entry.State == expected)
             {
-                TUtils.WriteSucces("OK");
-                return TestResult.Success;
+                TUtils.Success("OK");
             }
             else
             {
-                TUtils.WriteFail($"Cascade Failed [Exit<{exit.State}> -> Net<{network.State}> -> Entry<{entry.State}>]");
-                return TestResult.Failure;
+                TUtils.Fail($"Cascade Failed [Exit<{exit.State}> -> Net<{network.State}> -> Entry<{entry.State}>]");
             }
         });
     }
@@ -101,14 +104,12 @@ class Tests
 
             if (input.Length != node.InputPins.Length)
             {
-                TUtils.WriteFail($"In count: {node.InputPins.Length} Expected: {input.Length}");
-                return TestResult.Failure;
+                TUtils.Fail($"In count: {node.InputPins.Length} Expected: {input.Length}");
             }
 
             if (output.Length != node.OutputPins.Length)
             {
-                TUtils.WriteFail($"Out count: {node.OutputPins.Length} Expected: {output.Length}");
-                return TestResult.Failure;
+                TUtils.Fail($"Out count: {node.OutputPins.Length} Expected: {output.Length}");
             }
 
             for (int i = 0; i < input.Length; i++)
@@ -124,31 +125,30 @@ class Tests
             {
                 if (node.OutputPins[i].State != output[i])
                 {
-                    TUtils.WriteFail($"Output at [{i}] is {node.OutputPins[i].State}");
+                    TUtils.WriteFail($"Out[{i}]=={node.OutputPins[i].State} ");
                     failed = true;
                 }
             }
 
             if (failed)
             {
-                return TestResult.Failure;
+                TUtils.Fail("FAIL");
             }
             else
             {
-                TUtils.WriteSucces("OK");
-                return TestResult.Success;
+                TUtils.Success("OK");
             }
 
         });
     }
 
-    public static void RunNetwork(string title, Func<Network, TestResult> test)
+    public static void RunNetwork(string title, Action<Network> test)
     {
         string name = $"Test Network <{title}>: ";
         Run(name, () => {
             var circuit = new Circuit();
             var net = circuit.Networks.Create();
-            return test(net);
+            test(net);
         });
     }
 
@@ -159,13 +159,13 @@ class Tests
 
 
 
-    public static void RunCircuit(string title, Func<Circuit, TestResult> test)
+    public static void RunCircuit(string title, Action<Circuit> test)
     {
         string name = $"Test Circuit <{title}>: ";
         Run(name, () => {
             var circuit = new Circuit();
             circuit.Name = "main";
-            return test(circuit);
+            test(circuit);
         });
     }
 }

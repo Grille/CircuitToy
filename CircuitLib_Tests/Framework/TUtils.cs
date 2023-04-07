@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using CircuitLib;
 
 namespace CircuitLib_Tests;
 
@@ -29,14 +30,13 @@ static class TUtils
     {
         Write($"\n{msg}\n", ConsoleColor.Cyan);
     }
-    public static void WriteSucces(string msg)
+    public static void WriteSuccess(string msg)
     {
         Write(msg, ConsoleColor.Green);
     }
     public static void WriteFail(string msg)
     {
         Write(msg, ConsoleColor.Magenta);
-        throw new NotImplementedException();
     }
     public static void WriteError(string msg)
     {
@@ -142,7 +142,7 @@ static class TUtils
         return outstr;
     }
 
-    public static bool AssertPinState(IOPin pin, State state, string msg = "")
+    public static void AssertPinState(IOPin pin, State state, string msg = "")
     {
         string pinType;
         if (pin is InputPin)
@@ -152,40 +152,66 @@ static class TUtils
 
         if (pin.State != state)
         {
-            WriteFail($"{msg}{pinType} is {pin.State}, expected {state}");
-            return true;
+            Fail($"{msg}{pinType} is {pin.State}, expected {state}");
         }
-        return false;
     }
 
-    public static bool AssertNetState(Network net, State state, string msg = "")
+    public static void AssertNetState(Network net, State state, string msg = "")
     {
         if (net.State != state)
         {
-            WriteFail($"{msg}{net.Name} is {net.State}, expected {state}");
-            return true;
+            Fail($"{msg}{net.Name} is {net.State}, expected {state}");
         }
-        return false;
     }
 
-    public static bool AssertListCount<T>(IList<T> list, int count, string msg = "")
+    public static void AssertListCount<T>(IList<T> list, int count, string msg = "")
     {
         if (list.Count != count)
         {
-            WriteFail($"{msg}{typeof(T).Name} count is {list.Count}, expected {count}");
-            return true;
+            Fail($"{msg}{typeof(T).Name} count is {list.Count}, expected {count}");
         }
-        return false;
     }
 
-    public static bool AssertValue<T>(T value0, T value1, string msg)
+    public static void AssertValue<T>(T value0, T value1, string msg = "value")
     {
         if (!value0.Equals(value1))
         {
-            WriteFail($"{msg} is {value0}, expected {value1}");
-            return true;
+            Fail($"{msg} is {value0}, expected {value1}");
         }
-        return false;
+    }
+
+    public static void AssertListContains<T>(List<T> list, params T[] entitis)
+    {
+        for (int i = 0; i< entitis.Length;i++)
+        {
+            var entity = entitis[i];
+            if (!list.Contains(entity))
+            {
+                Fail($"List don't contains entity[{i}].");
+            }
+        }
+    }
+
+    public static void AssertListContainsNot<T>(List<T> list, params T[] entitis)
+    {
+        for (int i = 0; i < entitis.Length; i++)
+        {
+            var entity = entitis[i];
+            if (list.Contains(entity))
+            {
+                TUtils.Fail($"List contains entity[{i}].");
+            }
+        }
+    }
+
+    public static void Success(string msg)
+    {
+        throw new SuccsessException(msg);
+    }
+
+    public static void Fail(string msg)
+    {
+        throw new FailException(msg);
     }
 }
 

@@ -50,7 +50,13 @@ public partial class Circuit : Node
             node.RoundPosition();
             node.Name = name;
 
+            foreach (var pin in node.InputPins)
+            {
+                pin.State = owner.DefualtState;
+            }
+
             Add(node);
+            node.Update();
             return node;
         }
     }

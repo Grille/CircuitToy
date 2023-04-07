@@ -4,12 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CircuitLib.Interface;
+namespace CircuitLib.Interface.EditorActions;
 
 public abstract class EditorAction
 {
     private byte[] _data;
-    public CircuitEditor Editor { get; set; }
+    public CircuitEditor Editor {
+        get; set;
+    }
 
     public void Execute()
     {

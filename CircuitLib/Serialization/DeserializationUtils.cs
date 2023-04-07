@@ -15,7 +15,7 @@ namespace CircuitLib.Serialization;
 public static class DeserializationUtils
 {
 
-    public static List<Entity> ReadClipboardToCircuit(BinaryViewReader br, Circuit circuit)
+    public static List<Entity> ReadEntitiesToCircuit(this BinaryViewReader br, Circuit circuit)
     {
         var nodes = new List<Node>();
         var pins = new List<WirePin>();
@@ -45,7 +45,7 @@ public static class DeserializationUtils
         return result;
     }
 
-    public static List<Type> ReadNodeTypes(BinaryViewReader br)
+    public static List<Type> ReadNodeTypes(this BinaryViewReader br)
     {
         var list = new List<Type>();
 
@@ -59,7 +59,7 @@ public static class DeserializationUtils
         return list;
     }
 
-    public static void ReadToCircuit(BinaryViewReader br, Circuit circuit, List<Type> types)
+    public static void ReadToCircuit(this BinaryViewReader br, Circuit circuit, List<Type> types)
     {
         var nodes = circuit.Nodes;
         var networks = circuit.Networks;
@@ -81,7 +81,7 @@ public static class DeserializationUtils
         circuit.UpdateIO();
     }
 
-    public static Network ReadNetwork(BinaryViewReader br, IList<Node> nodes)
+    public static Network ReadNetwork(this BinaryViewReader br, IList<Node> nodes)
     {
         var net = new Network();
         net.BeginEdit();
@@ -121,7 +121,7 @@ public static class DeserializationUtils
         return net;
     }
 
-    public static void ReadWiresIndices(BinaryViewReader br, IList<Node> nodes, IList<WirePin> netPins)
+    public static void ReadWiresIndices(this BinaryViewReader br, IList<Node> nodes, IList<WirePin> netPins)
     {
         int wireCount = br.ReadInt32();
         for (int i = 0; i < wireCount; i++)
@@ -145,13 +145,13 @@ public static class DeserializationUtils
         }
     }
 
-    public static Node ReadNode(BinaryViewReader br)
+    public static Node ReadNode(this BinaryViewReader br)
     {
         var types = ReadNodeTypes(br);
         return ReadNode(br, types);
     }
 
-    public static Node ReadNode(BinaryViewReader br, List<Type> types)
+    public static Node ReadNode(this BinaryViewReader br, List<Type> types)
     {
         int index = br.ReadInt32();
         var type = types[index];

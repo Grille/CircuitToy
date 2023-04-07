@@ -13,9 +13,12 @@ namespace CircuitLib.Rendering;
 
 public interface IRendererBackend
 {
+    public void Translate(Vector2 offset);
+
     public void Clear(int paint);
 
     public void DrawRectangle(int paint, Vector2 position, Vector2 size);
+
     public void FillRectangle(int paint, Vector2 position, Vector2 size);
 
     public void DrawLine(int paint, Vector2 position1, Vector2 position2);
@@ -30,11 +33,11 @@ public interface IRendererBackend
 
     public void DrawText(int paint, string text, RectangleF rect);
 
-    public void DrawPolygon(int paint, Vec2Polygon polygon);
+    public void DrawPolygon(int paint, Vector2[] polygon);
 
-    public void FillPolygon(int paint, Vec2Polygon polygon);
+    public void FillPolygon(int paint, Vector2[] polygon);
 
-    public void DrawPath(int paint, Vec2Path polygon);
+    public void DrawPath(int paint, Vector2[] polygon);
 
     public Vector2 MeasureText(int paint, string text);
 

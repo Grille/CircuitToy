@@ -20,6 +20,8 @@ public partial class Circuit : Node
 
     public bool UseAsync = true;
 
+    public State DefualtState = State.Low;
+
     public Circuit()
     {
         Nodes = new NodeList(this);
@@ -158,7 +160,12 @@ public partial class Circuit : Node
         }
     }
 
-    public override void Reset(State state = State.Off)
+    public void Reset()
+    {
+        Reset(DefualtState);
+    }
+
+    public override void Reset(State state)
     {
         ForceIdle();
 
@@ -172,6 +179,11 @@ public partial class Circuit : Node
         foreach (var net in Networks)
         {
             net.Reset(state);
+        }
+
+        foreach (var node in Nodes)
+        {
+            node.Update();
         }
     }
 

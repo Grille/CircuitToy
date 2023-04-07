@@ -80,6 +80,11 @@ public class Wire : Entity
         return null;
     }
 
+    public override void GetFromArea(List<Entity> entities, BoundingBox region)
+    {
+        return;
+    }
+
     public Pin InsertPinAt(Vector2 pos0)
     {
         var pin = Owner.Pins.Create(pos0.Round());
@@ -87,11 +92,6 @@ public class Wire : Entity
         EndPin.ConnectTo(pin);
         Destroy();
         return pin;
-    }
-
-    public override void GetFromArea(List<Entity> entities, BoundingBox region)
-    {
-        return;
     }
 
     public Pin GetOtherPin(Pin pin)

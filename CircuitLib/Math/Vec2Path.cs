@@ -40,4 +40,6 @@ public class Vec2Path
         }
         return new Vec2Path(points);
     }
+
+
 }

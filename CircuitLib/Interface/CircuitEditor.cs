@@ -10,6 +10,8 @@ using CircuitLib.Serialization;
 using System.IO;
 using GGL.IO;
 using CircuitLib;
+using CircuitLib.Interface.EditorActions;
+using CircuitLib.Interface.EditorTools;
 
 namespace CircuitLib.Interface;
 
@@ -26,6 +28,7 @@ public enum EditorState
     Selecting,
     Moving,
     Wireing,
+    WireingError,
 }
 
 public partial class CircuitEditor
@@ -36,13 +39,34 @@ public partial class CircuitEditor
     public Camera Camera;
     public Selection Selection;
 
-    public ToolMode Mode = ToolMode.SelectAndMove;
-    public EditorState State = EditorState.None;
+    private ToolMode _mode;
+
+    public ToolMode Mode {
+        get => _mode; 
+        set {
+            if (_mode == value)
+                return;
+            _mode = value;
+            switch (_mode)
+            {
+                case ToolMode.SelectAndMove:
+                    Tool = new ToolSelectAndMove(this);
+                    break;
+                case ToolMode.AddWire:
+                    Tool = new ToolAddWire(this);
+                    break;
+                case ToolMode.OnOff:
+                    Tool = new ToolOnOff(this);
+                    break;
+            }
+        }
+
+    }
 
     Stack<EditorAction> PerformedStack = new Stack<EditorAction>();
     Stack<EditorAction> RecallStack = new Stack<EditorAction>();
 
-    private bool isClick = false;
+    public EditorTool Tool;
 
     public bool IsShiftKeyDown = false;
     public bool IsCtrlKeyDown = false;
@@ -53,7 +77,6 @@ public partial class CircuitEditor
     public Vector2 WorldMouseDownPos = Vector2.Zero;
     public Vector2 WorldMouseUpPos = Vector2.Zero;
 
-    private int mouseMoveCounter = 0;
     private byte[] internalClipboard;
 
     public Entity DownEntity {
@@ -68,20 +91,8 @@ public partial class CircuitEditor
     {
         Circuit = circuit;
         Camera = camera;
-        Selection = new Selection(circuit);  
-    }
-
-    public bool IsMoving {
-        get {
-            return State == EditorState.Moving;
-        }
-    }
-
-
-
-    public void KeyDown(int keycode)
-    {
-
+        Selection = new Selection(circuit);
+        Tool = new ToolAddWire(this);
     }
 
     public void DestroySelection()
@@ -94,7 +105,7 @@ public partial class CircuitEditor
         using var stream = new MemoryStream();
         using var bw = new BinaryViewWriter(stream);
 
-        SerializatioUtils.WriteClipboard(bw, Selection.SelectedEntities);
+        SerializationUtils.WriteEntities(bw, Selection.SelectedEntities);
 
         var bytes = stream.ToArray();
 
@@ -116,7 +127,7 @@ public partial class CircuitEditor
         using var stream = new MemoryStream(buffer);
         using var br = new BinaryViewReader(stream);
 
-        var selection = DeserializationUtils.ReadClipboardToCircuit(br, Circuit);
+        var selection = DeserializationUtils.ReadEntitiesToCircuit(br, Circuit);
 
         Selection.ClearSelection();
 
@@ -128,22 +139,22 @@ public partial class CircuitEditor
             if (obj is IOPin)
             {
                 var pin = (IOPin)obj;
-                pin.ConnectedNetwork.Reset(CircuitLib.State.Off);
+                pin.ConnectedNetwork.Reset(State.Off);
             }
             if (obj is WirePin)
             {
                 var pin = (WirePin)obj;
-                pin.Owner.Reset(CircuitLib.State.Off);
+                pin.Owner.Reset(State.Off);
             }
             if (obj is Node)
             {
                 var node = (Node)obj;
-                node.Reset(CircuitLib.State.Off);
+                node.Reset(State.Off);
                 node.Update();
             }
         }
 
-        Selection.ProcessSeclection();
+        Selection.ProcessSelection();
     }
 
     public void Paste()
@@ -179,8 +190,8 @@ public partial class CircuitEditor
         using var stream = new MemoryStream();
         using var bw = new BinaryViewWriter(stream);
 
-        var types = SerializatioUtils.WriteNodeTypes(bw, Circuit);
-        SerializatioUtils.WriteCircuit(bw, Circuit, types);
+        var types = SerializationUtils.WriteNodeTypes(bw, Circuit);
+        SerializationUtils.WriteCircuit(bw, Circuit, types);
 
         var bytes = stream.ToArray();
 
@@ -213,7 +224,7 @@ public partial class CircuitEditor
         RecallStack.Clear();
     }
 
-    bool pinPosValid(Vector2 pos)
+    public bool PinPosValid(Vector2 pos)
     {
         var obj = Circuit.GetAt(pos);
 
@@ -225,7 +236,7 @@ public partial class CircuitEditor
         };
     }
 
-    Pin getPin(Vector2 pos)
+    public Pin GetOrCreatePin(Vector2 pos)
     {
         var obj = Circuit.GetAt(pos);
 
@@ -233,7 +244,7 @@ public partial class CircuitEditor
             null => Circuit.Networks.Create().Pins.Create(pos.Round()),
             Pin => (Pin)obj,
             Wire => ((Wire)obj).InsertPinAt(pos),
-            _ => null,
+            _ => throw new InvalidOperationException(),
         };
     }
 
@@ -241,6 +252,30 @@ public partial class CircuitEditor
     {
         BackupAction();
         Circuit.Nodes.Create<T>(WorldMousePos);
+    }
+
+    public void MouseDown(EditorMouseArgs args)
+    {
+        WorldMouseDownPos = WorldMousePos;
+
+        Tool.MouseDown(args);
+    }
+
+    public void MouseMove(EditorMouseArgs args)
+    {
+        ScreenMousePos = args.Location;
+        WorldMousePos = Camera.ScreenToWorldSpace(args.Location);
+
+        Tool.MouseMove(args);
+        //if (doHover)
+        //    Selection.HoverAt(WorldMousePos);
+    }
+
+    public void MouseUp(EditorMouseArgs args)
+    {
+        WorldMouseUpPos = WorldMousePos;
+
+        Tool.MouseUp(args);
     }
 }
 

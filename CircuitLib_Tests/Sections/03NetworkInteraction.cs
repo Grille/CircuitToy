@@ -25,26 +25,17 @@ partial class Section
             net0.EndEdit();
             net1.EndEdit();
 
-            if (TUtils.AssertListCount(net0.Pins, 4))
-                return TestResult.Failure;
-
-            if (TUtils.AssertListCount(net0.Wires, 3))
-                return TestResult.Failure;
-
-            if (TUtils.AssertListCount(net1.Pins, 0))
-                return TestResult.Failure;
-
-            if (TUtils.AssertListCount(net1.Wires, 0))
-                return TestResult.Failure;
+            TUtils.AssertListCount(net0.Pins, 4);
+            TUtils.AssertListCount(net0.Wires, 3);
+            TUtils.AssertListCount(net1.Pins, 0);
+            TUtils.AssertListCount(net1.Wires, 0);
 
             if (c.Networks.Contains(net1))
             {
-                TUtils.WriteFail($"Net1 not removed from Circuit");
-                return TestResult.Failure;
+                TUtils.Fail($"Net1 not removed from Circuit");
             }
 
-            TUtils.WriteSucces("OK");
-            return TestResult.Success;
+            TUtils.Success("OK");
         });
         Tests.RunCircuit("Network.Split to 2, after pin.Destroy()", (c) => {
             var net0 = c.Networks.Create();
@@ -64,20 +55,15 @@ partial class Section
 
             net0.Cleanup();
 
-            if (TUtils.AssertListCount(c.Networks, 2))
-                return TestResult.Failure;
+            TUtils.AssertListCount(c.Networks, 2);
 
             foreach (var net in c.Networks)
             {
-                if (TUtils.AssertListCount(net.Pins, 1))
-                    return TestResult.Failure;
-
-                if (TUtils.AssertListCount(net.Wires, 0))
-                    return TestResult.Failure;
+                TUtils.AssertListCount(net.Pins, 1);
+                TUtils.AssertListCount(net.Wires, 0);
             }
 
-            TUtils.WriteSucces("OK");
-            return TestResult.Success;
+            TUtils.Success("OK");
         });
         Tests.RunCircuit("Network.Split to 2, after pin.Destroy()", (c) => {
             var net0 = c.Networks.Create();
@@ -99,26 +85,17 @@ partial class Section
 
             pin2.Destroy();
 
-            if (TUtils.AssertListCount(c.Networks, 2))
-                return TestResult.Failure;
+            TUtils.AssertListCount(c.Networks, 2);
 
             var net1 = c.Networks[1];
 
-            if (TUtils.AssertListCount(net0.Pins, 2))
-                return TestResult.Failure;
+            TUtils.AssertListCount(net0.Pins, 2);
+            TUtils.AssertListCount(net1.Pins, 2);
 
-            if (TUtils.AssertListCount(net1.Pins, 2))
-                return TestResult.Failure;
+            TUtils.AssertListCount(net0.Wires, 1);
+            TUtils.AssertListCount(net1.Wires, 1);
 
-
-            if (TUtils.AssertListCount(net0.Wires, 1))
-                return TestResult.Failure;
-
-            if (TUtils.AssertListCount(net1.Wires, 1))
-                return TestResult.Failure;
-
-            TUtils.WriteSucces("OK");
-            return TestResult.Success;
+            TUtils.Success("OK");
         });
 
         Tests.RunCircuit("Network.Split to 3, after pin.Destroy()", (c) => {
@@ -139,20 +116,15 @@ partial class Section
 
             pin0.Destroy();
 
-            if (TUtils.AssertListCount(c.Networks, 3))
-                return TestResult.Failure;
+            TUtils.AssertListCount(c.Networks, 3);
 
             foreach (var net in c.Networks)
             {
-                if (TUtils.AssertListCount(net.Pins, 1))
-                    return TestResult.Failure;
-
-                if (TUtils.AssertListCount(net.Wires, 0))
-                    return TestResult.Failure;
+                TUtils.AssertListCount(net.Pins, 1);
+                TUtils.AssertListCount(net.Wires, 0);
             }
 
-            TUtils.WriteSucces("OK");
-            return TestResult.Success;
+            TUtils.Success("OK");
         });
         Tests.RunCircuit("Network.Split to 2, after wire.Destroy()", (c) => {
             var net0 = c.Networks.Create();
@@ -171,20 +143,15 @@ partial class Section
             wire.Destroy();
 
 
-            if (TUtils.AssertListCount(c.Networks, 2))
-                return TestResult.Failure;
+            TUtils.AssertListCount(c.Networks, 2);
 
             foreach (var net in c.Networks)
             {
-                if (TUtils.AssertListCount(net.Pins, 1))
-                    return TestResult.Failure;
-
-                if (TUtils.AssertListCount(net.Wires, 0))
-                    return TestResult.Failure;
+                TUtils.AssertListCount(net.Pins, 1);
+                TUtils.AssertListCount(net.Wires, 0);
             }
 
-            TUtils.WriteSucces("OK");
-            return TestResult.Success;
+            TUtils.Success("OK");
         });
         Tests.RunCircuit("Network.Split after net.Disconnect(pin,pin)", (c) => {
             var net0 = c.Networks.Create();
@@ -199,20 +166,15 @@ partial class Section
 
             net0.Disconnect(pin0, pin1);
 
-            if (TUtils.AssertListCount(c.Networks, 2))
-                return TestResult.Failure;
+            TUtils.AssertListCount(c.Networks, 2);
 
             foreach (var net in c.Networks)
             {
-                if (TUtils.AssertListCount(net.Pins, 1))
-                    return TestResult.Failure;
-
-                if (TUtils.AssertListCount(net.Wires, 0))
-                    return TestResult.Failure;
+                TUtils.AssertListCount(net.Pins, 1);
+                TUtils.AssertListCount(net.Wires, 0);
             }
 
-            TUtils.WriteSucces("OK");
-            return TestResult.Success;
+            TUtils.Success("OK");
         });
 
         Tests.RunCircuit("Connect 1 In to 2 Out", (c) => {
@@ -223,28 +185,13 @@ partial class Section
             input0.ConnectTo(output0, 0, 0);
             input0.ConnectTo(output1, 0, 0);
 
-            if (c.Networks.Count != 1)
-            {
-                TUtils.WriteFail($"Network count: {c.Networks.Count}, expected: 1");
-                return TestResult.Failure;
-            }
+            TUtils.AssertValue(c.Networks.Count, 1, "Networks.Count");
 
             var net = c.Networks[0];
+            TUtils.AssertValue(net.Pins.Count, 3, "Pins.Count");
+            TUtils.AssertValue(net.Wires.Count, 2, "Wires.Count");
 
-            if (net.Pins.Count != 3)
-            {
-                TUtils.WriteFail($"Pin count: {net.Pins.Count}, expected: 3");
-                return TestResult.Failure;
-            }
-            if (net.Wires.Count != 2)
-            {
-                TUtils.WriteFail($"Wires count: {net.Wires.Count}, expected: 2");
-                return TestResult.Failure;
-            }
-
-
-            TUtils.WriteSucces("OK");
-            return TestResult.Success;
+            TUtils.Success("OK");
         });
 
         Tests.RunCircuit("Connect 2 Out to 1 In", (c) => {
@@ -256,28 +203,14 @@ partial class Section
             output1.InputPins[0].ConnectTo(input0.OutputPins[0]);
 
 
-            if (c.Networks.Count != 1)
-            {
-                TUtils.WriteFail($"Network count: {c.Networks.Count}, expected: 1");
-                return TestResult.Failure;
-            }
+            TUtils.AssertValue(c.Networks.Count, 1, "Networks.Count");
 
             var net = c.Networks[0];
-
-            if (net.Pins.Count != 3)
-            {
-                TUtils.WriteFail($"Pin count: {net.Pins.Count}, expected: 3");
-                return TestResult.Failure;
-            }
-            if (net.Wires.Count != 2)
-            {
-                TUtils.WriteFail($"Wires count: {net.Wires.Count}, expected: 2");
-                return TestResult.Failure;
-            }
+            TUtils.AssertValue(net.Pins.Count, 3, "Pins.Count");
+            TUtils.AssertValue(net.Wires.Count, 2, "Wires.Count");
 
 
-            TUtils.WriteSucces("OK");
-            return TestResult.Success;
+            TUtils.Success("OK");
         });
     }
 }

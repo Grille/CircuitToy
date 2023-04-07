@@ -7,7 +7,7 @@ partial class Section
         TUtils.WriteTitle("TestPrimitives...");
         Tests.RunIOTable<BufferGate>("0->0");
         Tests.RunIOTable<BufferGate>("1->1");
-        Tests.RunIOTable<BufferGate>("Z->Z");
+        Tests.RunIOTable<BufferGate>("Z->E");
         Tests.RunIOTable<BufferGate>("E->E");
 
         Tests.RunIOTable<AndGate>("00->0");
@@ -27,8 +27,8 @@ partial class Section
 
         Tests.RunIOTable<NotGate>("0->1");
         Tests.RunIOTable<NotGate>("1->0");
-        Tests.RunIOTable<NotGate>("Z->Z");
-        Tests.RunIOTable<NotGate>("E->Z");
+        Tests.RunIOTable<NotGate>("Z->E");
+        Tests.RunIOTable<NotGate>("E->E");
 
         Tests.RunIOTable<NAndGate>("00->1");
         Tests.RunIOTable<NAndGate>("01->1");
@@ -53,9 +53,11 @@ partial class Section
         Tests.RunIOTable<PullDown>("0->0");
         Tests.RunIOTable<PullDown>("1->1");
         Tests.RunIOTable<PullDown>("Z->0");
+        Tests.RunIOTable<PullDown>("E->E");
 
         Tests.RunIOTable<PullUp>("0->0");
         Tests.RunIOTable<PullUp>("1->1");
         Tests.RunIOTable<PullUp>("Z->1");
+        Tests.RunIOTable<PullUp>("E->E");
     }
 }

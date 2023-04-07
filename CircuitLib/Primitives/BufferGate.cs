@@ -19,7 +19,7 @@ public class BufferGate : Node
                 new (-2,-0),
             },
             new Vector2[] {
-                new (+2,+0)
+                new (+2,+0),
             }
         );
 
@@ -29,7 +29,11 @@ public class BufferGate : Node
     protected override void OnUpdate()
     {
         PullInputValues();
-        OutputStateBuffer[0] = InputStateBuffer[0];
+        OutputStateBuffer[0] = InputStateBuffer[0] switch {
+            State.Low => State.Low,
+            State.High => State.High,
+            _ => State.Error,
+        };
         SendOutputSignal(0);
     }
 }

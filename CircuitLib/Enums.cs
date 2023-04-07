@@ -15,6 +15,13 @@ public enum State
     Invalid,
 }
 
+public enum NodeRenderMode
+{
+    Rectangle,
+    Polygon,
+    Manuel,
+}
+
 public enum UpdateTaskState
 {
     Idle,

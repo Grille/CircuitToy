@@ -45,7 +45,7 @@ public class SaveFile
         bw.WriteString(".lcp", LengthPrefix.Byte, CharSizePrefix.Byte);
 
         bw.BeginDeflateSection();
-        SerializatioUtils.WriteNode(bw, circuit);
+        SerializationUtils.WriteNode(bw, circuit);
         bw.EndDeflateSection();
 
         bw.Dispose();

@@ -6,11 +6,16 @@
     <!--<Nullable>enable</Nullable>-->
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationIcon>assets\circuit.ico</ApplicationIcon>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <!--<ImplicitUsings>enable</ImplicitUsings>-->
   </PropertyGroup>
 
   <ItemGroup>
     <Content Include="assets\circuit.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DarkUI.Net5.0" Version="1.0.0" />
   </ItemGroup>
 
   <ItemGroup>

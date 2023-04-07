@@ -8,12 +8,13 @@ using System.Numerics;
 using CircuitLib.Math;
 using CircuitLib.Interface;
 using System.Diagnostics;
+using CircuitLib.Interface.EditorTools;
 
 namespace CircuitLib.Rendering;
 
-public class Renderer
+public class Renderer<TRenderer> where TRenderer : IRendererBackend
 {
-    IRendererBackend ctx;
+    TRenderer ctx;
 
     BoundingBox ViewPort;
 
@@ -36,7 +37,7 @@ public class Renderer
         }
     }
 
-    public Renderer(IRendererBackend renderBackend, Theme theme, CircuitEditor editor)
+    public Renderer(TRenderer renderBackend, Theme theme, CircuitEditor editor)
     {
         ctx = renderBackend;
 
@@ -44,7 +45,7 @@ public class Renderer
         this.theme = theme;
         this.editor = editor;
         circuit = editor.Circuit;
-        selection = this.editor.Selection;
+        selection = editor.Selection;
 
         palette = new PaintPalette();
     }
@@ -121,10 +122,17 @@ public class Renderer
             ctx.DrawText(palette.DebugText, info, pos);
         }
 
-        if (editor.State == EditorState.Wireing)
-        {
-            DrawWireSilhouette(editor.WorldMouseDownPos.Round(), editor.WorldMousePos.Round(), palette.SelectionWire);
+        if (editor.Tool is ToolAddWire) {
+            var tool = editor.Tool as ToolAddWire;
+            if (tool.Wireing)
+            {
+                int paint = tool.Error ? palette.SelectionErrorWire : palette.HoverdWire;
+                DrawWireSilhouette(editor.WorldMouseDownPos.Round(), editor.WorldMousePos.Round(), paint);
+            }
         }
+
+        //ctx.DrawLine(palette.StateError, new(100, 100), new(100, 250));
+        //ctx.FillPolygon(palette.StateError, new Vector2[] { new(100, 100), new(100, 200), new(200, 200) });
 
         ctx.Cleanup();
     }

@@ -22,6 +22,11 @@ public class Registry
         Console.WriteLine($"{type.FullName} {fullPath}");
     }
 
+    public void Assign(Registry registry)
+    {
+    
+    }
+
     public void RegisterCircuit(Circuit node)
     {
     
@@ -44,6 +49,7 @@ public class Registry
         RegisterType<NOrGate>("NOrGate");
         RegisterType<XNorGate>("XNorGate");
 
+        DefaultPath = "std/Tri-State";
         RegisterType<TriState>("TriState");
         RegisterType<PullDown>("PullDown");
         RegisterType<PullUp>("PullUp");

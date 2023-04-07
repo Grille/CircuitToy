@@ -12,33 +12,23 @@ namespace CircuitLib_Tests;
 
 partial class Section
 {
-    public static void S05Serialization()
+    public static void S06Misc()
     {
-        TUtils.WriteTitle("TestSerialization...");
+        TUtils.WriteTitle("TestMisc...");
 
-        Tests.Run("Test Save/Load: ",() => {
+        Tests.Run("Test Loop: ",() => {
 
             var oc = new Circuit();
             oc.Name = "001";
+
+
+
+            /*
             var input0 = oc.Nodes.Create<Input>(0, 0, "Inp0");
             var input1 = oc.Nodes.Create<Input>(0, 4, "Inp1");
             var output = oc.Nodes.Create<Output>(10, 2, "Out");
             var andgate = oc.Nodes.Create<AndGate>(5, 2, "AND");
-
-            var stream = new MemoryStream();
-            var bw = new BinaryViewWriter(stream);
-            var br = new BinaryViewReader(stream);
-
-            SerializationUtils.WriteNode(bw, oc);
-
-            stream.Seek(0, SeekOrigin.Begin);
-            var rc = (Circuit)DeserializationUtils.ReadNode(br);
-
-            TUtils.AssertValue(rc.Name, oc.Name, "Name");
-
-            TUtils.AssertListCount(rc.Nodes, oc.Nodes.Count);
-
-
+            */
             TUtils.Success("OK");
         });
     }

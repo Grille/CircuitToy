@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
 using System.Numerics;
+using CircuitLib.Interface;
 
 namespace CircuitLib;
 
@@ -27,12 +28,21 @@ public class InputPin : IOPin
         }
     }
 
-    public override void ClickAction()
+    public override void ClickAction(CircuitEditor editor)
     {
-        State = State switch {
-            State.Low => State.High,
-            _ => State.Low,
-        };
+        if (editor.IsShiftKeyDown)
+        {
+            State = State.Off;
+        }
+        else
+        {
+            State = State switch {
+                State.Low => State.High,
+                State.High => State.Low,
+                _ => State.Low,
+            };
+        }
+
         Owner.Update();
     }
 

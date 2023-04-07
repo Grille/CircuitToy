@@ -20,8 +20,8 @@ internal class Simulation
     public Form Form;
     public Circuit Circuit;
     public Camera Camera;
-    public RendererGdiBackend RendererBackend;
-    public Renderer Renderer;
+    public GdiRendererBackend RendererBackend;
+    public Renderer<GdiRendererBackend> Renderer;
     public Control Target;
     public CircuitEditor Editor;
     public Theme Theme;
@@ -94,69 +94,12 @@ internal class Simulation
             Circuit = c;
         }
 
-
-        Theme = new Theme() {
-            SceneBackColor = Color.White,
-            SceneGridColor = Color.WhiteSmoke,
-
-            NodeBorderColor = Color.DarkGray,
-            NodeBackColor = Color.LightGray,
-            NodeTextColor = Color.Black,
-
-            StateLowColor = Color.Black,
-            StateHighColor = Color.Blue,
-            StateOffColor = Color.FromArgb(150,150,150),
-            StateErrorColor = Color.Red,
-
-            SelectionColor = Color.Green,
-            HoverColor = Color.LimeGreen,
-            DebugColor = Color.Lime,
-        };
-
-        Theme = new Theme() {
-            SceneBackColor = Color.FromArgb(0, 0, 0),
-            SceneGridColor = Color.FromArgb(20, 20, 20),
-
-            NodeBorderColor = Color.FromArgb(10, 30, 30),
-            NodeBackColor = Color.FromArgb(20, 50, 50),
-            NodeTextColor = Color.LightGray,
-
-            StateLowColor = Color.DarkGray,
-            StateHighColor = Color.DarkCyan,
-            StateOffColor = Color.FromArgb(60, 80, 80),
-            StateErrorColor = Color.DarkMagenta,
-
-            SelectionColor = Color.Green,
-            HoverColor = Color.LimeGreen,
-            DebugColor = Color.Lime,
-        };
-
-        var _Theme = new Theme() {
-            SceneBackColor = Color.FromArgb(0, 0, 0),
-            SceneGridColor = Color.FromArgb(20, 20, 20),
-
-            NodeBorderColor = Color.FromArgb(80, 80, 80),
-            NodeBackColor = Color.FromArgb(0, 0, 0),
-            NodeTextColor = Color.LightGray,
-
-            StateLowColor = Color.DarkGray,
-            StateHighColor = Color.Lime,
-            StateOffColor = Color.FromArgb(80, 80, 80),
-            StateErrorColor = Color.Red,
-
-            SelectionColor = Color.Green,
-            HoverColor = Color.LimeGreen,
-            DebugColor = Color.Lime,
-        };
-
-
-
+        Theme = Theme.Dark;
         Camera = new Camera();
         Editor = new CircuitEditor(Circuit, Camera);
 
-
-        RendererBackend = new RendererGdiBackend();
-        Renderer = new Renderer(RendererBackend, Theme, Editor);
+        RendererBackend = new GdiRendererBackend();
+        Renderer = new Renderer<GdiRendererBackend>(RendererBackend, Theme, Editor);
 
         //Renderer.DebugMode = false;
         //Renderer.Start();
@@ -183,7 +126,7 @@ internal class Simulation
     }
     public void Save()
     {
-        SaveFile.Save(path,Circuit);
+        SaveFile.Save(path, Circuit);
     }
     public void Save(string path)
     {
@@ -222,19 +165,26 @@ internal class Simulation
         Camera.MouseScrollEvent((Vector2)(PointF)e.Location,e.Delta, 1.5f);
     }
 
+    private EditorMouseArgs ConvertMouseArgs(MouseEventArgs e) => new EditorMouseArgs() {
+        Location = (Vector2)(PointF)e.Location,
+        Right = e.Button.HasFlag(MouseButtons.Right),
+        Middle = e.Button.HasFlag(MouseButtons.Middle),
+        Left = e.Button.HasFlag(MouseButtons.Left),
+    };
+
     private void Target_MouseMove(object sender, MouseEventArgs e)
     {
         Camera.MouseMoveEvent((Vector2)(PointF)e.Location, e.Button.HasFlag(MouseButtons.Middle));
-        Editor.MouseMove((Vector2)(PointF)e.Location, e.Button.HasFlag(MouseButtons.Left));
+        Editor.MouseMove(ConvertMouseArgs(e));
     }
 
     private void Target_MouseDown(object sender, MouseEventArgs e)
     {
-        Editor.MouseDown((Vector2)(PointF)e.Location, e.Button.HasFlag(MouseButtons.Left));
+        Editor.MouseDown(ConvertMouseArgs(e));
     }
 
     private void Target_MouseUp(object sender, MouseEventArgs e)
     {
-        Editor.MouseUp((Vector2)(PointF)e.Location, e.Button.HasFlag(MouseButtons.Left));
+        Editor.MouseUp(ConvertMouseArgs(e));
     }
 }

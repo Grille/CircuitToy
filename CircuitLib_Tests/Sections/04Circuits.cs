@@ -25,57 +25,26 @@ partial class Section
 
             c.UpdateIO();
 
-            if (c.InputPins.Length != 2)
-            {
-                TUtils.WriteFail($"InPin.Len != 2! {c.InputPins.Length}");
-                return TestResult.Failure;
-            }
-            if (c.OutputPins.Length != 1)
-            {
-                TUtils.WriteFail($"OutPin.Len != 1! {c.OutputPins.Length}");
-                return TestResult.Failure;
-            }
+            TUtils.AssertValue(c.InputPins.Length, 2, "InputPins.Length");
+            TUtils.AssertValue(c.OutputPins.Length, 1, "OutputPins.Length");
 
             c.InputPins[0].State = State.High;
             c.InputPins[1].State = State.High;
             c.Update();
             c.WaitIdle();
 
-            if (TUtils.AssertPinState(c.InputPins[0], State.High))
-                return TestResult.Failure;
-
-            if (TUtils.AssertPinState(c.InputPins[1], State.High))
-                return TestResult.Failure;
-
-            if (TUtils.AssertPinState(input0.OutputPins[0], State.High))
-                return TestResult.Failure;
-
-            if (TUtils.AssertPinState(input1.OutputPins[0], State.High))
-                return TestResult.Failure;
-
-            if (TUtils.AssertNetState(innet0, State.High))
-                return TestResult.Failure;
-
-            if (TUtils.AssertNetState(innet1, State.High))
-                return TestResult.Failure;
-
-            if (TUtils.AssertPinState(andgate.InputPins[0], State.High))
-                return TestResult.Failure;
-
-            if (TUtils.AssertPinState(andgate.InputPins[1], State.High))
-                return TestResult.Failure;
-
-            if (TUtils.AssertPinState(andgate.OutputPins[0], State.High))
-                return TestResult.Failure;
-
-            if (TUtils.AssertPinState(output.InputPins[0], State.High))
-                return TestResult.Failure;
-
-            if (TUtils.AssertPinState(c.OutputPins[0], State.High))
-                return TestResult.Failure;
-
-            TUtils.WriteSucces("OK");
-            return TestResult.Success;
+            TUtils.AssertPinState(c.InputPins[0], State.High);
+            TUtils.AssertPinState(c.InputPins[1], State.High);
+            TUtils.AssertPinState(input0.OutputPins[0], State.High);
+            TUtils.AssertPinState(input1.OutputPins[0], State.High);
+            TUtils.AssertNetState(innet0, State.High);
+            TUtils.AssertNetState(innet1, State.High);
+            TUtils.AssertPinState(andgate.InputPins[0], State.High);
+            TUtils.AssertPinState(andgate.InputPins[1], State.High);
+            TUtils.AssertPinState(andgate.OutputPins[0], State.High);
+            TUtils.AssertPinState(output.InputPins[0], State.High);
+            TUtils.AssertPinState(c.OutputPins[0], State.High);
+            TUtils.Success("OK");
         });
 
 
@@ -104,31 +73,19 @@ partial class Section
 
                 c.UpdateIO();
 
-                if (c.InputPins.Length != 2)
-                {
-                    TUtils.WriteFail($"InPin.Len != 2! {c.InputPins.Length}");
-                    return TestResult.Failure;
-                }
-                if (c.OutputPins.Length != 1)
-                {
-                    TUtils.WriteFail($"OutPin.Len != 1! {c.OutputPins.Length}");
-                    return TestResult.Failure;
-                }
+                TUtils.AssertValue(c.InputPins.Length, 2, "InputPins.Length");
+                TUtils.AssertValue(c.OutputPins.Length, 1, "OutputPins.Length");
 
                 c.InputPins[0].State = State.High;
                 c.InputPins[1].State = State.High;
                 c.Update();
                 c.WaitIdle();
 
-                if (TUtils.AssertPinState(andcirc.OutputPins[0], State.High))
-                    return TestResult.Failure;
-
-                if (TUtils.AssertPinState(c.OutputPins[0], State.High))
-                    return TestResult.Failure;
+                TUtils.AssertPinState(andcirc.OutputPins[0], State.High);
+                TUtils.AssertPinState(c.OutputPins[0], State.High);
             }
 
-            TUtils.WriteSucces("OK");
-            return TestResult.Success;
+            TUtils.Success("OK");
         });
 
 
@@ -158,27 +115,17 @@ partial class Section
             c.Update();
             c.WaitIdle();
 
-            if (TUtils.AssertPinState(c.InputPins[0], State.High))
-                return TestResult.Failure;
-
-            if (TUtils.AssertPinState(c.InputPins[1], State.Low))
-                return TestResult.Failure;
-
-            if (TUtils.AssertPinState(norgate0.InputPins[0], State.High))
-                return TestResult.Failure;
-
-            if (TUtils.AssertPinState(norgate1.InputPins[0], State.Low))
-                return TestResult.Failure;
-
-            if (TUtils.AssertPinState(c.OutputPins[0], State.High))
-                return TestResult.Failure;
+            TUtils.AssertPinState(c.InputPins[0], State.High);
+            TUtils.AssertPinState(c.InputPins[1], State.Low);
+            TUtils.AssertPinState(norgate0.InputPins[0], State.High);
+            TUtils.AssertPinState(norgate1.InputPins[0], State.Low);
+            TUtils.AssertPinState(c.OutputPins[0], State.High);
 
             c.InputPins[0].State = State.Low;
             c.Update();
             c.WaitIdle();
 
-            if (TUtils.AssertPinState(c.OutputPins[0], State.High))
-                return TestResult.Failure;
+            TUtils.AssertPinState(c.OutputPins[0], State.High);
 
             c.InputPins[1].State = State.High;
             c.Update();
@@ -187,11 +134,9 @@ partial class Section
             c.Update();
             c.WaitIdle();
 
-            if (TUtils.AssertPinState(c.OutputPins[0], State.Low))
-                return TestResult.Failure;
+            TUtils.AssertPinState(c.OutputPins[0], State.Low);
 
-            TUtils.WriteSucces("OK");
-            return TestResult.Success;
+            TUtils.Success("OK");
         });
     }
 }

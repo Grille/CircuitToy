@@ -2,6 +2,7 @@
 
 internal enum TestResult
 {
+    None,
     Success,
     Failure,
     Error,
