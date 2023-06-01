@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -46,6 +46,7 @@ public class BinarySerializer : IDisposable
     }
 
     public void WriteClipboard(IList<Entity> entities)
+
     {
         var nodes = new List<Node>();
         var pins = new List<Pin>();
@@ -105,6 +106,7 @@ public class BinarySerializer : IDisposable
             bw.Write(pin.RelativePosition - center);
         }
 
+
         WriteWiresIndices(wires, nodes, netPins);
 
     }
@@ -131,7 +133,9 @@ public class BinarySerializer : IDisposable
 
     }
 
+
     public void WriteNetwork(Network network, IList<Node> nodes)
+
     {
         WriteLegacyString(network.Name);
         WriteLegacyString(network.Description);
@@ -174,6 +178,7 @@ public class BinarySerializer : IDisposable
     }
 
     public void WriteWiresIndices(IList<Wire> wires, IList<Node> nodes, IList<WirePin> netPins)
+
     {
         bw.WriteInt32(wires.Count);
         foreach (var wire in wires)
@@ -209,11 +214,13 @@ public class BinarySerializer : IDisposable
         }
     }
 
+
     public List<Type> WriteNodeTypes(Node node)
     {
         return WriteNodeTypes(new[] { node });
     }
     public List<Type> WriteNodeTypes(IList<Node> nodes)
+
     {
         var typeList = new List<Type>();
         var typeNameList = new List<string>();
@@ -229,7 +236,9 @@ public class BinarySerializer : IDisposable
         return typeList;
     }
 
-    public void buildTypeListRecursive(IList<Node> nodes, IList<Type> types, IList<string> typeNames)
+
+    public void BuildTypeListRecursive(IList<Node> nodes, IList<Type> types, IList<string> typeNames)
+
     {
         for (int i = 0; i < nodes.Count; i++)
         {
@@ -248,12 +257,15 @@ public class BinarySerializer : IDisposable
         }
     }
 
+
     public void WriteNodes(IList<Node> nodes, List<Type> types)
+
     {
         bw.Write(nodes.Count);
         for (int i = 0; i < nodes.Count; i++)
         {
             var node = nodes[i];
+
 
             WriteNode(node, types, Vector2.Zero);
         }
@@ -266,6 +278,7 @@ public class BinarySerializer : IDisposable
     }
 
     public void WriteNode(Node node, List<Type> types, Vector2 offset)
+
     {
         int typeID = types.IndexOf(node.GetType());
         if (typeID == -1)

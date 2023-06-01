@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO.Compression;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,8 @@ using System.Numerics;
 
 using CircuitLib.Primitives;
 using GGL.IO;
+using GGL.IO.Compression;
+using System.IO;
 
 namespace CircuitLib.Serialization;
 
@@ -39,35 +42,28 @@ public class SaveFile
 
     public static void Save(string path, Circuit circuit)
     {
-        using var bw = new BinaryViewWriter(path);
-        bw.WriteInt32(MagicNumber);
-        bw.WriteInt32(FileVersion);
-        bw.WriteString(".lcp", LengthPrefix.Byte, CharSizePrefix.Byte);
-
-        bw.BeginDeflateSection();
-        SerializationUtils.WriteNode(bw, circuit);
-        bw.EndDeflateSection();
-
-        bw.Dispose();
+        using var fs = new FileStream(path, FileMode.Create);
+        Save(fs, circuit);
     }
 
     public static SaveFile Load(string path)
     {
-        using var br = new BinaryViewReader(path);
+        using var fs = new FileStream(path, FileMode.Open);
+        return Load(fs);
+    }
 
-        int magicNumber = br.ReadInt32();
-        if (magicNumber != MagicNumber)
-            return new SaveFile(SaveFileState.UnknownFileType);
+    public static void Save(Stream stream, Circuit circuit)
+    {
+        using var bs = new BinarySerializer(stream);
+        bs.WriteHead();
+        bs.WriteNode(circuit);
+    }
 
-        int version = br.ReadInt32();
-
-        string file = br.ReadString(LengthPrefix.Byte, CharSizePrefix.Byte);
-
-        br.BeginDeflateSection();
-        var circuit = (Circuit)DeserializationUtils.ReadNode(br);
-        br.EndDeflateSection();
-
-        br.Dispose();
+    public static SaveFile Load(Stream stream)
+    {
+        using var bd = new BinaryDeserializer(stream);
+        bd.ReadHead();
+        var circuit = (Circuit)bd.ReadNode();
 
         return new SaveFile(SaveFileState.OK, circuit);
     }

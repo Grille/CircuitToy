@@ -9,23 +9,56 @@ using System.IO;
 
 using CircuitLib.Primitives;
 using GGL.IO;
+using GGL.IO.Compression;
 
 namespace CircuitLib.Serialization;
 
-public static class DeserializationUtils
+public class BinaryDeserializer : IDisposable
 {
+    private readonly BinaryViewReader br;
 
-    public static List<Entity> ReadEntitiesToCircuit(this BinaryViewReader br, Circuit circuit)
+    public BinaryDeserializer(string path)
+    {
+        br = new BinaryViewReader(path);
+    }
+
+    public BinaryDeserializer(Stream stream)
+    {
+        br = new BinaryViewReader(stream, true);
+    }
+
+    public void ReadHead()
+    {
+        int magicNumber = br.ReadInt32();
+        //if (magicNumber != MagicNumber)
+        //    return new SaveFile(SaveFileState.UnknownFileType);
+
+        int version = br.ReadInt32();
+        string file = br.ReadString(5, Encoding.ASCII);
+
+        br.ReadInt64();
+        br.CompressAll(CompressionType.Deflate);
+
+    }
+
+    public static void ReadToCircuit(Stream stream, Circuit circuit)
+    {
+        using var bd = new BinaryDeserializer(stream);
+        var types = bd.ReadNodeTypes();
+        bd.ReadToCircuit(circuit, types);
+    }
+
+    public List<Entity> ReadClipboardToCircuit(Circuit circuit)
     {
         var nodes = new List<Node>();
         var pins = new List<WirePin>();
         var result = new List<Entity>();
 
-        var types = ReadNodeTypes(br);
+        var types = ReadNodeTypes();
         int nodeCount = br.ReadInt32();
         for (int i = 0; i < nodeCount; i++)
         {
-            var node = ReadNode(br, types);
+            var node = ReadNode(types);
             circuit.Nodes.Add(node);
             nodes.Add(node);
             result.Add(node);
@@ -40,26 +73,27 @@ public static class DeserializationUtils
             result.Add(pin);
         }
 
-        ReadWiresIndices(br, nodes, pins);
+        ReadWiresIndices(nodes, pins);
 
         return result;
     }
 
-    public static List<Type> ReadNodeTypes(this BinaryViewReader br)
+    public List<Type> ReadNodeTypes()
     {
         var list = new List<Type>();
 
         int count = br.ReadInt32();
         for (int i = 0; i < count; i++)
         {
-            var type = Type.GetType(br.ReadString());
+            string name = ReadLegacyString();
+            var type = Type.GetType(name);
             list.Add(type);
         }
 
         return list;
     }
 
-    public static void ReadToCircuit(this BinaryViewReader br, Circuit circuit, List<Type> types)
+    public void ReadToCircuit(Circuit circuit, List<Type> types)
     {
         var nodes = circuit.Nodes;
         var networks = circuit.Networks;
@@ -67,27 +101,27 @@ public static class DeserializationUtils
         int nodeCount = br.ReadInt32();
         for (int i = 0; i < nodeCount; i++)
         {
-            var node = ReadNode(br, types);
+            var node = ReadNode(types);
             circuit.Nodes.Add(node);
         }
 
         int netCount = br.ReadInt32();
         for (int i = 0; i < netCount; i++)
         {
-            var net = ReadNetwork(br, nodes);
+            var net = ReadNetwork(nodes);
             circuit.Networks.Add(net);
         }
 
         circuit.UpdateIO();
     }
 
-    public static Network ReadNetwork(this BinaryViewReader br, IList<Node> nodes)
+    public Network ReadNetwork(IList<Node> nodes)
     {
         var net = new Network();
         net.BeginEdit();
 
-        net.Name = br.ReadString();
-        net.Description = br.ReadString();
+        net.Name = ReadLegacyString();
+        net.Description = ReadLegacyString();
 
         int pinCount = br.ReadInt32();
         for (int j = 0; j < pinCount; j++)
@@ -114,14 +148,14 @@ public static class DeserializationUtils
             net.Pins.Add(nodes[index0].OutputPins[index1]);
         }
 
-        ReadWiresIndices(br, nodes, net.Pins.NetPins);
+        ReadWiresIndices(nodes, net.Pins.NetPins);
 
         net.EndEdit();
 
         return net;
     }
 
-    public static void ReadWiresIndices(this BinaryViewReader br, IList<Node> nodes, IList<WirePin> netPins)
+    public void ReadWiresIndices(IList<Node> nodes, IList<WirePin> netPins)
     {
         int wireCount = br.ReadInt32();
         for (int i = 0; i < wireCount; i++)
@@ -145,13 +179,13 @@ public static class DeserializationUtils
         }
     }
 
-    public static Node ReadNode(this BinaryViewReader br)
+    public Node ReadNode()
     {
-        var types = ReadNodeTypes(br);
-        return ReadNode(br, types);
+        var types = ReadNodeTypes();
+        return ReadNode(types);
     }
 
-    public static Node ReadNode(this BinaryViewReader br, List<Type> types)
+    public Node ReadNode(List<Type> types)
     {
         int index = br.ReadInt32();
         var type = types[index];
@@ -159,8 +193,8 @@ public static class DeserializationUtils
         var constructor = type.GetConstructor(new Type[] { });
         var node = (Node)constructor.Invoke(null);
 
-        node.Name = br.ReadString();
-        node.Description = br.ReadString();
+        node.Name = ReadLegacyString();
+        node.Description = ReadLegacyString();
 
         node.Position = br.Read<Vector2>();
         node.Size = br.Read<Vector2>();
@@ -169,7 +203,7 @@ public static class DeserializationUtils
         node.OutputPins = readPinArray<OutputPin>();
 
         if (type == typeof(Circuit))
-            ReadToCircuit(br, (Circuit)node, types);
+            ReadToCircuit((Circuit)node, types);
 
         T[] readPinArray<T>() where T : IOPin, new()
         {
@@ -182,8 +216,8 @@ public static class DeserializationUtils
                 var pin = new T();
                 pin.Owner = node;
 
-                pin.Name = br.ReadString();
-                pin.Description = br.ReadString();
+                pin.Name = ReadLegacyString();
+                pin.Description = ReadLegacyString();
                 pin._state = br.Read<State>();
                 pin.RelativePosition = br.Read<Vector2>();
 
@@ -195,4 +229,12 @@ public static class DeserializationUtils
 
         return node;
     }
+
+    private string ReadLegacyString()
+    {
+        long count = br.ReadLengthPrefix(LengthPrefix.Default);
+        return br.ReadString(count * 2, Encoding.Unicode);
+    }
+
+    public void Dispose() => br.Dispose();
 }

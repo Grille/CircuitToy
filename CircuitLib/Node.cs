@@ -33,8 +33,8 @@ public abstract class Node : AsyncUpdatableEntity
 
     public string DisplayName;
 
-    public InputPin[] InputPins;
-    public OutputPin[] OutputPins;
+    public InputPin[] InputPins { set; get; }
+    public OutputPin[] OutputPins { set; get; }
 
     internal protected State[] InputNextStateBuffer;
     internal protected State[] InputStateBuffer;

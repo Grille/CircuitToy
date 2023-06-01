@@ -20,10 +20,9 @@ public partial class Network : AsyncUpdatableEntity
         }
     }
 
-    public PinList Pins;
-    public WireList Wires;
+    public readonly PinList Pins;
+    public readonly WireList Wires;
 
-    internal protected State[] InputStateBuffer;
     private int editScope = 0;
 
     public override Vector2 Position {

@@ -103,9 +103,9 @@ public partial class CircuitEditor
     public byte[] CopySelection()
     {
         using var stream = new MemoryStream();
-        using var bw = new BinaryViewWriter(stream);
+        using var bw = new BinarySerializer(stream);
 
-        SerializationUtils.WriteEntities(bw, Selection.SelectedEntities);
+        bw.WriteClipboard(Selection.SelectedEntities);
 
         var bytes = stream.ToArray();
 
@@ -125,9 +125,9 @@ public partial class CircuitEditor
         BackupAction();
 
         using var stream = new MemoryStream(buffer);
-        using var br = new BinaryViewReader(stream);
+        using var br = new BinaryDeserializer(stream);
 
-        var selection = DeserializationUtils.ReadEntitiesToCircuit(br, Circuit);
+        var selection = br.ReadClipboardToCircuit(Circuit);
 
         Selection.ClearSelection();
 
@@ -188,11 +188,7 @@ public partial class CircuitEditor
     public byte[] CreateBackup()
     {
         using var stream = new MemoryStream();
-        using var bw = new BinaryViewWriter(stream);
-
-        var types = SerializationUtils.WriteNodeTypes(bw, Circuit);
-        SerializationUtils.WriteCircuit(bw, Circuit, types);
-
+        BinarySerializer.WriteCircuit(stream, Circuit);
         var bytes = stream.ToArray();
 
         return bytes;
@@ -200,15 +196,11 @@ public partial class CircuitEditor
 
     public void RestoreBackup(byte[] buffer)
     {
-        Console.WriteLine("restore "+buffer.Length);
-        using var stream = new MemoryStream(buffer);
-        using var br = new BinaryViewReader(stream);
-
         Selection.ClearSelection();
         Circuit.Destroy();
 
-        var types = DeserializationUtils.ReadNodeTypes(br);
-        DeserializationUtils.ReadToCircuit(br, Circuit, types);
+        using var stream = new MemoryStream(buffer);
+        BinaryDeserializer.ReadToCircuit(stream, Circuit);
     }
 
     public void BackupAction()

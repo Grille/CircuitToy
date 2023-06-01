@@ -26,13 +26,13 @@ partial class Section
             var andgate = oc.Nodes.Create<AndGate>(5, 2, "AND");
 
             var stream = new MemoryStream();
-            var bw = new BinaryViewWriter(stream);
-            var br = new BinaryViewReader(stream);
+            var bw = new BinarySerializer(stream);
+            var br = new BinaryDeserializer(stream);
 
-            SerializationUtils.WriteNode(bw, oc);
+            bw.WriteNode(oc);
 
             stream.Seek(0, SeekOrigin.Begin);
-            var rc = (Circuit)DeserializationUtils.ReadNode(br);
+            var rc = (Circuit)br.ReadNode();
 
             TUtils.AssertValue(rc.Name, oc.Name, "Name");
 

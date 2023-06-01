@@ -7,9 +7,17 @@
     <!--<Nullable>enable</Nullable>-->
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="Serialization\SerializationUtils.cs" />
+  </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="GGL.BinaryView" Version="2.1.0" />
+    <None Include="Serialization\SerializationUtils.cs" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <PackageReference Include="GGL.BinaryView" Version="2.4.1" />
   </ItemGroup>
 
 </Project>
