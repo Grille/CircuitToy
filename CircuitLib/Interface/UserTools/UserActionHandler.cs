@@ -6,9 +6,9 @@ using System.Text;
 using System.Threading.Tasks;
 using CircuitLib.Interface.EditorActions;
 
-namespace CircuitLib.Interface.EditorTools;
+namespace CircuitLib.Interface.UserTools;
 
-public abstract class EditorTool
+public abstract class UserActionHandler
 {
     protected CircuitEditor Editor;
     protected bool IsShiftKeyDown => Editor.IsShiftKeyDown;
@@ -21,7 +21,7 @@ public abstract class EditorTool
     protected Vector2 WorldMouseUpPos => Editor.WorldMouseUpPos;
 
 
-    public EditorTool(CircuitEditor editor)
+    public UserActionHandler(CircuitEditor editor)
     {
         Editor = editor;
     }

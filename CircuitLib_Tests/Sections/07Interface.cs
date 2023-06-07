@@ -24,18 +24,18 @@ public class MouseController
     public void Move(float x, float y)
     {
         Position = Editor.Camera.WorldToScreenSpace(new Vector2(x, y));
-        Editor.MouseMove(new() { Location = Position, Left = LeftDown });
+        Editor.InvokeMouseMove(new() { Location = Position, Left = LeftDown });
     }
 
     public void Down()
     {
         LeftDown = true;
-        Editor.MouseDown(new() { Location = Position, Left = LeftDown });
+        Editor.InvokeMouseDown(new() { Location = Position, Left = LeftDown });
     }
 
     public void Up()
     {
-        Editor.MouseUp(new() { Location = Position, Left = LeftDown });
+        Editor.InvokeMouseUp(new() { Location = Position, Left = LeftDown });
         LeftDown = false;
     }
 

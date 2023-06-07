@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Numerics;
 
-namespace CircuitLib.Math;
+namespace CircuitLib.IntMath;
 
 internal static class Vec2Extension
 {

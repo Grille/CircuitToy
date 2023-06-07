@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Drawing;
 using System.Numerics;
 
-namespace CircuitLib.Math;
+namespace CircuitLib.IntMath;
 
 public struct BoundingBox
 {

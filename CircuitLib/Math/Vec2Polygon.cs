@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Numerics;
 
-namespace CircuitLib.Math;
+namespace CircuitLib.IntMath;
 
 public class Vec2Polygon : Vec2Path
 {

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Drawing;
 
 using CircuitLib.Rendering;
-using CircuitLib.Math;
+using CircuitLib.IntMath;
 using System.Runtime.CompilerServices;
 
 namespace CircuitToy;

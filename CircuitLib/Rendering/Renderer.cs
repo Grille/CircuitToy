@@ -5,10 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Numerics;
 
-using CircuitLib.Math;
+using CircuitLib.IntMath;
 using CircuitLib.Interface;
 using System.Diagnostics;
-using CircuitLib.Interface.EditorTools;
+using CircuitLib.Interface.UserTools;
 
 namespace CircuitLib.Rendering;
 
@@ -122,8 +122,8 @@ public class Renderer<TRenderer> where TRenderer : IRendererBackend
             ctx.DrawText(palette.DebugText, info, pos);
         }
 
-        if (editor.Tool is ToolAddWire) {
-            var tool = editor.Tool as ToolAddWire;
+        if (editor.UserTool is UserToolAddWire) {
+            var tool = editor.UserTool as UserToolAddWire;
             if (tool.Wireing)
             {
                 int paint = tool.Error ? palette.SelectionErrorWire : palette.HoverdWire;

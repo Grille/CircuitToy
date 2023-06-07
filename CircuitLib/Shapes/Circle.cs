@@ -4,7 +4,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
-using CircuitLib.Math;
+using CircuitLib.IntMath;
 using CircuitLib.Rendering;
 
 namespace CircuitLib.Shapes;

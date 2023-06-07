@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Numerics;
 using CircuitLib.Interface;
 
-namespace CircuitLib.Math;
+namespace CircuitLib.IntMath;
 
 public class Vec2Path
 {

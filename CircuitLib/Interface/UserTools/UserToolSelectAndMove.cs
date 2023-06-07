@@ -6,11 +6,11 @@ using System.Text;
 using System.Threading.Tasks;
 using CircuitLib.Interface.EditorActions;
 
-namespace CircuitLib.Interface.EditorTools;
+namespace CircuitLib.Interface.UserTools;
 
-public class ToolSelectAndMove : EditorTool
+public class UserToolSelectAndMove : UserActionHandler
 {
-    public ToolSelectAndMove(CircuitEditor editor) : base(editor) { }
+    public UserToolSelectAndMove(CircuitEditor editor) : base(editor) { }
 
     enum ToolState
     {

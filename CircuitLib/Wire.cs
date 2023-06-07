@@ -4,7 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using CircuitLib.Math;
+using CircuitLib.IntMath;
 using System.Numerics;
 
 namespace CircuitLib;
@@ -82,7 +82,77 @@ public class Wire : Entity
 
     public override void GetFromArea(List<Entity> entities, BoundingBox region)
     {
-        return;
+        //if (Bounds.IsColliding(region))
+        //    entities.Add(this);
+
+        var pos1 = StartPin.Position;
+        var pos2 = EndPin.Position;
+        var rect = (RectangleF)region;
+
+        if (IsLineIntersectingRectangle(pos1.X, pos1.Y, pos2.X, pos2.Y, rect.X,rect.Y, rect.Width, rect.Height))
+           entities.Add(this);
+    }
+
+    static bool IsLineIntersectingRectangle(float x1, float y1, float x2, float y2, float rx, float ry, float rw, float rh)
+    {
+        float left = Math.Min(x1, x2);
+        float right = Math.Max(x1, x2);
+        float top = Math.Min(y1, y2);
+        float bottom = Math.Max(y1, y2);
+
+        // Check bounds
+        if (left > rx + rw || right < rx || top > ry + rh || bottom < ry)
+        {
+            return false;
+        }
+
+        bool isLineStartInside = (x1 >= rx && x1 <= rx + rw && y1 >= ry && y1 <= ry + rh);
+        bool isLineEndInside = (x2 >= rx && x2 <= rx + rw && y2 >= ry && y2 <= ry + rh);
+
+        if (isLineStartInside && isLineEndInside)
+        {
+            return true; // Line is entirely inside the rectangle
+        }
+
+
+        float m = (y2 - y1) / (x2 - x1);
+
+        float x;
+        float y;
+
+        // Check intersection with the left edge of the rectangle
+        x = rx;
+        y = m * (x - x1) + y1;
+        if (y >= ry && y <= ry + rh && x >= left && x <= right)
+        {
+            return true;
+        }
+
+        // Check intersection with the right edge of the rectangle
+        x = rx + rw;
+        y = m * (x - x1) + y1;
+        if (y >= ry && y <= ry + rh && x >= left && x <= right)
+        {
+            return true;
+        }
+
+        // Check intersection with the top edge of the rectangle
+        y = ry;
+        x = (y - y1) / m + x1;
+        if (x >= rx && x <= rx + rw && y >= top && y <= bottom)
+        {
+            return true;
+        }
+
+        // Check intersection with the bottom edge of the rectangle
+        y = ry + rh;
+        x = (y - y1) / m + x1;
+        if (x >= rx && x <= rx + rw && y >= top && y <= bottom)
+        {
+            return true;
+        }
+
+        return false;
     }
 
     public Pin InsertPinAt(Vector2 pos0)

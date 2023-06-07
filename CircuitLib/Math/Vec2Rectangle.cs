@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Numerics;
 using System.Drawing;
 
-namespace CircuitLib.Math;
+namespace CircuitLib.IntMath;
 
 public struct Vec2Rectangle
 {

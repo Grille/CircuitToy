@@ -6,11 +6,11 @@ using System.Text;
 using System.Threading.Tasks;
 using CircuitLib.Interface.EditorActions;
 
-namespace CircuitLib.Interface.EditorTools;
+namespace CircuitLib.Interface.UserTools;
 
-public class ToolOnOff : EditorTool
+public class UserToolOnOff : UserActionHandler
 {
-    public ToolOnOff(CircuitEditor editor) : base(editor) { }
+    public UserToolOnOff(CircuitEditor editor) : base(editor) { }
 
 
     public override void MouseDown(EditorMouseArgs args)

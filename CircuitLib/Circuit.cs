@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using CircuitLib.Math;
+using CircuitLib.IntMath;
 using CircuitLib.Primitives;
 using System.Numerics;
 using GGL;

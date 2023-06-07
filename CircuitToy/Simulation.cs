@@ -175,16 +175,16 @@ internal class Simulation
     private void Target_MouseMove(object sender, MouseEventArgs e)
     {
         Camera.MouseMoveEvent((Vector2)(PointF)e.Location, e.Button.HasFlag(MouseButtons.Middle));
-        Editor.MouseMove(ConvertMouseArgs(e));
+        Editor.InvokeMouseMove(ConvertMouseArgs(e));
     }
 
     private void Target_MouseDown(object sender, MouseEventArgs e)
     {
-        Editor.MouseDown(ConvertMouseArgs(e));
+        Editor.InvokeMouseDown(ConvertMouseArgs(e));
     }
 
     private void Target_MouseUp(object sender, MouseEventArgs e)
     {
-        Editor.MouseUp(ConvertMouseArgs(e));
+        Editor.InvokeMouseUp(ConvertMouseArgs(e));
     }
 }

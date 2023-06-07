@@ -5,13 +5,13 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using CircuitLib.Interface.EditorActions;
-using CircuitLib.Math;
+using CircuitLib.IntMath;
 
-namespace CircuitLib.Interface.EditorTools;
+namespace CircuitLib.Interface.UserTools;
 
-public class ToolAddWire : EditorTool
+public class UserToolAddWire : UserActionHandler
 {
-    public ToolAddWire(CircuitEditor editor) : base(editor) { }
+    public UserToolAddWire(CircuitEditor editor) : base(editor) { }
 
     public bool Wireing = false;
     public bool Click = false;

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Numerics;
 using System.Reflection;
-using CircuitLib.Math;
+using CircuitLib.IntMath;
 using CircuitLib.Primitives;
 using GGL.IO;
 using System.IO;
